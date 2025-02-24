@@ -48,4 +48,8 @@ jobs:
               --env DB_PORT=5432 \
               ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
+            echo "Initializing database..."
+            sudo docker exec -i db psql -U postgres -d mydatabase < backend/init.sql
+            echo "Database initialization completed."
+
             echo "Deployment completed successfully!"
