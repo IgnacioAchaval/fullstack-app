@@ -17,8 +17,13 @@ const pool = new Pool({
 
 // Rutas API
 app.get("/users", async (req, res) => {
-  const { rows } = await pool.query("SELECT * FROM users");
-  res.json(rows);
+  try {
+    const { rows } = await pool.query("SELECT * FROM users");
+    res.json(rows);
+  } catch (error) {
+    console.error("Database error:", error.message);
+    res.status(500).json({ error: "Database connection failed" });
+  }
 });
 
 app.post("/users", async (req, res) => {
@@ -29,8 +34,4 @@ app.post("/users", async (req, res) => {
 
 app.listen(5000, "0.0.0.0", () => {
   console.log("Backend running on http://0.0.0.0:5000");
-});
-
-app.get("/users", (req, res) => {
-  res.json({ message: "Users endpoint working!" });
 });
