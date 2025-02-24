@@ -1,2 +1,2 @@
 # fullstack-app
-fullstack
+fullstack-app
