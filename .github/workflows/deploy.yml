@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Clonar el repositorio
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Configurar Docker
         run: |
@@ -22,7 +22,7 @@ jobs:
       
       - name: Construir y subir imagen Docker
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/fullstack-app .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/fullstack-app -f backend/Dockerfile backend
           docker push ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
       - name: Conectar a EC2 y desplegar
@@ -32,7 +32,20 @@ jobs:
           username: ${{ secrets.AWS_USER }}
           key: ${{ secrets.AWS_KEY }}
           script: |
+            echo "Stopping and removing existing container if it exists..."
             sudo docker stop fullstack-app || true
             sudo docker rm fullstack-app || true
+
+            echo "Pulling latest Docker image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/fullstack-app
-            sudo docker run -d -p 5000:5000 -p 3000:3000 --name fullstack-app ${{ secrets.DOCKER_USERNAME }}/fullstack-app
+
+            echo "Running new container..."
+            sudo docker run -d -p 5000:5000 -p 3000:3000 --name fullstack-app \
+              --env DB_HOST=db \
+              --env DB_USER=postgres \
+              --env DB_PASS=postgres \
+              --env DB_NAME=mydatabase \
+              --env DB_PORT=5432 \
+              ${{ secrets.DOCKER_USERNAME }}/fullstack-app
+
+            echo "Deployment completed successfully!"
