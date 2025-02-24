@@ -28,9 +28,12 @@ jobs:
           cd frontend
           npm install
 
+      - name: Debug Current Working Directory
+        run: pwd
+
       - name: Debug File Structure
         run: ls -R
-        
+
       - name: Build Docker Image (Fixed Path)
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/fullstack-app -f backend/Dockerfile backend
 
