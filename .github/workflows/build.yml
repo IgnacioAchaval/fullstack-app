@@ -1,0 +1,38 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v2
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v14
+        with:
+          node-version: 14
+
+      - name: Instalar dependencias backend
+        run: |
+          cd backend
+          npm install
+
+      - name: Instalar dependencias frontend
+        run: |
+          cd frontend
+          npm install
+
+      - name: Construir Docker Images
+        run: docker-compose build
+
+      - name: Subir imagen a DockerHub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker tag backend tuusuario/backend
+          docker push tuusuario/backend
