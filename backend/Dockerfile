@@ -1,18 +1,28 @@
-# Usamos una imagen oficial de Node.js
+# Use Node.js as base image
 FROM node:18
 
-# Definir el directorio de trabajo en el contenedor
+# Set working directory inside the container
 WORKDIR /app
 
-# Copiar package.json e instalar dependencias
-COPY package.json package-lock.json ./
-RUN npm install
+# Copy backend and frontend package files
+COPY backend/package.json backend/package-lock.json ./backend/
+COPY frontend/package.json frontend/package-lock.json ./frontend/
 
-# Copiar el resto del código
-COPY . .
+# Install backend dependencies
+RUN cd backend && npm install
 
-# Exponer el puerto 5000
-EXPOSE 5000
+# Install frontend dependencies and build the frontend
+RUN cd frontend && npm install && npm run build
 
-# Comando de inicio del servidor
-CMD ["node", "index.js"]
+# Copy backend and frontend code into the container
+COPY backend ./backend
+COPY frontend ./frontend
+
+# Install a lightweight HTTP server to serve the frontend
+RUN npm install -g serve
+
+# Expose ports for backend and frontend
+EXPOSE 5000 3000
+
+# Start both backend and frontend
+CMD cd backend && npm start & serve -s frontend/dist -l 3000
