@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0  # ✅ Ensures all files are pulled, including subdirectories
 
-      - name: Debug Directory Structure  # ✅ Step 3 Debugging
+      - name: Debug Directory Structure
         run: ls -R  # ✅ Lists all files and folders in the workspace
 
       - name: Set Up QEMU (for Multi-Arch Builds)
@@ -24,11 +24,11 @@ jobs:
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Construir y subir imagen Docker para ARM64 y AMD64
+      - name: Build and Push Multi-Arch Docker Image
         run: |
           docker buildx build --platform linux/arm64,linux/amd64 \
             -t ignacioachaval94/fullstack-app \
-            --push -f backend/Dockerfile .  # ✅ Step 3: Use `.` as build context
+            --push -f backend/Dockerfile .  # ✅ Use `.` as build context
 
       - name: Conectar a EC2 y desplegar
         uses: appleboy/ssh-action@v0.1.7
@@ -57,5 +57,4 @@ jobs:
             echo "Initializing database..."
             sudo docker exec -i db psql -U postgres -d mydatabase < backend/init.sql
             echo "Database initialization completed."
-
             echo "Deployment completed successfully!"

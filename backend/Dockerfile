@@ -4,9 +4,9 @@ FROM node:18
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy backend and frontend package files
-COPY backend/package.json backend/package-lock.json ./backend/
-COPY frontend/package.json frontend/package-lock.json ./frontend/
+# Copy package files for both frontend and backend
+COPY backend/package.json backend/package-lock.json backend/
+COPY frontend/package.json frontend/package-lock.json frontend/
 
 # Install backend dependencies
 RUN cd backend && npm install
@@ -14,9 +14,9 @@ RUN cd backend && npm install
 # Install frontend dependencies and build the frontend
 RUN cd frontend && npm install && npm run build
 
-# Copy backend and frontend code into the container
-COPY backend ./backend
-COPY frontend ./frontend
+# Copy full backend and frontend directories
+COPY backend backend/
+COPY frontend frontend/
 
 # Install a lightweight HTTP server to serve the frontend
 RUN npm install -g serve

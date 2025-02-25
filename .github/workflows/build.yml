@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # ✅ Ensures all files are pulled, including subdirectories
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -35,7 +37,7 @@ jobs:
         run: ls -R
 
       - name: Build Docker Image (Fixed Path)
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/fullstack-app -f backend/Dockerfile backend
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/fullstack-app -f backend/Dockerfile .  # ✅ Use `.` as build context
 
       - name: Push Docker Image to DockerHub
         run: |
