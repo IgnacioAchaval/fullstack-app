@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Clonar el repositorio
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # ✅ Ensures all files are pulled, including subdirectories
+
+      - name: Debug Directory Structure  # ✅ Step 3 Debugging
+        run: ls -R  # ✅ Lists all files and folders in the workspace
 
       - name: Set Up QEMU (for Multi-Arch Builds)
         uses: docker/setup-qemu-action@v2
@@ -23,7 +28,7 @@ jobs:
         run: |
           docker buildx build --platform linux/arm64,linux/amd64 \
             -t ignacioachaval94/fullstack-app \
-            --push -f backend/Dockerfile .  # ✅ UPDATED: Use `.` as build context
+            --push -f backend/Dockerfile .  # ✅ Step 3: Use `.` as build context
 
       - name: Conectar a EC2 y desplegar
         uses: appleboy/ssh-action@v0.1.7
