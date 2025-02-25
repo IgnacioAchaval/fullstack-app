@@ -8,15 +8,18 @@ WORKDIR /app
 COPY backend/package.json backend/package-lock.json backend/
 COPY frontend/package.json frontend/package-lock.json frontend/
 
-# Install backend dependencies
+# Install backend dependencies first (to cache them separately)
 RUN cd backend && npm install
 
-# Install frontend dependencies and build the frontend
-RUN cd frontend && npm install && npm run build
+# Install frontend dependencies
+RUN cd frontend && npm install
 
-# Copy full backend and frontend directories
+# Now copy the full backend and frontend directories
 COPY backend backend/
 COPY frontend frontend/
+
+# Build the frontend (ensures `index.html` exists before running build)
+RUN cd frontend && npm run build
 
 # Install a lightweight HTTP server to serve the frontend
 RUN npm install -g serve
@@ -25,4 +28,4 @@ RUN npm install -g serve
 EXPOSE 5000 3000
 
 # Start both backend and frontend
-CMD cd backend && npm start & serve -s frontend/dist -l 3000
+CMD sh -c "cd backend && npm start & serve -s frontend/dist -l 3000"
