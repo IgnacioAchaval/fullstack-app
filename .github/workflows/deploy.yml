@@ -24,6 +24,18 @@ jobs:
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      # ✅ Ensure we log in to DockerHub before building & pushing
+      - name: Log out from DockerHub (if needed)
+        run: docker logout || true
+
+      - name: Log in to DockerHub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # ✅ Verify login before building
+      - name: Verify DockerHub Login
+        run: docker info
+
       - name: Build and Push Multi-Arch Docker Image
         run: |
           docker buildx build --platform linux/arm64,linux/amd64 \
@@ -55,5 +67,6 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
             echo "Initializing database..."
-            sudo docker exec -i db psql -U postgres -d mydatabase < backend/init.sql || echo "Database init failed"
+            sudo docker exec -i db psql -U postgres -d mydatabase < backend/init.sql
+            echo "Database initialization completed."
             echo "Deployment completed successfully!"
