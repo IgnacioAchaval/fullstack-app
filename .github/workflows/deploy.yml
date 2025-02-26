@@ -13,17 +13,13 @@ jobs:
       - name: Clonar el repositorio
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # ✅ Ensures all files are pulled, including subdirectories
+          fetch-depth: 0
 
       - name: Debug Directory Structure
-        run: ls -R  # ✅ Lists all files and folders in the workspace
+        run: ls -R
 
       - name: Log in to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Pull latest Docker image
-        run: |
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
       - name: Conectar a EC2 y desplegar
         uses: appleboy/ssh-action@v0.1.7
@@ -36,11 +32,14 @@ jobs:
             sudo docker stop fullstack-app || true
             sudo docker rm fullstack-app || true
 
+            echo "Creating Docker network if not exists..."
+            sudo docker network create fullstack-net || true
+
             echo "Pulling latest Docker image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
             echo "Running new container..."
-            sudo docker run -d -p 5000:5000 -p 3000:3000 --name fullstack-app \
+            sudo docker run --platform linux/arm64 -d -p 5000:5000 -p 3000:3000 --name fullstack-app \
               --network fullstack-net \
               --env DB_HOST=db \
               --env DB_USER=postgres \
@@ -49,7 +48,10 @@ jobs:
               --env DB_PORT=5432 \
               ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
+            echo "Waiting for database to be ready..."
+            sleep 10
+
             echo "Initializing database..."
-            sudo docker exec -i db psql -U postgres -d mydatabase < backend/init.sql
-            echo "Database initialization completed."
+            sudo docker exec -i fullstack-app psql -U postgres -d mydatabase -f /app/backend/init.sql || echo "Database initialization failed!"
+
             echo "Deployment completed successfully!"
