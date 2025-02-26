@@ -13,10 +13,10 @@ jobs:
       - name: Clone Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # ✅ Ensures all files are pulled, including subdirectories
+          fetch-depth: 0
 
       - name: Debug Directory Structure
-        run: ls -R  # ✅ Lists all files and folders in the workspace
+        run: ls -R
 
       - name: Set Up QEMU (for Multi-Arch Builds)
         uses: docker/setup-qemu-action@v2
@@ -24,17 +24,8 @@ jobs:
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # ✅ Ensure we log in to DockerHub before building & pushing
-      - name: Log out from DockerHub (if needed)
-        run: docker logout || true
-
       - name: Log in to DockerHub
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      # ✅ Verify login before building
-      - name: Verify DockerHub Login
-        run: docker info
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build and Push Multi-Arch Docker Image
         run: |
@@ -56,17 +47,13 @@ jobs:
             echo "Pulling latest Docker image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
-            echo "Running new container..."
-            sudo docker run -d -p 5000:5000 -p 3000:3000 --name fullstack-app \
-              --network fullstack-net \
-              --env DB_HOST=db \
-              --env DB_USER=postgres \
-              --env DB_PASS=postgres \
-              --env DB_NAME=mydatabase \
-              --env DB_PORT=5432 \
+            echo "Running new container with host networking..."
+            sudo docker run -d --network host --name fullstack-app \
+              --env DB_HOST=${{ secrets.DB_HOST }} \
+              --env DB_USER=${{ secrets.DB_USER }} \
+              --env DB_PASS=${{ secrets.DB_PASS }} \
+              --env DB_NAME=${{ secrets.DB_NAME }} \
+              --env DB_PORT=${{ secrets.DB_PORT }} \
               ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
-            echo "Initializing database..."
-            sudo docker exec -i db psql -U postgres -d mydatabase < backend/init.sql
-            echo "Database initialization completed."
             echo "Deployment completed successfully!"
