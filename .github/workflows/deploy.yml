@@ -18,17 +18,12 @@ jobs:
       - name: Debug Directory Structure
         run: ls -R  # ✅ Lists all files and folders in the workspace
 
-      - name: Set Up QEMU (for Multi-Arch Builds)
-        uses: docker/setup-qemu-action@v2
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Set Up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and Push Multi-Arch Docker Image
+      - name: Pull latest Docker image
         run: |
-          docker buildx build --platform linux/arm64,linux/amd64 \
-            -t ignacioachaval94/fullstack-app \
-            --push -f backend/Dockerfile .  # ✅ Use `.` as build context
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
       - name: Conectar a EC2 y desplegar
         uses: appleboy/ssh-action@v0.1.7
@@ -42,7 +37,7 @@ jobs:
             sudo docker rm fullstack-app || true
 
             echo "Pulling latest Docker image..."
-            sudo docker pull ignacioachaval94/fullstack-app
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
             echo "Running new container..."
             sudo docker run -d -p 5000:5000 -p 3000:3000 --name fullstack-app \
@@ -52,7 +47,7 @@ jobs:
               --env DB_PASS=postgres \
               --env DB_NAME=mydatabase \
               --env DB_PORT=5432 \
-              ignacioachaval94/fullstack-app
+              ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
             echo "Initializing database..."
             sudo docker exec -i db psql -U postgres -d mydatabase < backend/init.sql
