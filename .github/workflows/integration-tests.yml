@@ -35,4 +35,4 @@ jobs:
         run: |
           npx codeceptjs run --steps --config backend/codecept.conf.js
         env:
-          BASE_URL: http://3.142.172.92 # or your actual IP
+          BASE_URL: http://3.142.172.92:3000 # or your actual IP
