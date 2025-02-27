@@ -13,26 +13,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Clonar repo
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. Setup Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      # 3. Instalar dependencias CodeceptJS (y otras si deseas)
       - name: Install Deps
         run: |
           npm install codeceptjs playwright
-          # ↪ Other dependencies
+          # ... otras dependencias globales
 
-      # ⭐ Install browsers for Playwright
+      # 4. Instalar navegadores Playwright
       - name: Install Playwright Browsers
         run: |
           npx playwright install --with-deps
 
+      # (Nuevo) Correr tests de unidad del backend
+      - name: Run Backend Unit Tests
+        run: |
+          cd backend
+          npm install
+          npm test  # genera la carpeta "coverage/" en backend/
+
+      # (Nuevo) Subir artifact de coverage
+      - name: Upload coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-coverage
+          path: backend/coverage  # sube la carpeta coverage como artifact
+
+      # 5. Correr tests de integración (CodeceptJS)
       - name: Run Integration Tests
         run: |
           npx codeceptjs run --steps --config backend/codecept.conf.js
         env:
-          BASE_URL: http://3.142.172.92:3000 # or your actual IP
+          BASE_URL: http://3.142.172.92:3000
