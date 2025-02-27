@@ -32,6 +32,6 @@ jobs:
       # 4️⃣ Correr CodeceptJS apuntando a tu IP de AWS
       - name: Run Integration Tests
         run: |
-          npx codeceptjs run --steps
+          npx codeceptjs run --steps --config backend/codecept.conf.js
         env:
           BASE_URL: http://3.142.172.92 # Reemplaza con la IP o dominio de tu EC2
