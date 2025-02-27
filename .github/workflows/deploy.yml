@@ -57,3 +57,18 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/fullstack-app
 
             echo "Deployment completed successfully!"
+
+
+      # (Nuevo) Step: Correr tests de integración CodeceptJS
+      - name: Run CodeceptJS Integration Tests
+        run: |
+          # 1. Instalar CodeceptJS y Playwright en el runner
+          npm install codeceptjs playwright
+
+          # 2. Instalar navegadores
+          npx playwright install --with-deps
+
+          # 3. Ejecutar CodeceptJS apuntando a la IP pública de tu EC2 (frontend => 3000, backend => 5000)
+          npx codeceptjs run --steps
+        env:
+          BASE_URL: http://3.142.172.92:3000   # ajusta IP/puerto según tu app
