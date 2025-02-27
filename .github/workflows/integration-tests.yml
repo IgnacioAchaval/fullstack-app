@@ -17,30 +17,47 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup Node.js
+      # 2️⃣ Upgrade to Node.js 20 (Required by some dependencies)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       # 3️⃣ Install Backend Dependencies
       - name: Install Backend Dependencies
         run: |
           cd backend
-          npm install
+          npm install --legacy-peer-deps
 
       # 4️⃣ Install Frontend Dependencies
       - name: Install Frontend Dependencies
         run: |
           cd frontend
-          npm install
+          npm install --legacy-peer-deps
 
       # 5️⃣ Install Playwright Browsers (for Integration Tests)
       - name: Install Playwright Browsers
         run: |
           npx playwright install --with-deps
 
-      # 6️⃣ Run Integration Tests (CodeceptJS)
+      # 6️⃣ Run Backend Unit Tests
+      - name: Run Backend Unit Tests
+        run: |
+          cd backend
+          npm test
+
+      # 7️⃣ Run Frontend Unit Tests
+      - name: Run Frontend Unit Tests
+        run: |
+          cd frontend
+          npm test
+
+      # 8️⃣ Ensure CodeceptJS & Playwright are Installed
+      - name: Install CodeceptJS & Playwright
+        run: |
+          npm install -g codeceptjs playwright
+
+      # 9️⃣ Run Integration Tests (CodeceptJS)
       - name: Run Integration Tests
         run: |
           npx codeceptjs run --steps --config backend/codecept.conf.js
