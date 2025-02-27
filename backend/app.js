@@ -1,3 +1,4 @@
+// app.js
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -7,7 +8,6 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const PORT = process.env.PORT || 5000;
 const DB_CONFIG = {
   user: process.env.DB_USER || "postgres",
   host: process.env.DB_HOST || "localhost",
@@ -16,15 +16,15 @@ const DB_CONFIG = {
   port: process.env.DB_PORT || 5432,
 };
 
-console.log("Database Config:", DB_CONFIG); // Debugging info
+console.log("Database Config:", DB_CONFIG); // For debugging
 
-const pool = new Pool(DB_CONFIG);
+const pool = new (require("pg").Pool)(DB_CONFIG);
 
+// Example routes:
 app.get("/", (req, res) => {
   res.send("Backend is running! 🚀");
 });
 
-// Users API
 app.get("/users", async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM users");
@@ -46,5 +46,5 @@ app.post("/users", async (req, res) => {
   }
 });
 
-// Export the app WITHOUT starting the server
+// Export ONLY the Express "app" instance (no .listen())
 module.exports = app;
