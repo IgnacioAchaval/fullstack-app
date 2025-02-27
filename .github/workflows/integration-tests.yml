@@ -1,0 +1,37 @@
+name: Integration Tests
+
+# Corre cuando se hace push a main o tras un pull request
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  integration_tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1️⃣ Clonar el repositorio
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2️⃣ Instalar Node
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 3️⃣ Instalar dependencias CodeceptJS (y cualquier otra para tus tests)
+      - name: Install Deps
+        run: |
+          npm install codeceptjs playwright 
+      
+      # 4️⃣ Correr CodeceptJS apuntando a tu IP de AWS
+      - name: Run Integration Tests
+        run: |
+          npx codeceptjs run --steps
+        env:
+          BASE_URL: http://3.142.172.92 # Reemplaza con la IP o dominio de tu EC2

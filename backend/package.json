@@ -15,5 +15,9 @@
     "express": "^4.21.2",
     "pg": "^8.13.3"
   },
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "codeceptjs": "^3.7.2",
+    "playwright": "^1.50.1"
+  }
 }
