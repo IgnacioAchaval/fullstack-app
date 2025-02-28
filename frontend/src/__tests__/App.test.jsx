@@ -3,7 +3,8 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import App from "../App";
 
-test("renders Usuarios title", () => {
+test("renders main Usuarios title", () => {
   render(<App />);
-  expect(screen.getByText(/Usuarios/i)).toBeInTheDocument();
+  const titleElement = screen.getByRole("heading", { level: 1, name: /Usuarios/i });
+  expect(titleElement).toBeInTheDocument();
 });
