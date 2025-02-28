@@ -10,13 +10,13 @@ app.use(cors());
 const PORT = process.env.PORT || 5000;
 const DB_CONFIG = {
   user: process.env.DB_USER || "postgres",
-  host: process.env.DB_HOST || "localhost",
+  host: process.env.DB_HOST || "localhost", // Ensure localhost works for GH Actions
   database: process.env.DB_NAME || "mydatabase",
   password: process.env.DB_PASS || "postgres",
   port: process.env.DB_PORT || 5432,
 };
 
-console.log("Database Config:", DB_CONFIG); // Debugging info
+console.log("Database Config:", DB_CONFIG);
 
 const pool = new Pool(DB_CONFIG);
 
@@ -24,7 +24,6 @@ app.get("/", (req, res) => {
   res.send("Backend is running! 🚀");
 });
 
-// Users API
 app.get("/users", async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM users");
@@ -46,5 +45,12 @@ app.post("/users", async (req, res) => {
   }
 });
 
-// Export the app WITHOUT starting the server
-module.exports = app;
+// Only start the server if not in test mode
+if (process.env.NODE_ENV !== "test") {
+  const server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Backend running on http://0.0.0.0:${PORT}`);
+  });
+  module.exports = { app, server };
+} else {
+  module.exports = { app };
+}
