@@ -11,6 +11,20 @@ on:
 jobs:
   integration_tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mydatabase
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       # 1️⃣ Clone Repository
@@ -40,8 +54,22 @@ jobs:
         run: |
           npx playwright install --with-deps
 
+      # 5.5️⃣ Wait for PostgreSQL to be ready
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h 127.0.0.1 -p 5432; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+
       # 6️⃣ Run Backend Unit Tests
       - name: Run Backend Unit Tests
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASS: postgres
+          DB_NAME: mydatabase
         run: |
           cd backend
           npm test
