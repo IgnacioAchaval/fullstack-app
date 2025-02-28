@@ -21,7 +21,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Usuarios</h1>
+      <h1>Usuarios2</h1>
       <div className="form">
         <div className="form-group">
           <label>Nombre</label>
