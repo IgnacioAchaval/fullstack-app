@@ -45,12 +45,12 @@ app.post("/users", async (req, res) => {
   }
 });
 
-// Only start the server if not in test mode
-if (process.env.NODE_ENV !== "test") {
-  const server = app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Backend running on http://0.0.0.0:${PORT}`);
-  });
-  module.exports = { app, server };
-} else {
-  module.exports = { app };
-}
+// Start server only if it's not running tests
+const server = process.env.NODE_ENV !== "test"
+  ? app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Backend running on http://0.0.0.0:${PORT}`);
+    })
+  : null;
+
+// Always export both app and server (server may be null in test mode)
+module.exports = { app, server };
