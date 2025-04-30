@@ -2,8 +2,15 @@ import '@jest/globals';
 import dotenv from 'dotenv';
 import { Pool } from 'pg';
 
-// Load environment variables from .env.test file
-dotenv.config({ path: '.env.test' });
+// Load environment variables from .env.test file if it exists
+try {
+  dotenv.config({ path: '.env.test' });
+} catch (error) {
+  // Set default test environment variables
+  process.env.NODE_ENV = 'test';
+  process.env.PORT = '3001';
+  process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/taskmanager_test';
+}
 
 // Set default timeout for all tests
 jest.setTimeout(10000);
