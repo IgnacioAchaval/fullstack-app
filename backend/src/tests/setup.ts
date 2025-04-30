@@ -1,4 +1,4 @@
-import '@jest/globals';
+import { jest, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import dotenv from 'dotenv';
 import { Pool } from 'pg';
 
