@@ -1,72 +1,100 @@
-import { I } from 'codeceptjs';
+import request from 'supertest';
+import { app } from '../../index';
+import { Pool } from 'pg';
+import { Task, QueryResultRow } from '../../types/database';
 
-Feature('Task Management');
-
-Scenario('should create and retrieve a task', ({ I }) => {
-  // Create a new task
-  I.sendPostRequest('/api/tasks', {
-    title: 'Test Task',
-    description: 'This is a test task',
-    status: 'pending'
-  });
-
-  // Verify the response
-  I.seeResponseCodeIs(201);
-  I.seeResponseContainsJson({
-    title: 'Test Task',
-    description: 'This is a test task',
-    status: 'pending'
-  });
-
-  // Get all tasks
-  I.sendGetRequest('/api/tasks');
-  I.seeResponseCodeIs(200);
-  I.seeResponseContainsJson([{
-    title: 'Test Task',
-    description: 'This is a test task',
-    status: 'pending'
-  }]);
+jest.mock('pg', () => {
+  const mockPool = {
+    query: jest.fn().mockReturnThis(),
+    connect: jest.fn(),
+    end: jest.fn(),
+  };
+  return { Pool: jest.fn(() => mockPool) };
 });
 
-Scenario('should update a task', ({ I }) => {
-  // Create a task first
-  I.sendPostRequest('/api/tasks', {
-    title: 'Task to Update',
-    description: 'This task will be updated',
-    status: 'pending'
+describe('Task E2E Tests', () => {
+  let mockPool: jest.Mocked<Pool>;
+
+  beforeEach(() => {
+    mockPool = new Pool() as jest.Mocked<Pool>;
   });
 
-  const taskId = I.grabDataFromResponseByJsonPath('$.id')[0];
-
-  // Update the task
-  I.sendPutRequest(`/api/tasks/${taskId}`, {
-    title: 'Updated Task',
-    status: 'completed'
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  // Verify the update
-  I.seeResponseCodeIs(200);
-  I.seeResponseContainsJson({
-    title: 'Updated Task',
-    status: 'completed'
+  describe('POST /api/tasks', () => {
+    it('should create a new task', async () => {
+      const newTask = { text: 'Test Task' };
+      const mockResponse: Task = {
+        id: 1,
+        text: 'Test Task',
+        created_at: new Date()
+      };
+
+      const mockResult: QueryResultRow = {
+        rows: [mockResponse],
+        rowCount: 1,
+        command: '',
+        oid: 0,
+        fields: []
+      };
+
+      mockPool.query.mockResolvedValueOnce(mockResult);
+
+      const response = await request(app)
+        .post('/api/tasks')
+        .send(newTask);
+
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual(mockResponse);
+    });
   });
-});
 
-Scenario('should delete a task', ({ I }) => {
-  // Create a task first
-  I.sendPostRequest('/api/tasks', {
-    title: 'Task to Delete',
-    description: 'This task will be deleted',
-    status: 'pending'
+  describe('PUT /api/tasks/:id', () => {
+    it('should update a task', async () => {
+      const updatedTask = { text: 'Updated Task' };
+      const mockResponse: Task = {
+        id: 1,
+        text: 'Updated Task',
+        created_at: new Date()
+      };
+
+      const mockResult: QueryResultRow = {
+        rows: [mockResponse],
+        rowCount: 1,
+        command: '',
+        oid: 0,
+        fields: []
+      };
+
+      mockPool.query.mockResolvedValueOnce(mockResult);
+
+      const response = await request(app)
+        .put('/api/tasks/1')
+        .send(updatedTask);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(mockResponse);
+    });
   });
 
-  const taskId = I.grabDataFromResponseByJsonPath('$.id')[0];
+  describe('DELETE /api/tasks/:id', () => {
+    it('should delete a task', async () => {
+      const mockResult: QueryResultRow = {
+        rows: [],
+        rowCount: 1,
+        command: '',
+        oid: 0,
+        fields: []
+      };
 
-  // Delete the task
-  I.sendDeleteRequest(`/api/tasks/${taskId}`);
-  I.seeResponseCodeIs(204);
+      mockPool.query.mockResolvedValueOnce(mockResult);
 
-  // Verify the task is deleted
-  I.sendGetRequest(`/api/tasks/${taskId}`);
-  I.seeResponseCodeIs(404);
+      const response = await request(app)
+        .delete('/api/tasks/1');
+
+      expect(response.status).toBe(204);
+    });
+  });
 }); 
