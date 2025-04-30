@@ -1,4 +1,3 @@
-import { jest, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import dotenv from 'dotenv';
 import { Pool } from 'pg';
 
@@ -31,12 +30,12 @@ jest.mock('pg', () => {
 });
 
 // Global test setup
-beforeAll(() => {
+beforeAll(async () => {
   // Add any global setup here
 });
 
 // Global test teardown
-afterAll(() => {
+afterAll(async () => {
   // Add any global cleanup here
 });
 
