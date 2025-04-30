@@ -1,5 +1,3 @@
-import { QueryResult } from 'pg';
-
 export interface Task {
   id: number;
   title: string;
@@ -21,15 +19,8 @@ export interface UpdateTaskDTO {
   completed?: boolean;
 }
 
-export interface TaskQueryParams {
-  completed?: boolean;
-  search?: string;
-  page?: number;
-  limit?: number;
-}
-
-export interface DatabaseError extends Error {
-  code?: string;
-}
-
-export type TaskQueryResult = QueryResult<Task>; 
+export interface ApiResponse<T> {
+  status: 'success' | 'error';
+  message: string;
+  data?: T;
+} 
