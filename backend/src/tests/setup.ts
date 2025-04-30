@@ -1,3 +1,4 @@
+import type { Config } from '@jest/types';
 import dotenv from 'dotenv';
 import { Pool } from 'pg';
 
@@ -30,16 +31,16 @@ jest.mock('pg', () => {
 });
 
 // Global test setup
-beforeAll(async () => {
+global.beforeAll(async () => {
   // Add any global setup here
 });
 
 // Global test teardown
-afterAll(async () => {
+global.afterAll(async () => {
   // Add any global cleanup here
 });
 
 // Reset all mocks before each test
-beforeEach(() => {
+global.beforeEach(() => {
   jest.clearAllMocks();
 }); 

@@ -6,11 +6,12 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
     '^.+\\.ts$': ['ts-jest', {
-      tsconfig: '<rootDir>/tsconfig.json'
+      tsconfig: '<rootDir>/tsconfig.json',
+      useESM: false
     }]
   },
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-  setupFiles: ['<rootDir>/../src/tests/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/../src/tests/setup.ts'],
   verbose: true,
   collectCoverageFrom: [
     'src/**/*.ts',
@@ -22,10 +23,5 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/../src/$1'
-  },
-  globals: {
-    'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.json'
-    }
   }
 }; 
