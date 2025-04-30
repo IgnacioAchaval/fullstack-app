@@ -4,18 +4,20 @@ FROM node:20-alpine
 # Create app directory
 WORKDIR /usr/src/app
 
-# Install app dependencies
+# Copy package files
 COPY package*.json ./
+
+# Install dependencies
 RUN npm ci
 
-# Copy app source
+# Copy source code and config files
 COPY . .
 
 # Build TypeScript code
 RUN npm run build
 
 # Expose port
-EXPOSE 3001
+EXPOSE 3000
 
 # Start the application
 CMD ["npm", "start"]
