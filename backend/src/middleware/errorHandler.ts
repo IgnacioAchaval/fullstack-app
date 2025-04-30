@@ -1,37 +1,49 @@
 import { Request, Response, NextFunction } from 'express';
 
-export class AppError extends Error {
-  statusCode: number;
-  status: string;
-  isOperational: boolean;
-
-  constructor(message: string, statusCode: number) {
+// Custom error class for API errors
+export class ApiError extends Error {
+  constructor(
+    public statusCode: number,
+    public message: string,
+    public isOperational = true
+  ) {
     super(message);
-    this.statusCode = statusCode;
-    this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
-    this.isOperational = true;
-
-    Error.captureStackTrace(this, this.constructor);
+    Object.setPrototypeOf(this, ApiError.prototype);
   }
 }
 
+// Error handler middleware
 export const errorHandler = (
-  err: Error | AppError,
+  err: Error | ApiError,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  if (err instanceof AppError) {
-    return res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-  }
+  // Default error values
+  const statusCode = err instanceof ApiError ? err.statusCode : 500;
+  const message = err.message || 'Internal Server Error';
+  const isOperational = err instanceof ApiError ? err.isOperational : false;
 
-  // Programming or other unknown error
-  console.error('ERROR 💥', err);
-  return res.status(500).json({
-    status: 'error',
-    message: 'Something went wrong',
+  // Log error details
+  console.error('Error:', {
+    statusCode,
+    message,
+    stack: err.stack,
+    isOperational,
+    path: req.path,
+    method: req.method,
   });
+
+  // Send error response
+  res.status(statusCode).json({
+    status: 'error',
+    statusCode,
+    message,
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+  });
+};
+
+// Not found middleware
+export const notFound = (req: Request, res: Response, next: NextFunction) => {
+  next(new ApiError(404, `Not Found - ${req.originalUrl}`));
 }; 

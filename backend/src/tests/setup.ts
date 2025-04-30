@@ -1,6 +1,7 @@
 import type { Config } from '@jest/types';
 import dotenv from 'dotenv';
 import { Pool } from 'pg';
+import { jest } from '@jest/globals';
 
 // Load environment variables from .env.test file if it exists
 try {
@@ -31,12 +32,12 @@ jest.mock('pg', () => {
 });
 
 // Global test setup
-global.beforeAll(async () => {
+beforeAll(() => {
   // Add any global setup here
 });
 
 // Global test teardown
-global.afterAll(async () => {
+afterAll(() => {
   // Add any global cleanup here
 });
 

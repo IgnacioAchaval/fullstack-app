@@ -1,40 +1,36 @@
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
-import { Pool } from 'pg';
 import { taskRoutes } from './routes/taskRoutes';
 import { errorHandler } from './middleware/errorHandler';
+import config from './config/app';
+import './config/database'; // Initialize database connection
 
-const app = express();
-const port = process.env.PORT || 3001;
+// Create Express application
+const app: Express = express();
 
-// Database connection
-export const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'todos',
-  password: process.env.DB_PASSWORD || 'postgres',
-  port: parseInt(process.env.DB_PORT || '5432'),
-});
-
-// Middleware
-app.use(cors());
+// Apply middleware
+app.use(cors(config.cors));
 app.use(express.json());
 
-// Routes
+// Apply routes
 app.use('/api/tasks', taskRoutes);
 
-// Health check
+// Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: config.env
+  });
 });
 
-// Error handling
+// Error handling middleware
 app.use(errorHandler);
 
-// Start server
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+// Start server if not in test environment
+if (config.env !== 'test') {
+  app.listen(config.port, () => {
+    console.log(`Server is running in ${config.env} mode on port ${config.port}`);
   });
 }
 
