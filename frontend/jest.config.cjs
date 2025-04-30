@@ -1,24 +1,29 @@
 // frontend/jest.config.cjs
 module.exports = {
+  preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['./jest.setup.js'],
-  transform: {
-    '^.+\\.[jt]sx?$': ['babel-jest', { configFile: './babel.config.cjs' }]
-  },
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
+    '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
+    '^@/(.*)$': '<rootDir>/src/$1'
   },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(@vitejs|vite)/)'
-  ],
-  moduleFileExtensions: ['js', 'jsx', 'json'],
-  testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)'
-  ],
-  testEnvironmentOptions: {
-    customExportConditions: ['node', 'node-addons']
+  transform: {
+    '^.+\\.(ts|tsx)$': ['ts-jest', {
+      tsconfig: 'tsconfig.json'
+    }]
   },
-  extensionsToTreatAsEsm: ['.jsx']
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  testMatch: ['**/__tests__/**/*.test.(ts|tsx)'],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/main.tsx',
+    '!src/vite-env.d.ts'
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  }
 };
