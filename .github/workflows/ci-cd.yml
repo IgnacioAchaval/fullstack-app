@@ -71,6 +71,14 @@ jobs:
         npm ci
         npm list --depth=0
 
+    - name: Verify backend test setup
+      working-directory: ./backend
+      run: |
+        echo "Checking test setup file:"
+        ls -la src/tests/setup.ts
+        echo "Checking Jest config:"
+        cat config/jest.config.js
+
     - name: Run backend tests
       working-directory: ./backend
       run: |

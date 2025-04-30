@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { Pool } from 'pg';
 
 // Load environment variables from .env.test file
 dotenv.config({ path: '.env.test' });
@@ -7,4 +8,31 @@ dotenv.config({ path: '.env.test' });
 jest.setTimeout(10000);
 
 // Mock console.error to keep test output clean
-global.console.error = jest.fn(); 
+global.console.error = jest.fn();
+
+// Mock the pg Pool
+jest.mock('pg', () => {
+  const mockPool = {
+    query: jest.fn(),
+    connect: jest.fn(),
+    end: jest.fn(),
+  };
+  return {
+    Pool: jest.fn(() => mockPool),
+  };
+});
+
+// Global test setup
+beforeAll(() => {
+  // Add any global setup here
+});
+
+// Global test teardown
+afterAll(() => {
+  // Add any global cleanup here
+});
+
+// Reset all mocks before each test
+beforeEach(() => {
+  jest.clearAllMocks();
+}); 
