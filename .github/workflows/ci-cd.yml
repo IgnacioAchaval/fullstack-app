@@ -143,10 +143,6 @@ jobs:
             sudo systemctl start docker
           fi
           
-          # Add user to docker group
-          sudo usermod -aG docker $USER
-          newgrp docker
-          
           # Install docker-compose if not present
           if ! command -v docker-compose &> /dev/null; then
             sudo apt-get update
@@ -193,6 +189,6 @@ jobs:
           # Set proper permissions
           sudo chown $USER:$USER docker-compose.yml
           
-          # Pull latest images and start containers
-          docker-compose pull
-          docker-compose up -d
+          # Pull latest images and start containers using sudo
+          sudo docker-compose pull
+          sudo docker-compose up -d
