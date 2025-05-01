@@ -93,11 +93,14 @@ jobs:
 
   build-and-push:
     needs: test
-    runs-on: ["self-hosted", "linux", "arm64"]
+    runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -112,7 +115,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./backend
-        platforms: linux/arm64
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/task-manager-backend:latest
 
@@ -120,7 +123,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./frontend
-        platforms: linux/arm64
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/task-manager-frontend:latest
 
