@@ -93,7 +93,7 @@ jobs:
 
   build-and-push:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ["self-hosted", "linux", "arm64"]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
@@ -112,6 +112,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./backend
+        platforms: linux/arm64
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/task-manager-backend:latest
 
@@ -119,6 +120,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./frontend
+        platforms: linux/arm64
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/task-manager-frontend:latest
 
