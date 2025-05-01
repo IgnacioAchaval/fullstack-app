@@ -135,22 +135,22 @@ jobs:
         username: ${{ secrets.AWS_USER }}
         key: ${{ secrets.AWS_KEY }}
         script: |
-          # Create application directory if it doesn't exist
-          sudo mkdir -p /home/ec2-user/task-manager
-          sudo chown ec2-user:ec2-user /home/ec2-user/task-manager
+          # Create application directory
+          sudo mkdir -p /opt/task-manager
+          sudo chown $USER:$USER /opt/task-manager
           
           # Install docker-compose if not present
           if ! command -v docker-compose &> /dev/null; then
-            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
+            sudo apt-get update
+            sudo apt-get install -y docker-compose-plugin
+            sudo ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
           fi
           
           # Navigate to application directory
-          cd /home/ec2-user/task-manager
+          cd /opt/task-manager
           
-          # Create docker-compose.yml if it doesn't exist
-          if [ ! -f docker-compose.yml ]; then
-            cat > docker-compose.yml << 'EOL'
+          # Create docker-compose.yml
+          sudo tee docker-compose.yml << 'EOL'
           version: '3.8'
           services:
             backend:
@@ -178,7 +178,9 @@ jobs:
           volumes:
             postgres_data:
           EOL
-          fi
+          
+          # Set proper permissions
+          sudo chown $USER:$USER docker-compose.yml
           
           # Pull latest images and start containers
           docker-compose pull
