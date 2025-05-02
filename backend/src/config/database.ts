@@ -16,13 +16,23 @@ const dbConfig: PoolConfig = {
 export const pool = new Pool(dbConfig);
 
 // Test the connection
-pool.on('connect', () => {
-  console.log('Database connected successfully');
-});
+const testConnection = async () => {
+  try {
+    const client = await pool.connect();
+    console.log('Database connected successfully');
+    client.release();
+  } catch (err) {
+    console.error('Error connecting to the database:', err);
+    // Don't exit in test environment
+    if (process.env.NODE_ENV !== 'test') {
+      process.exit(-1);
+    }
+  }
+};
 
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
-});
+// Only test connection if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  testConnection();
+}
 
 export default pool; 
