@@ -1,15 +1,19 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
     "esModuleInterop": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "allowJs": true,
-    "noEmit": true,
-    "isolatedModules": false,
-    "types": ["jest", "@testing-library/jest-dom", "node"]
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "types": ["jest", "node", "vite/client"]
   },
-  "include": ["../src/**/*"],
-  "exclude": ["node_modules"]
+  "include": [
+    "../src/**/*.ts",
+    "../src/**/*.tsx",
+    "../src/**/*.test.ts",
+    "../src/**/*.test.tsx",
+    "../src/setupTests.ts"
+  ]
 } 
