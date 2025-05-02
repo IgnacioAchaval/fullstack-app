@@ -7,6 +7,7 @@ function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState({ title: '', description: '' });
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetchTasks();
@@ -15,11 +16,30 @@ function App() {
   const fetchTasks = async () => {
     try {
       setError(null);
-      const response = await axios.get(`${API_URL}/api/tasks`);
+      setIsLoading(true);
+      console.log('Fetching tasks from:', `${API_URL}/tasks`);
+      const response = await axios.get(`${API_URL}/tasks`);
+      console.log('Tasks response:', response.data);
       setTasks(response.data.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
-      setError('Failed to fetch tasks. Please try again later.');
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            headers: error.config?.headers
+          }
+        });
+        setError(`Failed to fetch tasks: ${error.response?.statusText || error.message}`);
+      } else {
+        setError('Failed to fetch tasks. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -29,23 +49,34 @@ function App() {
 
     try {
       setError(null);
-      const response = await axios.post(`${API_URL}/api/tasks`, newTask);
+      console.log('Adding task:', newTask);
+      const response = await axios.post(`${API_URL}/tasks`, newTask);
+      console.log('Add task response:', response.data);
       setTasks([response.data.data, ...tasks]);
       setNewTask({ title: '', description: '' });
     } catch (error) {
       console.error('Error adding task:', error);
-      setError('Failed to add task. Please try again later.');
+      if (axios.isAxiosError(error)) {
+        setError(`Failed to add task: ${error.response?.statusText || error.message}`);
+      } else {
+        setError('Failed to add task. Please try again later.');
+      }
     }
   };
 
   const deleteTask = async (id: number) => {
     try {
       setError(null);
-      await axios.delete(`${API_URL}/api/tasks/${id}`);
+      console.log('Deleting task:', id);
+      await axios.delete(`${API_URL}/tasks/${id}`);
       setTasks(tasks.filter(task => task.id !== id));
     } catch (error) {
       console.error('Error deleting task:', error);
-      setError('Failed to delete task. Please try again later.');
+      if (axios.isAxiosError(error)) {
+        setError(`Failed to delete task: ${error.response?.statusText || error.message}`);
+      } else {
+        setError('Failed to delete task. Please try again later.');
+      }
     }
   };
 
@@ -87,39 +118,43 @@ function App() {
         </div>
       </form>
 
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Title</th>
-            <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Description</th>
-            <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Status</th>
-            <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Created At</th>
-            <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map(task => (
-            <tr key={task.id}>
-              <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{task.title}</td>
-              <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{task.description}</td>
-              <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
-                {task.completed ? 'Completed' : 'Pending'}
-              </td>
-              <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
-                {new Date(task.created_at).toLocaleDateString()}
-              </td>
-              <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  style={{ padding: '4px 8px', color: 'red' }}
-                >
-                  Delete
-                </button>
-              </td>
+      {isLoading ? (
+        <div>Loading tasks...</div>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Title</th>
+              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Description</th>
+              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Status</th>
+              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Created At</th>
+              <th style={{ textAlign: 'left', padding: '8px', borderBottom: '2px solid #ddd' }}>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {tasks.map(task => (
+              <tr key={task.id}>
+                <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{task.title}</td>
+                <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{task.description}</td>
+                <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
+                  {task.completed ? 'Completed' : 'Pending'}
+                </td>
+                <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
+                  {new Date(task.created_at).toLocaleDateString()}
+                </td>
+                <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    style={{ padding: '4px 8px', color: 'red' }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
