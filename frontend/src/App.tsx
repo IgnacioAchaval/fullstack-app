@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Task } from './types';
 
+// Get API URL from environment or use default
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState({ title: '', description: '' });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTasks();
@@ -12,10 +16,12 @@ function App() {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/tasks');
+      setError(null);
+      const response = await axios.get(`${API_URL}/api/tasks`);
       setTasks(response.data.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      setError('Failed to fetch tasks. Please try again later.');
     }
   };
 
@@ -24,20 +30,24 @@ function App() {
     if (!newTask.title.trim()) return;
 
     try {
-      const response = await axios.post('http://localhost:3001/api/tasks', newTask);
+      setError(null);
+      const response = await axios.post(`${API_URL}/api/tasks`, newTask);
       setTasks([response.data.data, ...tasks]);
       setNewTask({ title: '', description: '' });
     } catch (error) {
       console.error('Error adding task:', error);
+      setError('Failed to add task. Please try again later.');
     }
   };
 
   const deleteTask = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:3001/api/tasks/${id}`);
+      setError(null);
+      await axios.delete(`${API_URL}/api/tasks/${id}`);
       setTasks(tasks.filter(task => task.id !== id));
     } catch (error) {
       console.error('Error deleting task:', error);
+      setError('Failed to delete task. Please try again later.');
     }
   };
 
@@ -45,6 +55,18 @@ function App() {
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
       <h1>Task Manager</h1>
       
+      {error && (
+        <div style={{ 
+          padding: '10px', 
+          marginBottom: '20px', 
+          backgroundColor: '#ffebee', 
+          color: '#c62828',
+          borderRadius: '4px'
+        }}>
+          {error}
+        </div>
+      )}
+
       <form onSubmit={addTask} style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
           <input
