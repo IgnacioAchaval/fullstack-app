@@ -9,6 +9,8 @@ services:
       - "80:80"
     depends_on:
       - backend
+    environment:
+      - NODE_ENV=production
 
   backend:
     build:
@@ -17,7 +19,13 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/todos
+      - NODE_ENV=production
+      - PORT=3001
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=todos
+      - DB_HOST=db
+      - DB_PORT=5432
     depends_on:
       - db
 
@@ -30,6 +38,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/src/config/database.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
 
 volumes:
   postgres_data:

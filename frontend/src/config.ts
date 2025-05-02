@@ -16,4 +16,4 @@ export const API_URL = isDevelopment || isTest
   ? (typeof window !== 'undefined' && window.ENV?.VITE_API_URL) ||
     (typeof process !== 'undefined' && process.env.VITE_API_URL) ||
     'http://localhost:3001'
-  : ''; // Empty string means use relative URLs 
+  : '/api'; // Use /api prefix in production 
