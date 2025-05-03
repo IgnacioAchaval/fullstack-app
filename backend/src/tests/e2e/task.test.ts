@@ -1,8 +1,8 @@
 /// <reference types="jest" />
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
-import { app } from '../../index';
-import { mockQuery } from '../setup';
+import { app } from '../../index.js';
+import { mockQuery } from '../setup.js';
 
 describe('Task API', () => {
   const mockTask = {

@@ -1,8 +1,8 @@
 /// <reference types="jest" />
 
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-import { TaskService } from '../../services/taskService';
-import { mockQuery } from '../setup';
+import { TaskService } from '../../services/taskService.js';
+import { mockQuery } from '../setup.js';
 
 describe('TaskService', () => {
   let taskService: TaskService;

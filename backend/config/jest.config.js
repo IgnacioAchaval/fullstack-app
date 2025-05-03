@@ -1,5 +1,5 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/../src'],
@@ -7,5 +7,6 @@ module.exports = {
   transform: {
     '^.+\\.ts$': 'ts-jest'
   },
-  setupFilesAfterEnv: ['<rootDir>/../src/tests/setup.ts']
+  setupFilesAfterEnv: ['<rootDir>/../src/tests/setup.ts'],
+  extensionsToTreatAsEsm: ['.ts']
 }; 
