@@ -116,7 +116,7 @@ jobs:
       working-directory: ./tests
       run: |
         # Start backend
-        cd ../backend && npm run dev &
+        cd ../backend && npm run build && npm run dev &
         BACKEND_PID=$!
         
         # Start frontend
@@ -165,6 +165,7 @@ jobs:
         DB_HOST: localhost
         DB_PORT: 5432
         HEADLESS: true
+        NODE_ENV: development
 
   build-and-push:
     needs: test
