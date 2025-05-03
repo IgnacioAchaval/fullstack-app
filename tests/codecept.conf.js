@@ -12,9 +12,10 @@ exports.config = {
   output: 'e2e/outputs',
   helpers: {
     Playwright: {
-      url: process.env.FRONTEND_URL || 'http://localhost',
-      show: true,
+      url: process.env.FRONTEND_URL || 'http://localhost:3000',
+      show: false,
       browser: 'chromium',
+      headless: true,
       waitForNavigation: 'networkidle',
       waitForAction: 1000,
       waitForTimeout: 5000,
@@ -33,7 +34,7 @@ exports.config = {
   },
   bootstrap: null,
   mocha: {},
-  name: 'task-manager-e2e',
+  name: 'task-manager-e2e-tests',
   plugins: {
     retryFailedStep: {
       enabled: true

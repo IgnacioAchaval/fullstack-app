@@ -115,7 +115,23 @@ jobs:
     - name: Run E2E tests
       working-directory: ./tests
       run: |
+        # Start backend
+        cd ../backend && npm run start:dev &
+        BACKEND_PID=$!
+        
+        # Start frontend
+        cd ../frontend && npm run dev &
+        FRONTEND_PID=$!
+        
+        # Wait for services to be ready
+        sleep 30
+        
+        # Run tests
         npx codeceptjs run --steps
+        
+        # Cleanup
+        kill $BACKEND_PID
+        kill $FRONTEND_PID
       env:
         FRONTEND_URL: http://localhost:3000
         BACKEND_URL: http://localhost:3001
@@ -125,6 +141,7 @@ jobs:
         DB_NAME: taskmanager_test
         DB_HOST: localhost
         DB_PORT: 5432
+        HEADLESS: true
 
   build-and-push:
     needs: test
