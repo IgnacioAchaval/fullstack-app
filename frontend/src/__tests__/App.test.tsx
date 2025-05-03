@@ -74,7 +74,7 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
-        'http://localhost:3001/api/tasks',
+        'http://localhost:3001/tasks',
         { title: 'New Task', description: 'New Description' }
       );
     });
@@ -90,7 +90,7 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(mockedAxios.delete).toHaveBeenCalledWith(
-        'http://localhost:3001/api/tasks/1'
+        'http://localhost:3001/tasks/1'
       );
     });
   });
