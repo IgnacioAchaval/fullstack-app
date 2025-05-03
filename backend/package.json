@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --notify=false src/index.ts",
     "build": "tsc --project config/tsconfig.json --outDir dist",
     "test": "NODE_ENV=test jest --config config/jest.config.js",
     "test:watch": "NODE_ENV=test jest --config config/jest.config.js --watch",

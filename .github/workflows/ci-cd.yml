@@ -119,14 +119,18 @@ jobs:
         cd ../backend
         echo "Building backend..."
         npm run build
+        
         echo "Starting backend..."
-        NODE_ENV=development npm run dev > backend.log 2>&1 &
+        # Create log directory if it doesn't exist
+        mkdir -p logs
+        # Start backend with full logging
+        NODE_ENV=development DEBUG=* npm run dev > logs/backend.log 2>&1 &
         BACKEND_PID=$!
         
         # Start frontend
         cd ../frontend
         echo "Starting frontend..."
-        npm run dev > frontend.log 2>&1 &
+        npm run dev > logs/frontend.log 2>&1 &
         FRONTEND_PID=$!
         
         # Wait for services to be ready
@@ -138,7 +142,15 @@ jobs:
           fi
           if [ $i -eq 30 ]; then
             echo "Backend failed to start. Logs:"
-            cat backend.log
+            cat logs/backend.log || echo "No backend log file found"
+            echo "Backend process status:"
+            ps aux | grep node || echo "No node processes found"
+            echo "Current directory:"
+            pwd
+            echo "Directory contents:"
+            ls -la
+            echo "Logs directory contents:"
+            ls -la logs || echo "Logs directory not found"
             exit 1
           fi
           echo "Waiting for backend... ($i/30)"
@@ -152,7 +164,7 @@ jobs:
           fi
           if [ $i -eq 30 ]; then
             echo "Frontend failed to start. Logs:"
-            cat frontend.log
+            cat logs/frontend.log || echo "No frontend log file found"
             exit 1
           fi
           echo "Waiting for frontend... ($i/30)"
@@ -178,6 +190,7 @@ jobs:
         DB_PORT: 5432
         HEADLESS: true
         NODE_ENV: development
+        DEBUG: "*"
 
   build-and-push:
     needs: test
