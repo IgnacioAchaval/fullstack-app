@@ -1,8 +1,9 @@
 /// <reference types="jest" />
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
-import { app } from '../../index.js';
-import { mockQuery } from '../setup.js';
+import { app } from '../../index';
+import { mockQuery } from '../setup';
+import type { MockQueryFunction } from '../setup';
 
 describe('Task API', () => {
   const mockTask = {
@@ -20,7 +21,7 @@ describe('Task API', () => {
 
   it('should create and retrieve a task', async () => {
     // Create task
-    mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
+    (mockQuery as MockQueryFunction).mockResolvedValueOnce({ rows: [mockTask] });
     const createResponse = await request(app)
       .post('/api/tasks')
       .send({
@@ -30,7 +31,7 @@ describe('Task API', () => {
     expect(createResponse.status).toBe(201);
 
     // Get task
-    mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
+    (mockQuery as MockQueryFunction).mockResolvedValueOnce({ rows: [mockTask] });
     const getResponse = await request(app)
       .get('/api/tasks/1');
     expect(getResponse.status).toBe(200);
@@ -38,7 +39,7 @@ describe('Task API', () => {
   });
 
   it('should list all tasks', async () => {
-    mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
+    (mockQuery as MockQueryFunction).mockResolvedValueOnce({ rows: [mockTask] });
     const response = await request(app)
       .get('/api/tasks');
     expect(response.status).toBe(200);

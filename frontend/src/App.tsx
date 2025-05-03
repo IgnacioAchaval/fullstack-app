@@ -174,7 +174,7 @@ function App() {
                       cursor: 'pointer'
                     }}
                   >
-                    {task.completed ? 'Completed' : 'Pending'}
+                  {task.completed ? 'Completed' : 'Pending'}
                   </button>
                 </td>
                 <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>

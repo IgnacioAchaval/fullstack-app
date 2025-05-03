@@ -12,7 +12,7 @@ exports.config = {
   output: 'e2e/outputs',
   helpers: {
     Playwright: {
-      url: process.env.FRONTEND_URL || 'http://localhost:3000',
+      url: process.env.FRONTEND_URL || 'http://localhost:80',
       show: false,
       browser: 'chromium',
       headless: true,

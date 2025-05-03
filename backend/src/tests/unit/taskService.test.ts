@@ -1,8 +1,9 @@
 /// <reference types="jest" />
 
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
-import { TaskService } from '../../services/taskService.js';
-import { mockQuery } from '../setup.js';
+import { TaskService } from '../../services/taskService';
+import { mockQuery } from '../setup';
+import type { MockQueryFunction } from '../setup';
 
 describe('TaskService', () => {
   let taskService: TaskService;
@@ -22,7 +23,7 @@ describe('TaskService', () => {
 
   describe('createTask', () => {
     it('should create a new task', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
+      (mockQuery as MockQueryFunction).mockResolvedValueOnce({ rows: [mockTask] });
       const result = await taskService.createTask({
         title: 'Test Task',
         description: 'Test Description'
@@ -31,7 +32,7 @@ describe('TaskService', () => {
     });
 
     it('should throw an error if task creation fails', async () => {
-      mockQuery.mockRejectedValueOnce(new Error('Database error'));
+      (mockQuery as MockQueryFunction).mockRejectedValueOnce(new Error('Database error'));
 
       await expect(taskService.createTask({
         title: 'Test Task',
@@ -42,7 +43,7 @@ describe('TaskService', () => {
 
   describe('getTasks', () => {
     it('should return all tasks', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
+      (mockQuery as MockQueryFunction).mockResolvedValueOnce({ rows: [mockTask] });
       const result = await taskService.getTasks();
       expect(result).toEqual([mockTask]);
     });
@@ -50,13 +51,13 @@ describe('TaskService', () => {
 
   describe('getTaskById', () => {
     it('should return a task by id', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
+      (mockQuery as MockQueryFunction).mockResolvedValueOnce({ rows: [mockTask] });
       const result = await taskService.getTaskById(1);
       expect(result).toEqual(mockTask);
     });
 
     it('should throw an error if task is not found', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [] });
+      (mockQuery as MockQueryFunction).mockResolvedValueOnce({ rows: [] });
 
       await expect(taskService.getTaskById(1)).rejects.toThrow();
     });
