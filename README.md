@@ -1,6 +1,6 @@
 # Task Manager Fullstack Application
 
-A modern task management application built with React, Node.js, and PostgreSQL.
+A task management application built with React, Node.js, and PostgreSQL.
 
 ## Features
 
