@@ -116,11 +116,17 @@ jobs:
       working-directory: ./tests
       run: |
         # Start backend
-        cd ../backend && npm run build && npm run dev &
+        cd ../backend
+        echo "Building backend..."
+        npm run build
+        echo "Starting backend..."
+        NODE_ENV=development npm run dev > backend.log 2>&1 &
         BACKEND_PID=$!
         
         # Start frontend
-        cd ../frontend && npm run dev &
+        cd ../frontend
+        echo "Starting frontend..."
+        npm run dev > frontend.log 2>&1 &
         FRONTEND_PID=$!
         
         # Wait for services to be ready
@@ -131,9 +137,11 @@ jobs:
             break
           fi
           if [ $i -eq 30 ]; then
-            echo "Backend failed to start"
+            echo "Backend failed to start. Logs:"
+            cat backend.log
             exit 1
           fi
+          echo "Waiting for backend... ($i/30)"
           sleep 1
         done
         
@@ -143,16 +151,20 @@ jobs:
             break
           fi
           if [ $i -eq 30 ]; then
-            echo "Frontend failed to start"
+            echo "Frontend failed to start. Logs:"
+            cat frontend.log
             exit 1
           fi
+          echo "Waiting for frontend... ($i/30)"
           sleep 1
         done
         
         # Run tests
+        echo "Running E2E tests..."
         npx codeceptjs run --steps
         
         # Cleanup
+        echo "Cleaning up..."
         kill $BACKEND_PID
         kill $FRONTEND_PID
       env:
