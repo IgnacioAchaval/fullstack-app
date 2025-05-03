@@ -1,12 +1,12 @@
-import express, { Express } from 'express';
+import express from 'express';
 import cors from 'cors';
-import { taskRoutes } from './routes/taskRoutes';
+import taskRoutes from './routes/taskRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import config from './config/app';
 import './config/database'; // Initialize database connection
 
 // Create Express application
-const app: Express = express();
+const app = express();
 
 // Apply middleware
 app.use(cors(config.cors));

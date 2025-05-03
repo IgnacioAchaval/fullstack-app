@@ -1,9 +1,14 @@
-import { Router } from 'express';
+import express from 'express';
 import { TaskController } from '../controllers/taskController';
 import { validateTask } from '../middleware/validation';
 
-const router = Router();
+const router = express.Router();
 const taskController = new TaskController();
+
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // GET /api/tasks - Get all tasks with optional filtering
 router.get('/', taskController.getTasks);
@@ -20,4 +25,4 @@ router.put('/:id', validateTask, taskController.updateTask);
 // DELETE /api/tasks/:id - Delete a task
 router.delete('/:id', taskController.deleteTask);
 
-export { router as taskRoutes }; 
+export default router; 

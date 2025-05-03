@@ -8,6 +8,7 @@ function App() {
   const [newTask, setNewTask] = useState({ title: '', description: '' });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [deletingTaskIds, setDeletingTaskIds] = useState<number[]>([]);
 
   useEffect(() => {
     fetchTasks();
@@ -45,7 +46,10 @@ function App() {
 
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTask.title.trim()) return;
+    if (!newTask.title.trim()) {
+      setError('Title is required');
+      return;
+    }
 
     try {
       setError(null);
@@ -64,18 +68,40 @@ function App() {
     }
   };
 
+  const toggleTaskStatus = async (task: Task) => {
+    try {
+      setError(null);
+      console.log('Toggling task status:', task.id);
+      const response = await axios.put(`${API_URL}/tasks/${task.id}`, {
+        ...task,
+        completed: !task.completed
+      });
+      console.log('Toggle status response:', response.data);
+      setTasks(tasks.map(t => t.id === task.id ? response.data.data : t));
+    } catch (error) {
+      console.error('Error toggling task status:', error);
+      if (axios.isAxiosError(error)) {
+        setError(`Failed to update task: ${error.response?.statusText || error.message}`);
+      } else {
+        setError('Failed to update task. Please try again later.');
+      }
+    }
+  };
+
   const deleteTask = async (id: number) => {
     try {
       setError(null);
       console.log('Deleting task:', id);
-      await axios.delete(`${API_URL}/tasks/${id}`);
       setTasks(tasks.filter(task => task.id !== id));
+      await axios.delete(`${API_URL}/tasks/${id}`);
     } catch (error) {
       console.error('Error deleting task:', error);
       if (axios.isAxiosError(error)) {
         setError(`Failed to delete task: ${error.response?.statusText || error.message}`);
+        await fetchTasks();
       } else {
         setError('Failed to delete task. Please try again later.');
+        await fetchTasks();
       }
     }
   };
@@ -133,11 +159,23 @@ function App() {
           </thead>
           <tbody>
             {tasks.map(task => (
-              <tr key={task.id}>
+              <tr key={task.id} style={{ opacity: deletingTaskIds.includes(task.id) ? 0.5 : 1 }}>
                 <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{task.title}</td>
                 <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>{task.description}</td>
                 <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
-                  {task.completed ? 'Completed' : 'Pending'}
+                  <button
+                    onClick={() => toggleTaskStatus(task)}
+                    style={{
+                      padding: '4px 8px',
+                      backgroundColor: task.completed ? '#4caf50' : '#ff9800',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {task.completed ? 'Completed' : 'Pending'}
+                  </button>
                 </td>
                 <td style={{ padding: '8px', borderBottom: '1px solid #ddd' }}>
                   {new Date(task.created_at).toLocaleDateString()}
@@ -146,8 +184,9 @@ function App() {
                   <button
                     onClick={() => deleteTask(task.id)}
                     style={{ padding: '4px 8px', color: 'red' }}
+                    disabled={deletingTaskIds.includes(task.id)}
                   >
-                    Delete
+                    {deletingTaskIds.includes(task.id) ? 'Deleting...' : 'Delete'}
                   </button>
                 </td>
               </tr>

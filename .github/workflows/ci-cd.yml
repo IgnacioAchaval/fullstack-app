@@ -91,6 +91,19 @@ jobs:
       working-directory: ./frontend
       run: npm run test
 
+    - name: Install CodeceptJS
+      run: |
+        npm install -g codeceptjs
+        npm install -g puppeteer
+
+    - name: Run E2E tests
+      working-directory: ./tests
+      run: |
+        codeceptjs run --steps
+      env:
+        FRONTEND_URL: http://localhost:3000
+        BACKEND_URL: http://localhost:3001
+
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
@@ -164,19 +177,28 @@ jobs:
           
           # Create docker-compose.yml
           sudo tee docker-compose.yml << 'EOL'
+          version: '3.8'
           services:
             backend:
               image: ${{ secrets.DOCKER_USERNAME }}/task-manager-backend:latest
               ports:
-                - "3001:3000"
+                - "3001:3001"
               environment:
-                - DATABASE_URL=postgresql://postgres:postgres@db:5432/taskmanager
+                - NODE_ENV=production
+                - DB_USER=postgres
+                - DB_PASSWORD=postgres
+                - DB_NAME=todos
+                - DB_HOST=db
+                - DB_PORT=5432
               depends_on:
                 - db
             frontend:
               image: ${{ secrets.DOCKER_USERNAME }}/task-manager-frontend:latest
               ports:
                 - "80:80"
+              environment:
+                - NODE_ENV=production
+                - VITE_API_URL=http://localhost:3001
               depends_on:
                 - backend
             db:
@@ -184,7 +206,7 @@ jobs:
               environment:
                 - POSTGRES_USER=postgres
                 - POSTGRES_PASSWORD=postgres
-                - POSTGRES_DB=taskmanager
+                - POSTGRES_DB=todos
               volumes:
                 - postgres_data:/var/lib/postgresql/data
           volumes:
@@ -194,6 +216,15 @@ jobs:
           # Set proper permissions
           sudo chown $USER:$USER docker-compose.yml
           
-          # Pull latest images and start containers using sudo
+          # Pull latest images and start containers
           sudo docker-compose pull
           sudo docker-compose up -d
+          
+          # Wait for services to be ready
+          sleep 30
+          
+          # Check container status
+          sudo docker-compose ps
+          
+          # Check container logs
+          sudo docker-compose logs

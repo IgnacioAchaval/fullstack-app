@@ -118,7 +118,7 @@ export class TaskController {
         message: 'Task deleted successfully'
       };
 
-      res.status(204).json(response);
+      res.status(200).json(response);
     } catch (error) {
       next(error);
     }

@@ -24,7 +24,7 @@ console.log('Environment:', {
 export const API_URL = isDevelopment || isTest
   ? (typeof window !== 'undefined' && window.ENV?.VITE_API_URL) ||
     (typeof process !== 'undefined' && process.env.VITE_API_URL) ||
-    'http://localhost:3001'
+    'http://localhost:3001/api'
   : '/api'; // Use /api prefix in production
 
 // Log the final API URL for debugging
