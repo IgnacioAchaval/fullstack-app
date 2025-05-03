@@ -12,7 +12,8 @@
   "devDependencies": {
     "codeceptjs": "^3.7.3",
     "@codeceptjs/configure": "^0.10.0",
-    "@playwright/test": "^1.42.0",
+    "@codeceptjs/ui": "^0.7.0",
+    "playwright": "^1.42.0",
     "axios": "^1.6.7"
   }
 } 

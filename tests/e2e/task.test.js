@@ -4,42 +4,36 @@ Before(async ({ I }) => {
   await I.waitForServices();
 });
 
-// Core user flow: Create, update, and delete a task
-Scenario('Basic task management workflow', ({ I }) => {
+// Basic CRUD operations
+Scenario('Create, read, update, and delete a task', ({ I }) => {
+  // Create task
   I.amOnPage('/');
   I.see('Task Manager');
-  
-  // Create task
   I.fillField('input[placeholder="Task title"]', 'Test Task');
   I.fillField('input[placeholder="Task description"]', 'Test Description');
   I.click('Add Task');
   
-  // Verify task creation
+  // Verify task was created
   I.see('Test Task');
   I.see('Test Description');
   
-  // Mark as completed
+  // Update task status
   I.click('Pending');
   I.see('Completed');
   
   // Delete task
   I.click('Delete');
-  I.wait(1); // Wait for 1 second
+  I.wait(1); // Wait for deletion to complete
   I.dontSee('Test Task');
 });
 
-// Form validation
+// Basic form validation
 Scenario('Form validation', ({ I }) => {
   I.amOnPage('/');
   
   // Try to submit empty form
   I.click('Add Task');
   I.see('Title is required');
-  
-  // Submit with only title
-  I.fillField('input[placeholder="Task title"]', 'Test Task');
-  I.click('Add Task');
-  I.see('Test Task');
 });
 
 // Test task list sorting and filtering

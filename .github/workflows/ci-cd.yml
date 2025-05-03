@@ -94,7 +94,7 @@ jobs:
     - name: Install CodeceptJS
       run: |
         npm install -g codeceptjs
-        npm install -g puppeteer
+        npm install -g playwright
 
     - name: Set up Node.js for E2E tests
       uses: actions/setup-node@v4
@@ -110,6 +110,7 @@ jobs:
       run: |
         npm install
         npm ci
+        npx playwright install --with-deps chromium
 
     - name: Run E2E tests
       working-directory: ./tests
