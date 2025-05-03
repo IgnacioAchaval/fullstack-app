@@ -1,5 +1,5 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/../src'],
@@ -7,7 +7,7 @@ module.exports = {
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       tsconfig: '<rootDir>/tsconfig.json',
-      useESM: false
+      useESM: true
     }]
   },
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
@@ -23,5 +23,12 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/../src/$1'
-  }
+  },
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleDirectories: ['node_modules', 'src'],
+  modulePaths: ['<rootDir>/../src'],
+  testTimeout: 10000,
+  transformIgnorePatterns: [
+    'node_modules/(?!(pg)/)'
+  ]
 }; 

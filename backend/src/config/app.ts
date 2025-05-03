@@ -2,7 +2,11 @@ import dotenv from 'dotenv';
 import { CorsOptions } from 'cors';
 
 // Load environment variables
-dotenv.config();
+if (process.env.NODE_ENV === 'test') {
+  dotenv.config({ path: '.env.test' });
+} else {
+  dotenv.config();
+}
 
 // Default configuration
 const defaultConfig = {
@@ -14,10 +18,14 @@ const defaultConfig = {
     allowedHeaders: ['Content-Type', 'Authorization'] as string[],
   } as CorsOptions,
   database: {
-    url: process.env.DATABASE_URL,
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+    name: process.env.DB_NAME || 'taskmanager',
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
   },
   logging: {
-    level: 'info',
+    level: process.env.LOG_LEVEL || 'info',
   },
 };
 
@@ -31,6 +39,10 @@ const envConfig = {
     ...defaultConfig,
     env: 'test',
     port: 3001,
+    database: {
+      ...defaultConfig.database,
+      name: process.env.DB_NAME || 'taskmanager_test',
+    },
   },
   production: {
     ...defaultConfig,
@@ -60,11 +72,15 @@ if (currentEnv === 'development') {
     env: config.env,
     port: config.port,
     cors: config.cors,
+    database: {
+      ...config.database,
+      password: '***',
+    },
   });
 }
 
 // Validate required environment variables
-const requiredEnvVars = ['NODE_ENV', 'PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+const requiredEnvVars = ['NODE_ENV', 'PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'DB_HOST', 'DB_PORT'];
 
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {

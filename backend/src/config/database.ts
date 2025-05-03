@@ -1,15 +1,20 @@
 import { Pool, PoolConfig } from 'pg';
 import dotenv from 'dotenv';
+import config from './app';
 
 // Load environment variables
-dotenv.config();
+if (process.env.NODE_ENV === 'test') {
+  dotenv.config({ path: '.env.test' });
+} else {
+  dotenv.config();
+}
 
 const dbConfig: PoolConfig = {
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'todos',
-  password: process.env.DB_PASSWORD || 'postgres',
-  port: parseInt(process.env.DB_PORT || '5432'),
+  user: config.database.user,
+  host: config.database.host,
+  database: config.database.name,
+  password: config.database.password,
+  port: config.database.port,
 };
 
 // Create a singleton pool instance

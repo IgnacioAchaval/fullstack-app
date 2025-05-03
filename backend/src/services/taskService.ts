@@ -27,6 +27,7 @@ export class TaskService {
       if (dbError.code === '23505') { // Unique violation
         throw new ApiError(409, 'Task with this title already exists');
       }
+      console.error('Error creating task:', error);
       throw new ApiError(500, 'Error creating task');
     }
   }
@@ -58,6 +59,7 @@ export class TaskService {
       const result = await pool.query(query, values);
       return result.rows;
     } catch (error) {
+      console.error('Error fetching tasks:', error);
       throw new ApiError(500, 'Error fetching tasks');
     }
   }
@@ -71,6 +73,7 @@ export class TaskService {
       return result.rows[0];
     } catch (error) {
       if (error instanceof ApiError) throw error;
+      console.error('Error fetching task:', error);
       throw new ApiError(500, 'Error fetching task');
     }
   }
@@ -119,6 +122,7 @@ export class TaskService {
       return result.rows[0];
     } catch (error) {
       if (error instanceof ApiError) throw error;
+      console.error('Error updating task:', error);
       throw new ApiError(500, 'Error updating task');
     }
   }
@@ -131,6 +135,7 @@ export class TaskService {
       }
     } catch (error) {
       if (error instanceof ApiError) throw error;
+      console.error('Error deleting task:', error);
       throw new ApiError(500, 'Error deleting task');
     }
   }

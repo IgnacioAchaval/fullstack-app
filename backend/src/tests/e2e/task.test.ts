@@ -1,22 +1,12 @@
 /// <reference types="jest" />
+import { jest, describe, it, expect, beforeEach, afterAll } from '@jest/globals';
 import request from 'supertest';
-import { app } from '../../index';
-import { Pool } from 'pg';
-import { Task } from '../../types';
-
-// Mock the database pool
-jest.mock('../../config/database', () => ({
-  pool: {
-    query: jest.fn(),
-    connect: jest.fn(),
-    end: jest.fn()
-  }
-}));
-
-import { pool } from '../../config/database';
+import { app } from '@/index';
+import { Task } from '@/types';
+import { mockQuery } from '../setup';
 
 describe('Task API Endpoints', () => {
-  const mockTask = {
+  const mockTask: Task = {
     id: 1,
     title: 'Test Task',
     description: 'Test Description',
@@ -27,12 +17,8 @@ describe('Task API Endpoints', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock successful query responses
-    (pool.query as jest.Mock).mockResolvedValue({ rows: [] });
-  });
-
-  afterAll(async () => {
-    await pool.end();
+    // Mock successful query responses by default
+    mockQuery.mockResolvedValue({ rows: [] });
   });
 
   describe('POST /api/tasks', () => {
@@ -42,7 +28,7 @@ describe('Task API Endpoints', () => {
         description: 'Test Description'
       };
 
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockTask] });
+      mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
 
       const response = await request(app)
         .post('/api/tasks')
@@ -70,7 +56,7 @@ describe('Task API Endpoints', () => {
   describe('GET /api/tasks', () => {
     it('should return all tasks', async () => {
       const mockTasks = [mockTask, { ...mockTask, id: 2 }];
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: mockTasks });
+      mockQuery.mockResolvedValueOnce({ rows: mockTasks });
 
       const response = await request(app)
         .get('/api/tasks')
@@ -86,7 +72,7 @@ describe('Task API Endpoints', () => {
 
     it('should filter tasks by completion status', async () => {
       const completedTask = { ...mockTask, completed: true };
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [completedTask] });
+      mockQuery.mockResolvedValueOnce({ rows: [completedTask] });
 
       const response = await request(app)
         .get('/api/tasks?completed=true')
@@ -100,7 +86,7 @@ describe('Task API Endpoints', () => {
 
   describe('GET /api/tasks/:id', () => {
     it('should return a task by id', async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [mockTask] });
+      mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
 
       const response = await request(app)
         .get('/api/tasks/1')
@@ -113,7 +99,7 @@ describe('Task API Endpoints', () => {
     });
 
     it('should return 404 if task is not found', async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+      mockQuery.mockResolvedValueOnce({ rows: [] });
 
       const response = await request(app)
         .get('/api/tasks/999')
@@ -127,7 +113,7 @@ describe('Task API Endpoints', () => {
   describe('PUT /api/tasks/:id', () => {
     it('should update a task', async () => {
       const updatedTask = { ...mockTask, title: 'Updated Task' };
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [updatedTask] });
+      mockQuery.mockResolvedValueOnce({ rows: [updatedTask] });
 
       const response = await request(app)
         .put('/api/tasks/1')
@@ -139,7 +125,7 @@ describe('Task API Endpoints', () => {
     });
 
     it('should return 404 if task is not found', async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+      mockQuery.mockResolvedValueOnce({ rows: [] });
 
       const response = await request(app)
         .put('/api/tasks/999')
@@ -153,14 +139,14 @@ describe('Task API Endpoints', () => {
 
   describe('DELETE /api/tasks/:id', () => {
     it('should delete a task', async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [{ id: 1 }] });
+      mockQuery.mockResolvedValueOnce({ rows: [{ id: 1 }] });
 
       const response = await request(app)
         .delete('/api/tasks/1')
         .expect(204);
 
       // Verify task is deleted
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+      mockQuery.mockResolvedValueOnce({ rows: [] });
       const getResponse = await request(app)
         .get('/api/tasks/1')
         .expect(404);
@@ -170,7 +156,7 @@ describe('Task API Endpoints', () => {
     });
 
     it('should return 404 if task is not found', async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
+      mockQuery.mockResolvedValueOnce({ rows: [] });
 
       const response = await request(app)
         .delete('/api/tasks/999')

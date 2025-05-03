@@ -11,11 +11,12 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
-    "baseUrl": "..",
+    "baseUrl": "../src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./*"]
     },
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+    "isolatedModules": true
   },
   "include": ["../src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
