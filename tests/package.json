@@ -10,7 +10,7 @@
     "test:debug": "HEADLESS=false DEBUG=true npm test"
   },
   "devDependencies": {
-    "codeceptjs": "^3.7.3",
+    "codeceptjs": "3.5.13-beta.3",
     "@codeceptjs/configure": "^0.10.0",
     "@codeceptjs/ui": "^0.7.0",
     "playwright": "^1.42.0",
