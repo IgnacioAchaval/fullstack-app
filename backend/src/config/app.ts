@@ -4,11 +4,12 @@ import { CorsOptions } from 'cors';
 // Load environment variables
 dotenv.config();
 
-export const config = {
-  env: process.env.NODE_ENV || 'development',
-  port: parseInt(process.env.PORT || '3001', 10),
+// Default configuration
+const defaultConfig = {
+  env: 'development',
+  port: 3001,
   cors: {
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] as string[],
     allowedHeaders: ['Content-Type', 'Authorization'] as string[],
   } as CorsOptions,
@@ -16,12 +17,51 @@ export const config = {
     url: process.env.DATABASE_URL,
   },
   logging: {
-    level: process.env.LOG_LEVEL || 'info',
+    level: 'info',
+  },
+};
+
+// Environment-specific configuration
+const envConfig = {
+  development: {
+    ...defaultConfig,
+    env: 'development',
+  },
+  test: {
+    ...defaultConfig,
+    env: 'test',
+    port: 3001,
+  },
+  production: {
+    ...defaultConfig,
+    env: 'production',
+  },
+};
+
+// Get current environment
+const currentEnv = process.env.NODE_ENV || 'development';
+
+// Export configuration
+export const config = {
+  ...envConfig[currentEnv as keyof typeof envConfig],
+  port: parseInt(process.env.PORT || String(envConfig[currentEnv as keyof typeof envConfig].port), 10),
+  cors: {
+    ...envConfig[currentEnv as keyof typeof envConfig].cors,
+    origin: process.env.CORS_ORIGIN || envConfig[currentEnv as keyof typeof envConfig].cors.origin,
   },
 } as const;
 
 // Type for the config object
 export type Config = typeof config;
+
+// Log configuration in development
+if (currentEnv === 'development') {
+  console.log('Current configuration:', {
+    env: config.env,
+    port: config.port,
+    cors: config.cors,
+  });
+}
 
 // Validate required environment variables
 const requiredEnvVars = ['NODE_ENV', 'PORT', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];

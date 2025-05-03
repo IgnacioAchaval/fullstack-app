@@ -115,22 +115,25 @@ jobs:
     - name: Run E2E tests
       working-directory: ./tests
       run: |
+        # Create logs directory in the root
+        cd ..
+        mkdir -p logs
+        cd tests
+        
         # Start backend
         cd ../backend
         echo "Building backend..."
         npm run build
         
         echo "Starting backend..."
-        # Create log directory if it doesn't exist
-        mkdir -p logs
         # Start backend with full logging
-        NODE_ENV=development DEBUG=* npm run dev > logs/backend.log 2>&1 &
+        NODE_ENV=development DEBUG=* npm run dev > ../logs/backend.log 2>&1 &
         BACKEND_PID=$!
         
         # Start frontend
         cd ../frontend
         echo "Starting frontend..."
-        npm run dev > logs/frontend.log 2>&1 &
+        npm run dev > ../logs/frontend.log 2>&1 &
         FRONTEND_PID=$!
         
         # Wait for services to be ready
@@ -142,7 +145,7 @@ jobs:
           fi
           if [ $i -eq 30 ]; then
             echo "Backend failed to start. Logs:"
-            cat logs/backend.log || echo "No backend log file found"
+            cat ../logs/backend.log || echo "No backend log file found"
             echo "Backend process status:"
             ps aux | grep node || echo "No node processes found"
             echo "Current directory:"
@@ -150,7 +153,9 @@ jobs:
             echo "Directory contents:"
             ls -la
             echo "Logs directory contents:"
-            ls -la logs || echo "Logs directory not found"
+            ls -la ../logs || echo "Logs directory not found"
+            echo "Backend directory contents:"
+            ls -la ../backend
             exit 1
           fi
           echo "Waiting for backend... ($i/30)"
@@ -164,7 +169,7 @@ jobs:
           fi
           if [ $i -eq 30 ]; then
             echo "Frontend failed to start. Logs:"
-            cat logs/frontend.log || echo "No frontend log file found"
+            cat ../logs/frontend.log || echo "No frontend log file found"
             exit 1
           fi
           echo "Waiting for frontend... ($i/30)"
