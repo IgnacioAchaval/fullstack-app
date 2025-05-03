@@ -1,30 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
-import { TaskService } from '../services/taskService';
-import { CreateTaskDTO, UpdateTaskDTO, TaskQueryParams, ApiResponse } from '../types';
-import { ApiError } from '../middleware/errorHandler';
+import { TaskService } from '../services/taskService.js';
+import { CreateTaskDTO, UpdateTaskDTO, TaskQueryParams } from '../types/index.js';
+import { ApiError } from '../middleware/errorHandler.js';
+
+type ApiResponse<T> = {
+  status: 'success' | 'error';
+  data?: T;
+  message?: string;
+};
+
+const taskService = TaskService.getInstance();
 
 export class TaskController {
-  private taskService: TaskService;
-
-  constructor() {
-    this.taskService = TaskService.getInstance();
-  }
-
   createTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const taskData: CreateTaskDTO = req.body;
-      
-      // Validate required fields
-      if (!taskData.title) {
-        throw new ApiError(400, 'Title is required');
-      }
+      const taskData: CreateTaskDTO = {
+        title: req.body.title,
+        description: req.body.description,
+        completed: req.body.completed
+      };
 
-      const task = await this.taskService.createTask(taskData);
+      const task = await taskService.createTask(taskData);
       
       const response: ApiResponse<typeof task> = {
         status: 'success',
-        data: task,
-        message: 'Task created successfully'
+        data: task
       };
 
       res.status(201).json(response);
@@ -36,22 +36,20 @@ export class TaskController {
   getTasks = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const queryParams: TaskQueryParams = {
-        completed: req.query.completed === 'true' ? true : 
-                  req.query.completed === 'false' ? false : undefined,
+        completed: req.query.completed === 'true' ? true : req.query.completed === 'false' ? false : undefined,
         search: req.query.search as string,
         page: req.query.page ? parseInt(req.query.page as string) : undefined,
         limit: req.query.limit ? parseInt(req.query.limit as string) : undefined
       };
 
-      const tasks = await this.taskService.getTasks(queryParams);
+      const tasks = await taskService.getTasks(queryParams);
       
       const response: ApiResponse<typeof tasks> = {
         status: 'success',
-        data: tasks,
-        message: 'Tasks retrieved successfully'
+        data: tasks
       };
 
-      res.json(response);
+      res.status(200).json(response);
     } catch (error) {
       next(error);
     }
@@ -64,15 +62,14 @@ export class TaskController {
         throw new ApiError(400, 'Invalid task ID');
       }
 
-      const task = await this.taskService.getTaskById(id);
+      const task = await taskService.getTaskById(id);
       
       const response: ApiResponse<typeof task> = {
         status: 'success',
-        data: task,
-        message: 'Task retrieved successfully'
+        data: task
       };
 
-      res.json(response);
+      res.status(200).json(response);
     } catch (error) {
       next(error);
     }
@@ -85,20 +82,20 @@ export class TaskController {
         throw new ApiError(400, 'Invalid task ID');
       }
 
-      const taskData: UpdateTaskDTO = req.body;
-      if (Object.keys(taskData).length === 0) {
-        throw new ApiError(400, 'No update data provided');
-      }
+      const taskData: UpdateTaskDTO = {
+        title: req.body.title,
+        description: req.body.description,
+        completed: req.body.completed
+      };
 
-      const task = await this.taskService.updateTask(id, taskData);
+      const task = await taskService.updateTask(id, taskData);
       
       const response: ApiResponse<typeof task> = {
         status: 'success',
-        data: task,
-        message: 'Task updated successfully'
+        data: task
       };
 
-      res.json(response);
+      res.status(200).json(response);
     } catch (error) {
       next(error);
     }
@@ -111,14 +108,14 @@ export class TaskController {
         throw new ApiError(400, 'Invalid task ID');
       }
 
-      await this.taskService.deleteTask(id);
+      await taskService.deleteTask(id);
       
       const response: ApiResponse<null> = {
         status: 'success',
         message: 'Task deleted successfully'
       };
 
-      res.status(204).send();
+      res.status(204).json(response);
     } catch (error) {
       next(error);
     }

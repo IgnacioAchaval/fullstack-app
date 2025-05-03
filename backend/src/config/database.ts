@@ -1,6 +1,6 @@
 import { Pool, PoolConfig } from 'pg';
 import dotenv from 'dotenv';
-import config from './app';
+import config from './app.js';
 
 // Load environment variables
 if (process.env.NODE_ENV === 'test') {

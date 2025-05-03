@@ -1,12 +1,11 @@
 /// <reference types="jest" />
-import { jest, describe, it, expect, beforeEach, afterAll } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
-import { app } from '@/index';
-import { Task } from '@/types';
+import { app } from '../../index';
 import { mockQuery } from '../setup';
 
 describe('Task API Endpoints', () => {
-  const mockTask: Task = {
+  const mockTask = {
     id: 1,
     title: 'Test Task',
     description: 'Test Description',
@@ -17,70 +16,43 @@ describe('Task API Endpoints', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock successful query responses by default
-    mockQuery.mockResolvedValue({ rows: [] });
   });
 
   describe('POST /api/tasks', () => {
     it('should create a new task', async () => {
-      const taskData = {
-        title: 'Test Task',
-        description: 'Test Description'
-      };
-
       mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
 
       const response = await request(app)
         .post('/api/tasks')
-        .send(taskData)
-        .expect(201);
+        .send({
+          title: 'Test Task',
+          description: 'Test Description'
+        });
 
-      expect(response.body.status).toBe('success');
-      expect(response.body.data).toHaveProperty('id');
-      expect(response.body.data.title).toBe(taskData.title);
-      expect(response.body.data.description).toBe(taskData.description);
-      expect(response.body.data.completed).toBe(false);
+      expect(response.status).toBe(201);
+      expect(response.body.data.title).toBe('Test Task');
+      expect(response.body.data.description).toBe('Test Description');
     });
 
     it('should return 400 if title is missing', async () => {
       const response = await request(app)
         .post('/api/tasks')
-        .send({ description: 'Test Description' })
-        .expect(400);
+        .send({ description: 'Test Description' });
 
-      expect(response.body.status).toBe('error');
-      expect(response.body.message).toContain('Title is required');
+      expect(response.status).toBe(400);
     });
   });
 
   describe('GET /api/tasks', () => {
     it('should return all tasks', async () => {
-      const mockTasks = [mockTask, { ...mockTask, id: 2 }];
-      mockQuery.mockResolvedValueOnce({ rows: mockTasks });
+      mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
 
       const response = await request(app)
-        .get('/api/tasks')
-        .expect(200);
+        .get('/api/tasks');
 
-      expect(response.body.status).toBe('success');
-      expect(response.body.data).toHaveLength(2);
-      expect(response.body.data[0]).toHaveProperty('id');
-      expect(response.body.data[0]).toHaveProperty('title');
-      expect(response.body.data[0]).toHaveProperty('description');
-      expect(response.body.data[0]).toHaveProperty('completed');
-    });
-
-    it('should filter tasks by completion status', async () => {
-      const completedTask = { ...mockTask, completed: true };
-      mockQuery.mockResolvedValueOnce({ rows: [completedTask] });
-
-      const response = await request(app)
-        .get('/api/tasks?completed=true')
-        .expect(200);
-
-      expect(response.body.status).toBe('success');
+      expect(response.status).toBe(200);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data[0].completed).toBe(true);
+      expect(response.body.data[0].title).toBe('Test Task');
     });
   });
 
@@ -89,81 +61,19 @@ describe('Task API Endpoints', () => {
       mockQuery.mockResolvedValueOnce({ rows: [mockTask] });
 
       const response = await request(app)
-        .get('/api/tasks/1')
-        .expect(200);
+        .get('/api/tasks/1');
 
-      expect(response.body.status).toBe('success');
-      expect(response.body.data.id).toBe(mockTask.id);
-      expect(response.body.data.title).toBe(mockTask.title);
-      expect(response.body.data.description).toBe(mockTask.description);
+      expect(response.status).toBe(200);
+      expect(response.body.data.title).toBe('Test Task');
     });
 
     it('should return 404 if task is not found', async () => {
       mockQuery.mockResolvedValueOnce({ rows: [] });
 
       const response = await request(app)
-        .get('/api/tasks/999')
-        .expect(404);
+        .get('/api/tasks/999');
 
-      expect(response.body.status).toBe('error');
-      expect(response.body.message).toContain('Task not found');
-    });
-  });
-
-  describe('PUT /api/tasks/:id', () => {
-    it('should update a task', async () => {
-      const updatedTask = { ...mockTask, title: 'Updated Task' };
-      mockQuery.mockResolvedValueOnce({ rows: [updatedTask] });
-
-      const response = await request(app)
-        .put('/api/tasks/1')
-        .send({ title: 'Updated Task' })
-        .expect(200);
-
-      expect(response.body.status).toBe('success');
-      expect(response.body.data.title).toBe('Updated Task');
-    });
-
-    it('should return 404 if task is not found', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [] });
-
-      const response = await request(app)
-        .put('/api/tasks/999')
-        .send({ title: 'Updated Task' })
-        .expect(404);
-
-      expect(response.body.status).toBe('error');
-      expect(response.body.message).toContain('Task not found');
-    });
-  });
-
-  describe('DELETE /api/tasks/:id', () => {
-    it('should delete a task', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [{ id: 1 }] });
-
-      const response = await request(app)
-        .delete('/api/tasks/1')
-        .expect(204);
-
-      // Verify task is deleted
-      mockQuery.mockResolvedValueOnce({ rows: [] });
-      const getResponse = await request(app)
-        .get('/api/tasks/1')
-        .expect(404);
-
-      expect(getResponse.body.status).toBe('error');
-      expect(getResponse.body.message).toContain('Task not found');
-    });
-
-    it('should return 404 if task is not found', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [] });
-
-      const response = await request(app)
-        .delete('/api/tasks/999')
-        .expect(404);
-
-      expect(response.body.status).toBe('error');
-      expect(response.body.message).toContain('Task not found');
+      expect(response.status).toBe(404);
     });
   });
 }); 

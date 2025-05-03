@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import taskRoutes from './routes/taskRoutes';
-import { errorHandler } from './middleware/errorHandler';
-import config from './config/app';
+import { taskRouter } from './routes/taskRoutes.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import config from './config/app.js';
 import './config/database'; // Initialize database connection
 
 // Create Express application
@@ -13,24 +13,20 @@ app.use(cors(config.cors));
 app.use(express.json());
 
 // Apply routes
-app.use('/api/tasks', taskRoutes);
+app.use('/api/tasks', taskRouter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    environment: config.env
-  });
+  res.status(200).json({ status: 'ok' });
 });
 
 // Error handling middleware
 app.use(errorHandler);
 
 // Start server if not in test environment
-if (config.env !== 'test') {
+if (process.env.NODE_ENV !== 'test') {
   app.listen(config.port, () => {
-    console.log(`Server is running in ${config.env} mode on port ${config.port}`);
+    console.log(`Server running on port ${config.port}`);
   });
 }
 

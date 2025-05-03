@@ -1,38 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiError } from './errorHandler';
-import { CreateTaskDTO, UpdateTaskDTO } from '../types';
+import { ApiError } from './errorHandler.js';
+import { CreateTaskDTO, UpdateTaskDTO } from '../types/index.js';
 
 export const validateTask = (req: Request, res: Response, next: NextFunction): void => {
-  const taskData: CreateTaskDTO | UpdateTaskDTO = req.body;
+  try {
+    const { title, description } = req.body;
 
-  // Validate title if present
-  if ('title' in taskData) {
-    if (!taskData.title || typeof taskData.title !== 'string') {
-      throw new ApiError(400, 'Title must be a non-empty string');
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+      throw new ApiError(400, 'Title is required and must be a non-empty string');
     }
-    if (taskData.title.length > 100) {
-      throw new ApiError(400, 'Title must be less than 100 characters');
+
+    if (description !== undefined && (typeof description !== 'string' || description.trim().length === 0)) {
+      throw new ApiError(400, 'Description must be a non-empty string if provided');
     }
+
+    next();
+  } catch (error) {
+    next(error);
   }
-
-  // Validate description if present
-  if ('description' in taskData && taskData.description !== undefined) {
-    if (typeof taskData.description !== 'string') {
-      throw new ApiError(400, 'Description must be a string');
-    }
-    if (taskData.description.length > 500) {
-      throw new ApiError(400, 'Description must be less than 500 characters');
-    }
-  }
-
-  // Validate completed status if present
-  if ('completed' in taskData && taskData.completed !== undefined) {
-    if (typeof taskData.completed !== 'boolean') {
-      throw new ApiError(400, 'Completed status must be a boolean');
-    }
-  }
-
-  next();
 };
 
 export const validateId = (req: Request, res: Response, next: NextFunction): void => {
