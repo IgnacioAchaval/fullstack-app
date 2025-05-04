@@ -59,4 +59,17 @@ Scenario('Task list sorting and filtering', async ({ I }) => {
   // Verify status counts
   I.see('Pending');
   I.see('Completed');
+});
+
+Scenario('Create and manage tasks', ({ I }) => {
+  I.amOnTheHomePage();
+  
+  I.createATaskWithTitleAndDescription('Test Task', 'Test Description');
+  I.shouldSeeATaskWithTitle('Test Task');
+  
+  I.markTheTaskAsCompleted();
+  I.theTaskShouldBeMarkedAsCompleted();
+  
+  I.deleteTheTask();
+  I.shouldNotSeeTheTaskWithTitle('Test Task');
 }); 
