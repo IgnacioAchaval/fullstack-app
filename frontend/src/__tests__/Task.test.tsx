@@ -1,23 +1,22 @@
 /** @jsx React.createElement */
-import * as React from 'react';
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Task } from '../components/Task';
 import { MemoryRouter } from 'react-router-dom';
 import { Task as TaskType } from '../types';
+import { describe, expect, it } from '@jest/globals';
+
+const mockTask: TaskType = {
+  id: '1',
+  title: 'Test Task',
+  description: 'Test Description',
+  status: 'pending',
+  createdAt: '2024-03-20T12:00:00Z',
+  updatedAt: '2024-03-20T12:00:00Z'
+};
 
 describe('Task Component', () => {
-  const mockTask: TaskType = {
-    id: '1',
-    title: 'Test Task',
-    description: 'Test Description',
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-
-  const mockOnUpdate = jest.fn();
-  const mockOnDelete = jest.fn();
-
   const renderWithRouter = (ui: React.ReactElement) => {
     return render(
       <MemoryRouter>
@@ -26,67 +25,73 @@ describe('Task Component', () => {
     );
   };
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('renders task details correctly', () => {
+    const handleDelete = jest.fn();
+    const handleStatusUpdate = jest.fn();
+
     renderWithRouter(
       <Task
         task={mockTask}
-        onUpdate={mockOnUpdate}
-        onDelete={mockOnDelete}
+        onDelete={handleDelete}
+        onStatusUpdate={handleStatusUpdate}
       />
     );
 
-    expect(screen.getByText('Test Task')).toBeInTheDocument();
-    expect(screen.getByText('Test Description')).toBeInTheDocument();
-    expect(screen.getByTestId('status-button-1')).toBeInTheDocument();
+    expect(screen.getByText(/Test Task/i)).toBeInTheDocument();
+    expect(screen.getByText(/Test Description/i)).toBeInTheDocument();
+    expect(screen.getByText(/pending/i)).toBeInTheDocument();
   });
 
-  it('calls onUpdate when status is changed', () => {
+  it('calls onStatusUpdate when status is toggled', () => {
+    const handleDelete = jest.fn();
+    const handleStatusUpdate = jest.fn();
+
     renderWithRouter(
       <Task
         task={mockTask}
-        onUpdate={mockOnUpdate}
-        onDelete={mockOnDelete}
+        onDelete={handleDelete}
+        onStatusUpdate={handleStatusUpdate}
       />
     );
 
-    const statusButton = screen.getByTestId('status-button-1');
+    const statusButton = screen.getByRole('button', { name: /toggle task status to completed/i });
     fireEvent.click(statusButton);
 
-    expect(mockOnUpdate).toHaveBeenCalledWith({
-      ...mockTask,
-      status: 'completed'
-    });
+    expect(handleStatusUpdate).toHaveBeenCalledWith('1', 'completed');
   });
 
   it('calls onDelete when delete button is clicked', () => {
+    const handleDelete = jest.fn();
+    const handleStatusUpdate = jest.fn();
+
     renderWithRouter(
       <Task
         task={mockTask}
-        onUpdate={mockOnUpdate}
-        onDelete={mockOnDelete}
+        onDelete={handleDelete}
+        onStatusUpdate={handleStatusUpdate}
       />
     );
 
-    const deleteButton = screen.getByTestId('delete-task-1');
+    const deleteButton = screen.getByRole('button', { name: /delete task test task/i });
     fireEvent.click(deleteButton);
 
-    expect(mockOnDelete).toHaveBeenCalledWith('1');
+    expect(handleDelete).toHaveBeenCalledWith('1');
   });
 
   it('renders completed task correctly', () => {
-    const completedTask: TaskType = { ...mockTask, status: 'completed' };
+    const handleDelete = jest.fn();
+    const handleStatusUpdate = jest.fn();
+    const completedTask = { ...mockTask, status: 'completed' as const };
+
     renderWithRouter(
       <Task
         task={completedTask}
-        onUpdate={mockOnUpdate}
-        onDelete={mockOnDelete}
+        onDelete={handleDelete}
+        onStatusUpdate={handleStatusUpdate}
       />
     );
 
-    expect(screen.getByTestId(`status-button-${completedTask.id}`)).toHaveTextContent('completed');
+    expect(screen.getByText(/Status: completed/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /toggle task status to pending/i })).toBeInTheDocument();
   });
 }); 

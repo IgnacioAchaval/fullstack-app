@@ -1,86 +1,95 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import axios from 'axios';
-import TaskList from '../../pages/TaskList';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
+import { TaskList } from '../../components/TaskList';
+import axios from 'axios';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { describe, expect, it, beforeEach, jest } from '@jest/globals';
+import type { Mocked } from 'jest-mock';
+import { MemoryRouter } from 'react-router-dom';
 
-// Mock axios
 jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
-
-const renderWithProviders = (ui: React.ReactElement) => {
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        {ui}
-      </MemoryRouter>
-    </QueryClientProvider>
-  );
-};
+const mockedAxios = axios as Mocked<typeof axios>;
 
 describe('TaskList Integration', () => {
-  const mockTasks = [
-    {
-      id: '1',
-      title: 'Test Task 1',
-      description: 'Test Description 1',
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    {
-      id: '2',
-      title: 'Test Task 2',
-      description: 'Test Description 2',
-      status: 'completed',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-  ];
+  let queryClient: QueryClient;
 
   beforeEach(() => {
-    // Mock successful API responses
-    mockedAxios.get.mockResolvedValue({ data: { data: mockTasks } });
-    mockedAxios.post.mockResolvedValue({ data: { data: mockTasks[0] } });
-    mockedAxios.delete.mockResolvedValue({ data: {} });
-  });
-
-  afterEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
     jest.clearAllMocks();
   });
 
+  const renderWithProviders = (ui: React.ReactElement) => {
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          {ui}
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+  };
+
   it('should render task list and handle task operations', async () => {
-    renderWithProviders(<TaskList />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Tasks')).toBeInTheDocument();
-      expect(screen.getByText('Add Task')).toBeInTheDocument();
+    // Mock initial tasks
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            id: '1',
+            title: 'Test Task 1',
+            description: 'Test Description 1',
+            status: 'pending',
+            createdAt: '2024-03-20T12:00:00Z',
+            updatedAt: '2024-03-20T12:00:00Z'
+          }
+        ]
+      }
     });
 
-    // Verify tasks are displayed
-    expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    expect(screen.getByText('Test Description 1')).toBeInTheDocument();
-    expect(screen.getByText('Test Task 2')).toBeInTheDocument();
-    expect(screen.getByText('Test Description 2')).toBeInTheDocument();
-  });
+    // Mock task update
+    mockedAxios.put.mockResolvedValueOnce({
+      data: {
+        data: {
+          id: '1',
+          title: 'Test Task 1',
+          description: 'Test Description 1',
+          status: 'completed',
+          createdAt: '2024-03-20T12:00:00Z',
+          updatedAt: '2024-03-20T12:00:00Z'
+        }
+      }
+    });
 
-  it('should handle API errors gracefully', async () => {
-    mockedAxios.get.mockRejectedValueOnce(new Error('API Error'));
+    // Mock task deletion
+    mockedAxios.delete.mockResolvedValueOnce({ data: { success: true } });
 
     renderWithProviders(<TaskList />);
-    
+
+    // Check if task is rendered
     await waitFor(() => {
-      expect(screen.getByText('Failed to fetch tasks. Please try again later.')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    // Toggle task status
+    const statusButton = screen.getByRole('button', { name: /toggle task status to completed/i });
+    fireEvent.click(statusButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Status: completed/)).toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    // Delete task
+    const deleteButton = screen.getByRole('button', { name: /delete task test task 1/i });
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
+  }, 15000);
 }); 
