@@ -115,75 +115,11 @@ jobs:
     - name: Run E2E tests
       working-directory: ./tests
       run: |
-        # Create logs directory in the root
-        cd ..
-        mkdir -p logs
-        cd tests
+        # Make the script executable
+        chmod +x run-e2e.sh
         
-        # Start backend
-        cd ../backend
-        echo "Building backend..."
-        npm run build
-        
-        echo "Starting backend..."
-        # Start backend with full logging
-        NODE_ENV=development DEBUG=* npm run dev > ../logs/backend.log 2>&1 &
-        BACKEND_PID=$!
-        
-        # Start frontend
-        cd ../frontend
-        echo "Starting frontend..."
-        npm run dev > ../logs/frontend.log 2>&1 &
-        FRONTEND_PID=$!
-        
-        # Wait for services to be ready
-        echo "Waiting for services to be ready..."
-        for i in {1..30}; do
-          if curl -s http://localhost:3001/health > /dev/null; then
-            echo "Backend is ready!"
-            break
-          fi
-          if [ $i -eq 30 ]; then
-            echo "Backend failed to start. Logs:"
-            cat ../logs/backend.log || echo "No backend log file found"
-            echo "Backend process status:"
-            ps aux | grep node || echo "No node processes found"
-            echo "Current directory:"
-            pwd
-            echo "Directory contents:"
-            ls -la
-            echo "Logs directory contents:"
-            ls -la ../logs || echo "Logs directory not found"
-            echo "Backend directory contents:"
-            ls -la ../backend
-            exit 1
-          fi
-          echo "Waiting for backend... ($i/30)"
-          sleep 1
-        done
-        
-        for i in {1..30}; do
-          if curl -s http://localhost:3000 > /dev/null; then
-            echo "Frontend is ready!"
-            break
-          fi
-          if [ $i -eq 30 ]; then
-            echo "Frontend failed to start. Logs:"
-            cat ../logs/frontend.log || echo "No frontend log file found"
-            exit 1
-          fi
-          echo "Waiting for frontend... ($i/30)"
-          sleep 1
-        done
-        
-        # Run tests
-        echo "Running E2E tests..."
-        npx codeceptjs run --steps
-        
-        # Cleanup
-        echo "Cleaning up..."
-        kill $BACKEND_PID
-        kill $FRONTEND_PID
+        # Run the E2E tests
+        ./run-e2e.sh
       env:
         FRONTEND_URL: http://localhost:3000
         BACKEND_URL: http://localhost:3001

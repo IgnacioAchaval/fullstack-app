@@ -3,17 +3,13 @@
   "version": "1.0.0",
   "description": "E2E tests for Task Manager application",
   "scripts": {
-    "start:app": "cd .. && docker-compose up -d",
-    "stop:app": "cd .. && docker-compose down",
-    "test": "npm run start:app && sleep 30 && codeceptjs run --steps && npm run stop:app",
-    "test:headless": "HEADLESS=true npm test",
-    "test:debug": "HEADLESS=false DEBUG=true npm test"
+    "test": "codeceptjs run --steps",
+    "test:headless": "HEADLESS=true codeceptjs run --steps"
   },
-  "devDependencies": {
-    "codeceptjs": "3.5.13-beta.3",
+  "dependencies": {
     "@codeceptjs/configure": "^0.10.0",
     "@codeceptjs/ui": "^0.7.0",
-    "playwright": "^1.42.0",
-    "axios": "^1.6.7"
+    "codeceptjs": "^3.7.3",
+    "playwright": "^1.42.1"
   }
 } 
