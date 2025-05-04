@@ -1,43 +1,47 @@
-import { jest } from '@jest/globals';
-import type { Pool, QueryResult } from 'pg';
+import { jest, beforeAll, afterAll } from '@jest/globals';
+import { pool } from '../config/database';
+import type { Pool } from 'pg';
 
 // Set test environment
 process.env.NODE_ENV = 'test';
 process.env.PORT = '3001';
 process.env.DB_NAME = 'taskmanager_test';
 
-// Create a type that includes both Pool's query method and Jest's mock methods
-export type MockQueryFunction = jest.Mock & {
-  mockResolvedValueOnce: (value: any) => jest.Mock;
-  mockRejectedValueOnce: (value: any) => jest.Mock;
-};
+// Create tables for integration tests
+beforeAll(async () => {
+  const pgPool = pool as Pool;
+  await pgPool.query(`
+    CREATE TABLE IF NOT EXISTS tasks (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      description TEXT,
+      completed BOOLEAN NOT NULL DEFAULT false,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
 
-// Mock database
-const mockPool = {
-  query: jest.fn() as MockQueryFunction,
-  connect: jest.fn(),
-  end: jest.fn()
-} as unknown as Pool;
+    -- Create an index on the completed column for faster queries
+    CREATE INDEX IF NOT EXISTS idx_tasks_completed ON tasks(completed);
 
-jest.mock('../config/database', () => ({
-  pool: mockPool
-}));
+    -- Create a trigger to automatically update the updated_at timestamp
+    CREATE OR REPLACE FUNCTION update_updated_at_column()
+    RETURNS TRIGGER AS $$
+    BEGIN
+      NEW.updated_at = CURRENT_TIMESTAMP;
+      RETURN NEW;
+    END;
+    $$ language 'plpgsql';
 
-export const mockQuery = mockPool.query;
-
-// Global setup
-beforeAll(() => {
-  // Add any global setup here
+    CREATE TRIGGER IF NOT EXISTS update_tasks_updated_at
+      BEFORE UPDATE ON tasks
+      FOR EACH ROW
+      EXECUTE FUNCTION update_updated_at_column();
+  `);
 });
 
-// Global teardown
+// Clean up after all tests
 afterAll(async () => {
-  // Ensure all mocks are cleared
-  jest.clearAllMocks();
-  
-  // Ensure pool is ended
-  await mockPool.end();
-  
-  // Force any remaining handles to close
-  await new Promise(resolve => setTimeout(resolve, 100));
+  const pgPool = pool as Pool;
+  await pgPool.query('DROP TABLE IF EXISTS tasks CASCADE');
+  await pgPool.end();
 }); 

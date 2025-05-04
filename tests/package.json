@@ -1,12 +1,12 @@
 {
-  "name": "task-manager-e2e-tests",
+  "name": "task-manager-integration-tests",
   "version": "1.0.0",
-  "description": "E2E tests for Task Manager application",
+  "description": "Integration tests for Task Manager",
   "scripts": {
-    "test": "codeceptjs run --steps"
+    "test": "playwright test",
+    "test:debug": "HEADLESS=false playwright test --debug"
   },
-  "dependencies": {
-    "codeceptjs": "3.5.13-beta.3",
-    "playwright": "^1.42.1"
+  "devDependencies": {
+    "@playwright/test": "^1.42.1"
   }
 } 

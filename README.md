@@ -1,116 +1,144 @@
-# Task Manager Fullstack Application
+# Task Manager Application
 
-A task management application built with React, Node.js, and PostgreSQL.
+A full-stack task management application built with React, Node.js, Express, and PostgreSQL.
 
 ## Features
 
 - Create, read, update, and delete tasks
-- Task status management (pending, in progress, completed)
-- Modern, responsive UI
+- Mark tasks as completed
+- Responsive design
 - RESTful API
 - PostgreSQL database
 - Docker containerization
 - CI/CD pipeline with GitHub Actions
-- Automated testing (unit and E2E)
-
-## Tech Stack
-
-### Frontend
-- React with TypeScript
-- Material-UI for components
-- Vite for build tooling
-- React Router for navigation
-- Axios for API calls
-
-### Backend
-- Node.js with Express
-- TypeScript
-- PostgreSQL database
-- Jest for unit testing
-- CodeceptJS for E2E testing
-
-### DevOps
-- Docker for containerization
-- GitHub Actions for CI/CD
-- AWS EC2 for deployment
-- DockerHub for image registry
+- Unit, integration, and E2E tests
 
 ## Prerequisites
 
 - Node.js 20 or later
+- PostgreSQL 16 or later
 - Docker and Docker Compose
-- PostgreSQL (if running locally)
 - Git
 
-## Getting Started
+## Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/task-manager.git
-   cd task-manager
-   ```
-
-2. Set up environment variables:
-   ```bash
-   # Backend
-   cp backend/.env.example backend/.env
-   # Frontend
-   cp frontend/.env.example frontend/.env
-   ```
-
-3. Start the development environment:
-   ```bash
-   docker-compose up -d
-   ```
-
-4. Access the application:
-   - Frontend: http://localhost
-   - Backend API: http://localhost:3001
-   - API Documentation: http://localhost:3001/api-docs
-
-## Development
-
-### Backend
-
 ```bash
+git clone https://github.com/yourusername/task-manager.git
+cd task-manager
+```
+
+2. Install dependencies:
+```bash
+# Install backend dependencies
 cd backend
 npm install
-npm run dev
-```
 
-### Frontend
-
-```bash
-cd frontend
+# Install frontend dependencies
+cd ../frontend
 npm install
+```
+
+3. Set up environment variables:
+```bash
+# Backend (.env)
+NODE_ENV=development
+PORT=3000
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/taskmanager
+
+# Frontend (.env)
+VITE_API_URL=http://localhost:3000
+```
+
+4. Start the development servers:
+```bash
+# Start backend
+cd backend
+npm run dev
+
+# Start frontend
+cd frontend
 npm run dev
 ```
+
+## Running with Docker
+
+1. Build and start the containers:
+```bash
+docker-compose up --build
+```
+
+2. Access the application:
+- Frontend: http://localhost
+- Backend API: http://localhost:3000
 
 ## Testing
 
 ### Backend Tests
-
 ```bash
 cd backend
-npm run test        # Run unit tests
-npm run test:e2e    # Run E2E tests
+npm test              # Run unit tests
+npm run test:watch    # Run tests in watch mode
+npm run test:coverage # Run tests with coverage
+npm run test:integration # Run integration tests
 ```
 
 ### Frontend Tests
-
 ```bash
 cd frontend
-npm run test
+npm test              # Run unit tests
+npm run test:watch    # Run tests in watch mode
+npm run test:coverage # Run tests with coverage
+npm run test:e2e      # Run E2E tests
 ```
 
-## Deployment
+## CI/CD Pipeline
 
-The application is automatically deployed to AWS EC2 when changes are pushed to the main branch. The deployment process includes:
+The project includes a GitHub Actions workflow that:
+1. Runs tests (unit, integration, and E2E)
+2. Builds Docker images
+3. Pushes images to DockerHub
+4. Deploys to EC2
 
-1. Running all tests
-2. Building Docker images
-3. Pushing images to DockerHub
-4. Deploying to EC2
+## Project Structure
+
+```
+.
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── tests/
+│   │   └── types/
+│   ├── Dockerfile
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   ├── tests/
+│   │   └── types/
+│   ├── Dockerfile
+│   └── package.json
+├── docker-compose.yml
+└── README.md
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## API Documentation
 

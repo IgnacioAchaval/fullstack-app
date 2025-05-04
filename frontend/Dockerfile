@@ -2,11 +2,11 @@
 FROM node:20-alpine as build
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Install app dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy app source
 COPY . .
@@ -18,7 +18,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy built assets from build stage
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy error page
 COPY --from=build /usr/src/app/public/50x.html /usr/share/nginx/html/

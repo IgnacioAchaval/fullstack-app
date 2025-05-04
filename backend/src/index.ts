@@ -6,7 +6,7 @@ import config from './config/app';
 import './config/database'; // Initialize database connection
 
 // Create Express application
-const app = express();
+export const app = express();
 
 // Apply middleware
 app.use(cors(config.cors));
@@ -20,12 +20,12 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// Error handling middleware
+// Apply error handling
 app.use(errorHandler);
 
 // Start server
-app.listen(config.port, () => {
-  console.log(`Server running on port ${config.port}`);
-});
-
-export { app }; 
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(config.port, () => {
+    console.log(`Server running on port ${config.port}`);
+  });
+} 

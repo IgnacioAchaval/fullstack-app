@@ -2,43 +2,39 @@ import { Request, Response, NextFunction } from 'express';
 
 // Custom error class for API errors
 export class ApiError extends Error {
-  constructor(
-    public statusCode: number,
-    public message: string,
-    public isOperational = true
-  ) {
+  statusCode: number;
+  isOperational: boolean;
+  path?: string;
+  method?: string;
+
+  constructor(statusCode: number, message: string, error?: Error) {
     super(message);
-    Object.setPrototypeOf(this, ApiError.prototype);
+    this.statusCode = statusCode;
+    this.isOperational = true;
+    this.stack = error?.stack;
+    Error.captureStackTrace(this, this.constructor);
   }
 }
 
 // Error handler middleware
 export const errorHandler = (
-  err: Error | ApiError,
+  err: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  // Default error values
-  const statusCode = err instanceof ApiError ? err.statusCode : 500;
-  const message = err.message || 'Internal Server Error';
-  const isOperational = err instanceof ApiError ? err.isOperational : false;
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode).json({
+      status: 'error',
+      message: err.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    });
+  }
 
-  // Log error details
-  console.error('Error:', {
-    statusCode,
-    message,
-    stack: err.stack,
-    isOperational,
-    path: req.path,
-    method: req.method,
-  });
-
-  // Send error response
-  res.status(statusCode).json({
+  console.error('Unhandled error:', err);
+  return res.status(500).json({
     status: 'error',
-    statusCode,
-    message,
+    message: 'Internal server error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
   });
 };
