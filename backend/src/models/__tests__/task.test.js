@@ -1,0 +1,84 @@
+// Mock Sequelize dependencies
+jest.mock('sequelize', () => {
+  const mocked = {
+    UUID: 'UUID',
+    UUIDV4: 'UUIDV4',
+    STRING: 'STRING',
+    TEXT: 'TEXT',
+    ENUM: jest.fn((...values) => ({ type: 'ENUM', values })),
+    DATE: 'DATE'
+  };
+  return {
+    DataTypes: mocked
+  };
+});
+
+const { DataTypes } = require('sequelize');
+const defineTask = require('../Task.js');
+
+describe('Task Model', () => {
+  let sequelize;
+  let mockDefine;
+
+  beforeEach(() => {
+    mockDefine = jest.fn().mockReturnValue({});
+    sequelize = {
+      define: mockDefine
+    };
+    defineTask(sequelize);
+  });
+
+  it('should define the Task model with correct schema', () => {
+    expect(mockDefine).toHaveBeenCalledWith('Task', {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      status: {
+        type: DataTypes.ENUM('pending', 'in_progress', 'completed'),
+        defaultValue: 'pending',
+      },
+      dueDate: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+    }, {
+      timestamps: true,
+    });
+  });
+
+  it('should enforce required fields', () => {
+    const modelDefinition = mockDefine.mock.calls[0][1];
+    expect(modelDefinition.title.allowNull).toBe(false);
+  });
+
+  it('should set correct default values', () => {
+    const modelDefinition = mockDefine.mock.calls[0][1];
+    expect(modelDefinition.status.defaultValue).toBe('pending');
+  });
+
+  it('should use UUID for id field', () => {
+    const modelDefinition = mockDefine.mock.calls[0][1];
+    expect(modelDefinition.id.type).toBe(DataTypes.UUID);
+    expect(modelDefinition.id.defaultValue).toBe(DataTypes.UUIDV4);
+  });
+
+  it('should enable timestamps', () => {
+    const options = mockDefine.mock.calls[0][2];
+    expect(options.timestamps).toBe(true);
+  });
+
+  it('should properly define ENUM values for status', () => {
+    const modelDefinition = mockDefine.mock.calls[0][1];
+    expect(DataTypes.ENUM).toHaveBeenCalledWith('pending', 'in_progress', 'completed');
+  });
+}); 

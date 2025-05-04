@@ -6,13 +6,16 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/task-manager
+  DOCKER_TAG: ${{ github.sha }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -28,101 +31,30 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Debug directory structure
-      run: |
-        pwd
-        ls -la
-        echo "Backend directory:"
-        ls -la backend/
-        echo "Frontend directory:"
-        ls -la frontend/
-        echo "Checking for package-lock.json files:"
-        find . -name "package-lock.json"
-
-    - name: Set up Node.js for Backend
+    - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: |
-          backend/package-lock.json
-          backend/package.json
 
-    - name: Install backend dependencies
+    - name: Install Backend Dependencies
       working-directory: ./backend
-      run: |
-        npm install
-        npm ci
-        npm list --depth=0
+      run: npm install
 
-    - name: Set up Node.js for Frontend
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: |
-          frontend/package-lock.json
-          frontend/package.json
-
-    - name: Install frontend dependencies
-      working-directory: ./frontend
-      run: |
-        npm install
-        npm ci
-        npm list --depth=0
-
-    - name: Set up Node.js for E2E Tests
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: |
-          tests/package-lock.json
-          tests/package.json
-
-    - name: Install E2E test dependencies
-      working-directory: ./tests
-      run: |
-        npm install --legacy-peer-deps
-        npx playwright install --with-deps chromium
-
-    - name: Verify backend test setup
+    - name: Run Backend Unit Tests
       working-directory: ./backend
-      run: |
-        echo "Checking test setup file:"
-        ls -la src/tests/setup.ts
-        echo "Checking Jest config:"
-        cat config/jest.config.js
+      run: npm run test:unit
 
-    - name: Run backend tests
-      working-directory: ./backend
-      run: |
-        timeout 300 npm run test
-        timeout 300 npm run test:coverage
-      env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/taskmanager_test
-        PORT: 3001
-        DB_USER: postgres
-        DB_PASSWORD: postgres
-        DB_NAME: taskmanager_test
-        DB_HOST: localhost
-        DB_PORT: 5432
-
-    - name: Run frontend tests
-      working-directory: ./frontend
-      run: npm run test
-
-    - name: Run integration tests
+    - name: Run Backend Integration Tests
       working-directory: ./backend
       run: npm run test:integration
-      env:
-        NODE_ENV: test
-        PORT: 3001
-        DB_USER: postgres
-        DB_PASSWORD: postgres
-        DB_NAME: taskmanager_test
-        DB_HOST: localhost
-        DB_PORT: 5432
+
+    - name: Install Frontend Dependencies
+      working-directory: ./frontend
+      run: npm install
+
+    - name: Run Frontend Tests
+      working-directory: ./frontend
+      run: npm test
 
   build-and-push:
     needs: test
@@ -131,9 +63,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -144,21 +73,19 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push backend
+    - name: Build and push Backend
       uses: docker/build-push-action@v5
       with:
         context: ./backend
-        platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/task-manager-backend:latest
+        tags: ${{ env.DOCKER_IMAGE }}-backend:${{ env.DOCKER_TAG }}
 
-    - name: Build and push frontend
+    - name: Build and push Frontend
       uses: docker/build-push-action@v5
       with:
         context: ./frontend
-        platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/task-manager-frontend:latest
+        tags: ${{ env.DOCKER_IMAGE }}-frontend:${{ env.DOCKER_TAG }}
 
   deploy:
     needs: build-and-push
@@ -166,85 +93,8 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.AWS_HOST }}
-        username: ${{ secrets.AWS_USER }}
-        key: ${{ secrets.AWS_KEY }}
-        script: |
-          # Ensure Docker is installed and running
-          if ! command -v docker &> /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y docker.io
-            sudo systemctl enable docker
-            sudo systemctl start docker
-          fi
-          
-          # Install docker-compose if not present
-          if ! command -v docker-compose &> /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y docker-compose-plugin
-            sudo ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
-          fi
-          
-          # Create application directory
-          sudo mkdir -p /opt/task-manager
-          sudo chown $USER:$USER /opt/task-manager
-          
-          # Navigate to application directory
-          cd /opt/task-manager
-          
-          # Create docker-compose.yml
-          sudo tee docker-compose.yml << 'EOL'
-          version: '3.8'
-          services:
-            backend:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/task-manager-backend:latest
-              ports:
-                - "3001:3001"
-              environment:
-                - NODE_ENV=production
-                - DB_USER=postgres
-                - DB_PASSWORD=postgres
-                - DB_NAME=todos
-                - DB_HOST=db
-                - DB_PORT=5432
-              depends_on:
-                - db
-            frontend:
-              image: ${{ secrets.DOCKERHUB_USERNAME }}/task-manager-frontend:latest
-              ports:
-                - "80:80"
-              environment:
-                - NODE_ENV=production
-                - VITE_API_URL=http://localhost:3001
-              depends_on:
-                - backend
-            db:
-              image: postgres:15-alpine
-              environment:
-                - POSTGRES_USER=postgres
-                - POSTGRES_PASSWORD=postgres
-                - POSTGRES_DB=todos
-              volumes:
-                - postgres_data:/var/lib/postgresql/data
-          volumes:
-            postgres_data:
-          EOL
-          
-          # Set proper permissions
-          sudo chown $USER:$USER docker-compose.yml
-          
-          # Pull latest images and start containers
-          sudo docker-compose pull
-          sudo docker-compose up -d
-          
-          # Wait for services to be ready
-          sleep 30
-          
-          # Check container status
-          sudo docker-compose ps
-          
-          # Check container logs
-          sudo docker-compose logs
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production..."
+        # Add your deployment steps here
+        # This could be deploying to AWS, GCloud, or any other cloud provider

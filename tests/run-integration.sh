@@ -53,13 +53,16 @@ npm install
 npm run build
 
 echo "Starting frontend..."
-npm run preview &
+npm run preview > frontend.log 2>&1 &
 FRONTEND_PID=$!
 
-# Wait for frontend to start
+# Wait for frontend to start and get the port
 echo "Waiting for frontend to start..."
+FRONTEND_PORT=""
 for i in {1..30}; do
-    if curl -s http://localhost:4173 > /dev/null; then
+    # Extract port from serve output
+    FRONTEND_PORT=$(grep -o "http://localhost:[0-9]*" frontend.log | head -n 1 | cut -d':' -f3)
+    if [ ! -z "$FRONTEND_PORT" ] && curl -s "http://localhost:$FRONTEND_PORT" > /dev/null; then
         break
     fi
     if [ $i -eq 30 ]; then
@@ -73,6 +76,7 @@ done
 echo "Running integration tests..."
 cd "$TESTS_DIR"
 npm install
+export FRONTEND_PORT=$FRONTEND_PORT
 npm test
 TEST_EXIT_CODE=$?
 

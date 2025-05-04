@@ -21,11 +21,8 @@ console.log('Environment:', {
 
 // In development and test, use absolute URLs
 // In production, use relative URLs (which will be handled by nginx)
-export const API_URL = isDevelopment || isTest
-  ? (typeof window !== 'undefined' && window.ENV?.VITE_API_URL) ||
-    (typeof process !== 'undefined' && process.env.VITE_API_URL) ||
-    'http://localhost:3001/api'
-  : '/api'; // Use /api prefix in production
+export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+export const API_BASE_URL = `${API_URL}/api`;
 
 // Log the final API URL for debugging
 console.log('API_URL:', API_URL); 

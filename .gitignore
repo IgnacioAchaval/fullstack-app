@@ -5,15 +5,51 @@ node_modules/
 
 # Testing
 coverage/
-dist-ssr/
+.nyc_output/
 
 # Production
-build/
 dist/
-out/
-*.local
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Docker
+.docker/
 
 # Misc
+*.local
+
+# IDE
 .DS_Store
 .env
 .env.local

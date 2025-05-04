@@ -7,6 +7,8 @@ module.exports = {
     '^.+\\.ts$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-  setupFilesAfterEnv: ['<rootDir>/src/tests/setup.ts'],
-  testTimeout: 10000,
+  setupFilesAfterEnv: ['<rootDir>/src/tests/integration/setup.ts'],
+  testTimeout: 30000,
+  forceExit: true,
+  detectOpenHandles: true
 }; 

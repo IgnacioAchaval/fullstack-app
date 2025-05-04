@@ -10,13 +10,13 @@ export interface Task {
 
 export interface CreateTaskDTO {
   title: string;
-  description?: string;
-  completed?: boolean;
+  description: string | null;
+  completed: boolean;
 }
 
 export interface UpdateTaskDTO {
   title?: string;
-  description?: string;
+  description?: string | null;
   completed?: boolean;
 }
 
@@ -28,13 +28,13 @@ export interface DatabaseError extends Error {
 
 // API Response types
 export interface ApiResponse<T> {
-  status: 'success' | 'error';
+  success: boolean;
   data?: T;
-  message?: string;
   error?: {
-    code: string;
+    code: number;
     message: string;
   };
+  message?: string;
 }
 
 // Request types

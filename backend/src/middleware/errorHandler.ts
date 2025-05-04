@@ -2,17 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 
 // Custom error class for API errors
 export class ApiError extends Error {
-  statusCode: number;
-  isOperational: boolean;
-  path?: string;
-  method?: string;
-
-  constructor(statusCode: number, message: string, error?: Error) {
+  constructor(public statusCode: number, message: string) {
     super(message);
-    this.statusCode = statusCode;
-    this.isOperational = true;
-    this.stack = error?.stack;
-    Error.captureStackTrace(this, this.constructor);
+    this.name = 'ApiError';
   }
 }
 
@@ -25,17 +17,21 @@ export const errorHandler = (
 ) => {
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
-      status: 'error',
-      message: err.message,
-      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+      success: false,
+      error: {
+        code: err.statusCode,
+        message: err.message
+      }
     });
   }
 
   console.error('Unhandled error:', err);
   return res.status(500).json({
-    status: 'error',
-    message: 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    success: false,
+    error: {
+      code: 500,
+      message: 'Internal server error'
+    }
   });
 };
 
