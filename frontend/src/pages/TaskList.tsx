@@ -83,8 +83,8 @@ export default function TaskList() {
   });
 
   const updateTask = useMutation({
-    mutationFn: async (task: TaskType) => {
-      const response = await axios.put(`${API_BASE_URL}/tasks/${task.id}`, { status: task.status });
+    mutationFn: async ({ id, status }: { id: string; status: TaskType['status'] }) => {
+      const response = await axios.put(`${API_BASE_URL}/tasks/${id}`, { status });
       return response.data;
     },
     onSuccess: () => {
@@ -116,6 +116,14 @@ export default function TaskList() {
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteTask.mutate(id);
+  };
+
+  const handleStatusUpdate = async (taskId: string, newStatus: 'pending' | 'completed'): Promise<void> => {
+    await updateTask.mutateAsync({ id: taskId, status: newStatus });
   };
 
   if (isLoading) {
@@ -182,8 +190,8 @@ export default function TaskList() {
           <Task
             key={task.id}
             task={task}
-            onStatusUpdate={updateTask.mutate}
-            onDelete={deleteTask.mutate}
+            onStatusUpdate={handleStatusUpdate}
+            onDelete={handleDelete}
           />
         ))}
       </Box>

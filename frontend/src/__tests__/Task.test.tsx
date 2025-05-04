@@ -57,10 +57,7 @@ describe('Task Component', () => {
     const statusButton = screen.getByRole('button', { name: /toggle task status to completed/i });
     fireEvent.click(statusButton);
 
-    expect(handleStatusUpdate).toHaveBeenCalledWith({
-      ...mockTask,
-      status: 'completed'
-    });
+    expect(handleStatusUpdate).toHaveBeenCalledWith('1', 'completed');
   });
 
   it('calls onDelete when delete button is clicked', () => {
