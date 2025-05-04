@@ -18,6 +18,8 @@ describe('App Component', () => {
       defaultOptions: {
         queries: {
           retry: false,
+          cacheTime: 0,
+          refetchOnWindowFocus: false,
         },
       },
     });
@@ -32,7 +34,8 @@ describe('App Component', () => {
     );
   };
 
-  it('renders task list', async () => {
+  it('renders task list and handles task operations', async () => {
+    // Mock initial tasks
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [
@@ -48,20 +51,7 @@ describe('App Component', () => {
       }
     });
 
-    renderWithProviders(<App />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Task Manager')).toBeInTheDocument();
-      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    }, { timeout: 10000 });
-  });
-
-  it('adds a new task when form is submitted', async () => {
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        data: []
-      }
-    });
+    // Mock task creation
     mockedAxios.post.mockResolvedValueOnce({
       data: {
         data: {
@@ -75,53 +65,36 @@ describe('App Component', () => {
       }
     });
 
-    renderWithProviders(<App />);
-
-    const addButton = screen.getByRole('button', { name: /add task/i });
-    fireEvent.click(addButton);
-
-    const titleInput = screen.getByLabelText(/title/i);
-    const descriptionInput = screen.getByLabelText(/description/i);
-
-    fireEvent.change(titleInput, { target: { value: 'New Task' } });
-    fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
-
-    const saveButton = screen.getByRole('button', { name: /save/i });
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      expect(screen.getByText(/New Task/i)).toBeInTheDocument();
-    }, { timeout: 10000 });
-  }, 15000);
-
-  it('deletes a task when delete button is clicked', async () => {
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        data: [
-          {
-            id: '1',
-            title: 'Test Task 1',
-            description: 'Test Description 1',
-            status: 'pending',
-            createdAt: '2024-03-20T12:00:00Z',
-            updatedAt: '2024-03-20T12:00:00Z'
-          }
-        ]
-      }
-    });
+    // Mock task deletion
     mockedAxios.delete.mockResolvedValueOnce({ data: { success: true } });
 
     renderWithProviders(<App />);
-    
+
+    // Check if task is rendered
     await waitFor(() => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    }, { timeout: 10000 });
+    });
 
-    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    // Add new task
+    const titleInput = screen.getByLabelText(/title/i);
+    const descriptionInput = screen.getByLabelText(/description/i);
+    const submitButton = screen.getByRole('button', { name: /add task/i });
+
+    fireEvent.change(titleInput, { target: { value: 'New Task' } });
+    fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
+    fireEvent.click(submitButton);
+
+    // Check if new task is added
+    await waitFor(() => {
+      expect(screen.getByText('New Task')).toBeInTheDocument();
+    });
+
+    // Delete task
+    const deleteButton = screen.getByRole('button', { name: /delete task test task 1/i });
     fireEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
+    });
   });
 }); 

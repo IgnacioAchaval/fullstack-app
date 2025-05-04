@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { TaskList } from '../../components/TaskList';
 import axios from 'axios';
@@ -19,6 +19,8 @@ describe('TaskList Integration', () => {
       defaultOptions: {
         queries: {
           retry: false,
+          cacheTime: 0,
+          refetchOnWindowFocus: false,
         },
       },
     });
@@ -69,37 +71,29 @@ describe('TaskList Integration', () => {
     // Mock task deletion
     mockedAxios.delete.mockResolvedValueOnce({ data: { success: true } });
 
-    await act(async () => {
-      renderWithProviders(<TaskList />);
-    });
+    renderWithProviders(<TaskList />);
 
     // Check if task is rendered
     await waitFor(() => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    }, { timeout: 10000 });
+    });
 
     // Toggle task status
     const statusButton = screen.getByRole('button', { name: /toggle task status to completed/i });
-    await act(async () => {
-      fireEvent.click(statusButton);
-    });
+    fireEvent.click(statusButton);
 
     // Wait for the status update to be reflected
     await waitFor(() => {
-      const statusElement = screen.getByText((content, element) => {
-        return element?.textContent?.includes('Status: completed') ?? false;
-      });
-      expect(statusElement).toBeInTheDocument();
-    }, { timeout: 10000 });
+      const statusText = screen.getByText(/Status: completed/i);
+      expect(statusText).toBeInTheDocument();
+    });
 
     // Delete task
     const deleteButton = screen.getByRole('button', { name: /delete task test task 1/i });
-    await act(async () => {
-      fireEvent.click(deleteButton);
-    });
+    fireEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
-  }, 15000);
+    });
+  });
 }); 
