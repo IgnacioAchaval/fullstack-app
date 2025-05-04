@@ -7,35 +7,34 @@ Before(async ({ I }) => {
 
 Scenario('Create and delete a task', async ({ I }) => {
   const taskTitle = `Test Task ${Date.now()}`;
-  
+  const taskDescription = 'Test Description';
+
   // Create task
-  I.fillField('input[placeholder="Task title"]', taskTitle);
-  I.fillField('input[placeholder="Task description"]', 'Test Description');
-  I.click('Add Task');
-  
-  // Verify task was created
+  await I.createTask(taskTitle, taskDescription);
   I.see(taskTitle);
-  I.see('Test Description');
-  
+  I.see(taskDescription);
+
   // Delete task
-  I.click(`//td[contains(text(), '${taskTitle}')]/..//button[contains(text(), 'Delete')]`);
+  await I.deleteTask(taskTitle);
   I.dontSee(taskTitle);
 });
 
-Scenario('Toggle task status', async ({ I }) => {
-  const taskTitle = `Toggle Task ${Date.now()}`;
-  
+Scenario('Toggle task completion status', async ({ I }) => {
+  const taskTitle = `Test Task ${Date.now()}`;
+  const taskDescription = 'Test Description';
+
   // Create task
-  I.fillField('input[placeholder="Task title"]', taskTitle);
-  I.fillField('input[placeholder="Task description"]', 'Toggle Test');
-  I.click('Add Task');
-  
-  // Verify initial status
+  await I.createTask(taskTitle, taskDescription);
+  I.see(taskTitle);
   I.see('Pending');
-  
-  // Toggle status
-  I.click(`//td[contains(text(), '${taskTitle}')]/..//button[contains(text(), 'Pending')]`);
+
+  // Toggle to completed
+  await I.toggleTaskStatus(taskTitle);
   I.see('Completed');
+
+  // Toggle back to pending
+  await I.toggleTaskStatus(taskTitle);
+  I.see('Pending');
 });
 
 // Basic form validation

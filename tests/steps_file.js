@@ -7,24 +7,43 @@ I.waitForApp = async () => {
   I.waitForElement('.task-list', 10);
 };
 
-// Create a task with given title and description
-I.createTask = async (title, description) => {
-  I.fillField('input[placeholder="Task title"]', title);
-  I.fillField('input[placeholder="Task description"]', description);
-  I.click('Add Task');
-  I.waitForElement(`text=${title}`, 5);
+// Wait for services to be ready
+I.waitForServices = async function() {
+  const maxRetries = 30;
+  const retryInterval = 1000; // 1 second
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      // Check frontend
+      await I.amOnPage('/');
+      await I.see('Task Manager');
+      
+      // If we get here, both services are ready
+      return;
+    } catch (error) {
+      if (i === maxRetries - 1) {
+        throw new Error('Services not ready after maximum retries');
+      }
+      await new Promise(resolve => setTimeout(resolve, retryInterval));
+    }
+  }
 };
 
-// Delete a task by title
-I.deleteTask = async (title) => {
-  I.click(`//td[contains(text(), '${title}')]/..//button[contains(text(), 'Delete')]`);
-  I.wait(1);
+// Create a new task
+I.createTask = async function(title, description) {
+  I.fillField('input[name="title"]', title);
+  I.fillField('textarea[name="description"]', description);
+  I.click('button[type="submit"]');
 };
 
-// Toggle task completion status
-I.toggleTaskStatus = async (title, currentStatus) => {
-  I.click(`//td[contains(text(), '${title}')]/..//button[contains(text(), '${currentStatus}')]`);
-  I.wait(1);
+// Delete a task
+I.deleteTask = async function(title) {
+  I.click(`//div[contains(@class, 'task-item')][.//h3[contains(text(), '${title}')]]//button[contains(@class, 'delete')]`);
+};
+
+// Toggle task status
+I.toggleTaskStatus = async function(title) {
+  I.click(`//div[contains(@class, 'task-item')][.//h3[contains(text(), '${title}')]]//button[contains(@class, 'toggle')]`);
 };
 
 module.exports = function() {
@@ -58,29 +77,4 @@ module.exports = function() {
       }
     }
   });
-};
-
-// Custom step to wait for services to be ready
-I.waitForServices = async function() {
-  const maxRetries = 30;
-  const retryDelay = 1000;
-
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      // Check frontend
-      await I.amOnPage('/');
-      await I.see('Task Manager');
-
-      // Check backend health
-      const response = await I.sendGetRequest('/health');
-      if (response.status === 200) {
-        return true;
-      }
-    } catch (error) {
-      if (i === maxRetries - 1) {
-        throw new Error('Services not ready after maximum retries');
-      }
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
-    }
-  }
 }; 
