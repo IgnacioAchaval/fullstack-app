@@ -40,12 +40,10 @@
     "webpack-dev-server": "^5.0.2"
   },
   "scripts": {
-    "start": "webpack serve --mode development",
-    "build": "webpack --mode production",
-    "test": "jest --config config/jest.config.cjs",
-    "test:watch": "jest --config config/jest.config.cjs --watch",
-    "eject": "react-scripts eject",
-    "preview": "serve -s dist"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [

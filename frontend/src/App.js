@@ -19,8 +19,8 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-// Use relative URL to work with webpack proxy
-const API_URL = '/api';
+// Use relative URL since we're using nginx proxy
+axios.defaults.baseURL = '';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -40,7 +40,7 @@ function App() {
   const fetchTasks = async () => {
     try {
       console.log('Fetching tasks...');
-      const response = await axios.get(`${API_URL}/tasks`);
+      const response = await axios.get('/api/tasks');
       console.log('Tasks response:', response.data);
       const tasksData = response.data?.data || response.data || [];
       setTasks(Array.isArray(tasksData) ? tasksData : []);
@@ -71,7 +71,7 @@ function App() {
         return;
       }
       console.log('Submitting task:', currentTask);
-      const response = await axios.post(`${API_URL}/tasks`, currentTask);
+      const response = await axios.post('/api/tasks', currentTask);
       console.log('Task created:', response.data);
       handleClose();
       fetchTasks();
@@ -84,7 +84,7 @@ function App() {
   const handleDelete = async (id) => {
     try {
       console.log('Deleting task:', id);
-      await axios.delete(`${API_URL}/tasks/${id}`);
+      await axios.delete('/api/tasks/' + id);
       fetchTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
