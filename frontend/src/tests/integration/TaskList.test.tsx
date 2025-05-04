@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { TaskList } from '../../components/TaskList';
 import axios from 'axios';
@@ -69,7 +69,9 @@ describe('TaskList Integration', () => {
     // Mock task deletion
     mockedAxios.delete.mockResolvedValueOnce({ data: { success: true } });
 
-    renderWithProviders(<TaskList />);
+    await act(async () => {
+      renderWithProviders(<TaskList />);
+    });
 
     // Check if task is rendered
     await waitFor(() => {
@@ -78,15 +80,23 @@ describe('TaskList Integration', () => {
 
     // Toggle task status
     const statusButton = screen.getByRole('button', { name: /toggle task status to completed/i });
-    fireEvent.click(statusButton);
+    await act(async () => {
+      fireEvent.click(statusButton);
+    });
 
+    // Wait for the status update to be reflected
     await waitFor(() => {
-      expect(screen.getByText(/Status: completed/i)).toBeInTheDocument();
+      const statusElement = screen.getByText((content, element) => {
+        return element?.textContent?.includes('Status: completed') ?? false;
+      });
+      expect(statusElement).toBeInTheDocument();
     }, { timeout: 10000 });
 
     // Delete task
     const deleteButton = screen.getByRole('button', { name: /delete task test task 1/i });
-    fireEvent.click(deleteButton);
+    await act(async () => {
+      fireEvent.click(deleteButton);
+    });
 
     await waitFor(() => {
       expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
