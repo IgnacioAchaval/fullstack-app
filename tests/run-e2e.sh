@@ -5,6 +5,17 @@ set -e
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TESTS_DIR="$ROOT_DIR/tests"
 
+# Function to cleanup processes
+cleanup() {
+  echo "Cleaning up..."
+  kill $BACKEND_PID 2>/dev/null || true
+  kill $FRONTEND_PID 2>/dev/null || true
+  exit 1
+}
+
+# Set up cleanup on script exit
+trap cleanup EXIT
+
 # Start backend
 cd "$ROOT_DIR/backend"
 echo "Building backend..."
@@ -30,10 +41,9 @@ sleep 15
 # Run tests
 cd "$TESTS_DIR"
 echo "Running E2E tests..."
-npm install
+npm install --legacy-peer-deps
 npx codeceptjs run --steps
 
-# Cleanup
-echo "Cleaning up..."
-kill $BACKEND_PID 2>/dev/null || true
-kill $FRONTEND_PID 2>/dev/null || true 
+# If we get here, tests passed
+trap - EXIT
+cleanup 

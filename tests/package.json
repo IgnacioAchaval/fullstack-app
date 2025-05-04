@@ -3,13 +3,10 @@
   "version": "1.0.0",
   "description": "E2E tests for Task Manager application",
   "scripts": {
-    "test": "codeceptjs run --steps",
-    "test:headless": "HEADLESS=true codeceptjs run --steps"
+    "test": "codeceptjs run --steps"
   },
   "dependencies": {
-    "@codeceptjs/configure": "^0.10.0",
-    "@codeceptjs/ui": "^0.7.0",
-    "codeceptjs": "^3.7.3",
+    "codeceptjs": "3.5.13-beta.3",
     "playwright": "^1.42.1"
   }
 } 

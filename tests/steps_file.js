@@ -10,15 +10,12 @@ I.waitForApp = async () => {
 // Wait for services to be ready
 I.waitForServices = async function() {
   const maxRetries = 30;
-  const retryInterval = 1000; // 1 second
+  const retryInterval = 1000;
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      // Check frontend
       await I.amOnPage('/');
       await I.see('Task Manager');
-      
-      // If we get here, both services are ready
       return;
     } catch (error) {
       if (i === maxRetries - 1) {

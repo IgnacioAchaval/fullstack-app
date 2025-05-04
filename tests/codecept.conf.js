@@ -13,8 +13,9 @@ exports.config = {
   helpers: {
     Playwright: {
       url: 'http://localhost:4173',
-      show: !process.env.HEADLESS,
-      browser: 'chromium'
+      show: false,
+      browser: 'chromium',
+      waitForTimeout: 5000
     }
   },
   include: {
