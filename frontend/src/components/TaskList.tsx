@@ -35,7 +35,7 @@ export const TaskList: React.FC = () => {
 
   const handleStatusUpdate = async (taskId: string, newStatus: 'pending' | 'completed') => {
     try {
-      const response = await axios.put(`/api/tasks/${taskId}`, { status: newStatus });
+      const response = await axios.put<{ data: Task }>(`/api/tasks/${taskId}`, { status: newStatus });
       setTasks(tasks.map(task => 
         task.id === taskId ? response.data.data : task
       ));
