@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import { taskRouter } from './routes/taskRoutes.js';
-import { errorHandler } from './middleware/errorHandler.js';
-import config from './config/app.js';
+import { taskRouter } from './routes/taskRoutes';
+import { errorHandler } from './middleware/errorHandler';
+import config from './config/app';
 import './config/database'; // Initialize database connection
 
 // Create Express application
