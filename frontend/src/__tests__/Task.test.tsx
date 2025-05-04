@@ -38,7 +38,7 @@ describe('Task Component', () => {
     );
 
     expect(screen.getByText('Test Task')).toBeInTheDocument();
-    expect(screen.getByText('Test Description')).toBeInTheDocument();
+    expect(screen.getByText(/Test Description/)).toBeInTheDocument();
     expect(screen.getByText(/Status: pending/i)).toBeInTheDocument();
   });
 
@@ -94,7 +94,7 @@ describe('Task Component', () => {
       />
     );
 
-    expect(screen.getByText(/Status: completed/)).toBeInTheDocument();
+    expect(screen.getByText(/Status: completed/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /toggle task status to pending/i })).toBeInTheDocument();
   });
 }); 

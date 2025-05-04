@@ -1,7 +1,8 @@
+/** @jsx React.createElement */
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { TaskList } from '../../components/TaskList';
+import TaskList from '../../pages/TaskList';
 import axios from 'axios';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
@@ -35,7 +36,7 @@ describe('TaskList Component', () => {
     );
   };
 
-  it('renders task list', async () => {
+  it('renders task list correctly', async () => {
     mockedAxios.get.mockResolvedValueOnce({
       data: {
         data: [
@@ -54,45 +55,14 @@ describe('TaskList Component', () => {
     renderWithProviders(<TaskList />);
     
     await waitFor(() => {
+      expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
       expect(screen.getByText(/Test Description 1/)).toBeInTheDocument();
       expect(screen.getByText(/pending/i)).toBeInTheDocument();
     }, { timeout: 10000 });
   });
 
-  it('deletes a task when delete button is clicked', async () => {
-    mockedAxios.get.mockResolvedValueOnce({
-      data: {
-        data: [
-          {
-            id: '1',
-            title: 'Test Task 1',
-            description: 'Test Description 1',
-            status: 'pending',
-            createdAt: '2024-03-20T12:00:00Z',
-            updatedAt: '2024-03-20T12:00:00Z'
-          }
-        ]
-      }
-    });
-    mockedAxios.delete.mockResolvedValueOnce({ data: { success: true } });
-
-    renderWithProviders(<TaskList />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    }, { timeout: 10000 });
-
-    const deleteButton = screen.getByRole('button', { name: /delete/i });
-    fireEvent.click(deleteButton);
-
-    await waitFor(() => {
-      expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
-  });
-
-  it('updates task status when status is changed', async () => {
-    console.log('Starting status update test');
+  it('handles task status update', async () => {
     mockedAxios.get
       .mockResolvedValueOnce({
         data: {
@@ -138,21 +108,48 @@ describe('TaskList Component', () => {
 
     renderWithProviders(<TaskList />);
     
-    console.log('Waiting for initial task to render');
     await waitFor(() => {
+      expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     }, { timeout: 10000 });
 
-    console.log('Looking for status toggle button');
     const statusButton = screen.getByRole('button', { name: /toggle task status to completed/i });
-    console.log('Found status button, clicking it');
     fireEvent.click(statusButton);
 
-    console.log('Waiting for status update to be reflected');
     await waitFor(() => {
-      const statusText = screen.getByText(/Status: completed/i);
-      console.log('Found status text:', statusText.textContent);
-      expect(statusText).toBeInTheDocument();
+      expect(screen.getByText(/Status: completed/i)).toBeInTheDocument();
     }, { timeout: 10000 });
   }, 15000);
+
+  it('handles task deletion', async () => {
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            id: '1',
+            title: 'Test Task 1',
+            description: 'Test Description 1',
+            status: 'pending',
+            createdAt: '2024-03-20T12:00:00Z',
+            updatedAt: '2024-03-20T12:00:00Z'
+          }
+        ]
+      }
+    });
+    mockedAxios.delete.mockResolvedValueOnce({ data: { success: true } });
+
+    renderWithProviders(<TaskList />);
+    
+    await waitFor(() => {
+      expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    const deleteButton = screen.getByRole('button', { name: /delete task test task/i });
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
+    }, { timeout: 10000 });
+  });
 }); 
