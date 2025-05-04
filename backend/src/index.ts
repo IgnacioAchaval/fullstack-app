@@ -23,11 +23,9 @@ app.get('/health', (req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// Start server if not in test environment
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(config.port, () => {
-    console.log(`Server running on port ${config.port}`);
-  });
-}
+// Start server
+app.listen(config.port, () => {
+  console.log(`Server running on port ${config.port}`);
+});
 
 export { app }; 

@@ -8,46 +8,61 @@ I.waitForApp = async () => {
 };
 
 // Wait for services to be ready
-I.waitForServices = async function() {
-  const maxRetries = 10;
-  const retryInterval = 2000;
+I.waitForServices = async () => {
+  const maxRetries = 15;
+  const retryInterval = 2000; // 2 seconds
 
   for (let i = 0; i < maxRetries; i++) {
     try {
+      // Try to access the main page
       await I.amOnPage('/');
-      await I.waitForElement('h1', 5);
+      
+      // Check if the page title is present
       const title = await I.grabTextFrom('h1');
       if (title.includes('Task Manager')) {
-        console.log('Services are ready!');
-        return;
+        // Additional check for the task list
+        await I.waitForElement('table', 5);
+        
+        // Try to make an API call to verify backend is ready
+        try {
+          const response = await I.sendGetRequest('/api/tasks/health');
+          if (response.status === 200) {
+            console.log('Services are ready!');
+            return true;
+          }
+        } catch (apiError) {
+          console.log(`API check failed: ${apiError.message}`);
+        }
       }
     } catch (error) {
-      console.log(`Attempt ${i + 1} failed: ${error.message}`);
+      console.log(`Attempt ${i + 1}/${maxRetries} failed: ${error.message}`);
     }
-    console.log(`Waiting ${retryInterval}ms before next attempt...`);
-    await I.wait(retryInterval);
+    
+    // Wait before next retry
+    await new Promise(resolve => setTimeout(resolve, retryInterval));
   }
+
   throw new Error('Services not ready after maximum retries');
 };
 
 // Create a new task
-I.createTask = async function(title, description) {
-  I.fillField('input[name="title"]', title);
-  I.fillField('textarea[name="description"]', description);
-  I.click('button[type="submit"]');
-  I.waitForElement('.task-item', 5);
+I.createTask = async (title, description) => {
+  await I.fillField('input[name="title"]', title);
+  await I.fillField('textarea[name="description"]', description);
+  await I.click('button[type="submit"]');
+  await I.waitForElement('table', 5);
 };
 
 // Delete a task
-I.deleteTask = async function(title) {
-  I.click(`//div[contains(@class, 'task-item')][.//h3[contains(text(), '${title}')]]//button[contains(text(), 'Delete')]`);
-  I.wait(1);
+I.deleteTask = async (title) => {
+  await I.click(`//tr[contains(., '${title}')]//button[contains(@class, 'delete')]`);
+  await I.wait(1);
 };
 
-// Toggle task status
-I.toggleTaskStatus = async function(title) {
-  I.click(`//div[contains(@class, 'task-item')][.//h3[contains(text(), '${title}')]]//button[contains(text(), 'Toggle')]`);
-  I.wait(1);
+// Toggle task completion status
+I.toggleTaskStatus = async (title) => {
+  await I.click(`//tr[contains(., '${title}')]//input[@type="checkbox"]`);
+  await I.wait(1);
 };
 
 module.exports = function() {

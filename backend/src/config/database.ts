@@ -5,9 +5,10 @@ import config from './app';
 // Load environment variables
 dotenv.config();
 
+// In test environment, always use localhost
 const dbConfig: PoolConfig = {
   user: process.env.DB_USER || config.database.user,
-  host: process.env.DB_HOST || config.database.host,
+  host: process.env.NODE_ENV === 'test' ? 'localhost' : (process.env.DB_HOST || config.database.host),
   database: process.env.DB_NAME || config.database.name,
   password: process.env.DB_PASSWORD || config.database.password,
   port: parseInt(process.env.DB_PORT || config.database.port.toString()),
@@ -34,6 +35,12 @@ const testConnection = async () => {
 // Only test connection if not in test environment
 if (process.env.NODE_ENV !== 'test') {
   testConnection();
+} else {
+  console.log('Test environment detected, skipping database connection test');
+  console.log('Database configuration:', {
+    ...dbConfig,
+    password: '***'
+  });
 }
 
 export default pool; 

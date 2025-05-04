@@ -21,7 +21,17 @@ export default defineConfig({
       }
     }
   },
+  preview: {
+    port: 4173,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true
+      }
+    }
+  },
   define: {
-    'process.env.VITE_BASE_URL': JSON.stringify(process.env.VITE_BASE_URL || 'http://localhost:5000')
+    'process.env.VITE_BASE_URL': JSON.stringify(process.env.VITE_BASE_URL || 'http://localhost:3001')
   }
 })

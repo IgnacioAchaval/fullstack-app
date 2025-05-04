@@ -38,12 +38,17 @@ Scenario('Toggle task completion status', async ({ I }) => {
 });
 
 // Basic form validation
-Scenario('Form validation', ({ I }) => {
+Scenario('Form validation', async ({ I }) => {
   I.amOnPage('/');
   
   // Try to submit empty form
-  I.click('Add Task');
+  I.click('button[type="submit"]');
   I.see('Title is required');
+  
+  // Try to submit with only title
+  I.fillField('input[name="title"]', 'Test Title');
+  I.click('button[type="submit"]');
+  I.see('Description is required');
 });
 
 // Test task list sorting and filtering
@@ -51,18 +56,13 @@ Scenario('Task list sorting and filtering', async ({ I }) => {
   I.amOnPage('/');
   
   // Create completed task
-  I.fillField('input[placeholder="Task title"]', 'Old Task');
-  I.fillField('input[placeholder="Task description"]', 'This is done');
-  I.click('Add Task');
-  I.click('Pending'); // Mark as completed
+  await I.createTask('Old Task', 'This is done');
+  await I.toggleTaskStatus('Old Task');
   
   // Create pending task
-  I.fillField('input[placeholder="Task title"]', 'New Task');
-  I.fillField('input[placeholder="Task description"]', 'This is pending');
-  I.click('Add Task');
+  await I.createTask('New Task', 'This is pending');
   
   // Verify order (newest first)
-  const tasks = await I.grabTextFrom('td');
   I.see('New Task');
   I.see('Old Task');
   

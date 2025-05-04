@@ -126,6 +126,7 @@ function App() {
         <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
           <input
             type="text"
+            name="title"
             value={newTask.title}
             onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
             placeholder="Task title"
@@ -133,6 +134,7 @@ function App() {
           />
           <input
             type="text"
+            name="description"
             value={newTask.description}
             onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
             placeholder="Task description"
