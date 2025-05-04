@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { TaskController } from '../controllers/taskController.js';
-import { validateTask } from '../middleware/validation.js';
+import { TaskController } from '../controllers/taskController';
+import { validateTask } from '../middleware/validation';
 
 const taskRouter = Router();
 const taskController = new TaskController();

@@ -10,8 +10,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "types": ["node", "jest"],
-    "strict": false,
-    "noImplicitAny": false,
+    "strict": true,
+    "noImplicitAny": true,
     "isolatedModules": true
   },
   "include": ["../src/**/*"],

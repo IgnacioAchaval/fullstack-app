@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { TaskService } from '../services/taskService.js';
-import { CreateTaskDTO, UpdateTaskDTO, TaskQueryParams } from '../types/index.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import { TaskService } from '../services/taskService';
+import { CreateTaskDTO, UpdateTaskDTO, TaskQueryParams } from '../types';
+import { ApiError } from '../middleware/errorHandler';
 
 type ApiResponse<T> = {
   status: 'success' | 'error';
