@@ -1,20 +1,16 @@
 import { Pool, PoolConfig } from 'pg';
 import dotenv from 'dotenv';
-import config from './app.js';
+import config from './app';
 
 // Load environment variables
-if (process.env.NODE_ENV === 'test') {
-  dotenv.config({ path: '.env.test' });
-} else {
-  dotenv.config();
-}
+dotenv.config();
 
 const dbConfig: PoolConfig = {
-  user: config.database.user,
-  host: config.database.host,
-  database: config.database.name,
-  password: config.database.password,
-  port: config.database.port,
+  user: process.env.DB_USER || config.database.user,
+  host: process.env.DB_HOST || config.database.host,
+  database: process.env.DB_NAME || config.database.name,
+  password: process.env.DB_PASSWORD || config.database.password,
+  port: parseInt(process.env.DB_PORT || config.database.port.toString()),
 };
 
 // Create a singleton pool instance

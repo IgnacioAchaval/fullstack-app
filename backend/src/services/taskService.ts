@@ -1,6 +1,6 @@
-import { pool } from '../config/database.js';
-import { Task, CreateTaskDTO, UpdateTaskDTO, TaskQueryParams, DatabaseError } from '../types/index.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import { pool } from '../config/database';
+import { Task, CreateTaskDTO, UpdateTaskDTO, TaskQueryParams, DatabaseError } from '../types';
+import { ApiError } from '../middleware/errorHandler';
 
 export class TaskService {
   private static instance: TaskService;
