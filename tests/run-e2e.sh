@@ -4,6 +4,7 @@ set -e
 # Store the root directory
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOGS_DIR="$ROOT_DIR/logs"
+TESTS_DIR="$ROOT_DIR/tests"
 
 # Create logs directory in the root
 mkdir -p "$LOGS_DIR"
@@ -50,9 +51,15 @@ check_service "http://localhost:3001/health" "backend" || exit 1
 check_service "http://localhost:3000" "frontend" || exit 1
 
 # Run tests
-cd "$ROOT_DIR/tests"
+cd "$TESTS_DIR"
 echo "Running E2E tests..."
-npx codeceptjs run --steps
+# Install codeceptjs if not already installed
+if ! command -v npx &> /dev/null; then
+  npm install -g codeceptjs
+fi
+
+# Run the tests with explicit config path
+npx codeceptjs run --config "$TESTS_DIR/codecept.conf.js" --steps
 
 # Cleanup
 echo "Cleaning up..."
