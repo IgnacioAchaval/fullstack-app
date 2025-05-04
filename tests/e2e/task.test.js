@@ -1,30 +1,37 @@
 Feature('Task Management');
 
 Before(async ({ I }) => {
-  await I.waitForServices();
+  await I.waitForApp();
 });
 
-// Basic CRUD operations
-Scenario('Create, read, update, and delete a task', ({ I }) => {
+Scenario('Create and delete a task', async ({ I }) => {
+  const taskTitle = `Test Task ${Date.now()}`;
+  const taskDescription = 'Test Description';
+
   // Create task
-  I.amOnPage('/');
-  I.see('Task Manager');
-  I.fillField('input[placeholder="Task title"]', 'Test Task');
-  I.fillField('input[placeholder="Task description"]', 'Test Description');
-  I.click('Add Task');
-  
-  // Verify task was created
-  I.see('Test Task');
-  I.see('Test Description');
-  
-  // Update task status
-  I.click('Pending');
-  I.see('Completed');
-  
+  await I.createTask(taskTitle, taskDescription);
+  I.see(taskTitle);
+  I.see(taskDescription);
+
   // Delete task
-  I.click('Delete');
-  I.wait(1); // Wait for deletion to complete
-  I.dontSee('Test Task');
+  await I.deleteTask(taskTitle);
+  I.dontSee(taskTitle);
+});
+
+Scenario('Toggle task completion status', async ({ I }) => {
+  const taskTitle = `Toggle Task ${Date.now()}`;
+  
+  // Create task
+  await I.createTask(taskTitle, 'Toggle Test');
+  I.see('Pending');
+
+  // Toggle completion status
+  await I.toggleTaskStatus(taskTitle, 'Pending');
+  I.see('Completed');
+
+  // Toggle back
+  await I.toggleTaskStatus(taskTitle, 'Completed');
+  I.see('Pending');
 });
 
 // Basic form validation
@@ -59,17 +66,4 @@ Scenario('Task list sorting and filtering', async ({ I }) => {
   // Verify status counts
   I.see('Pending');
   I.see('Completed');
-});
-
-Scenario('Create and manage tasks', ({ I }) => {
-  I.amOnTheHomePage();
-  
-  I.createATaskWithTitleAndDescription('Test Task', 'Test Description');
-  I.shouldSeeATaskWithTitle('Test Task');
-  
-  I.markTheTaskAsCompleted();
-  I.theTaskShouldBeMarkedAsCompleted();
-  
-  I.deleteTheTask();
-  I.shouldNotSeeTheTaskWithTitle('Test Task');
 }); 

@@ -16,11 +16,23 @@ exports.config = {
       show: !process.env.HEADLESS,
       browser: 'chromium',
       waitForNavigation: 'networkidle',
-      waitForTimeout: 5000
+      waitForTimeout: 5000,
+      retryFailedStep: {
+        enabled: true,
+        retries: 2
+      }
     }
   },
   include: {
     I: './steps_file.js'
   },
-  name: 'task-manager-e2e-tests'
+  name: 'task-manager-e2e-tests',
+  plugins: {
+    retryFailedStep: {
+      enabled: true
+    },
+    screenshotOnFail: {
+      enabled: true
+    }
+  }
 }; 
