@@ -7,15 +7,6 @@ import { MemoryRouter } from 'react-router-dom';
 import { Task as TaskType } from '../types';
 import { describe, expect, it } from '@jest/globals';
 
-const mockTask: TaskType = {
-  id: '1',
-  title: 'Test Task',
-  description: 'Test Description',
-  status: 'pending',
-  createdAt: '2024-03-20T12:00:00Z',
-  updatedAt: '2024-03-20T12:00:00Z'
-};
-
 describe('Task Component', () => {
   const renderWithRouter = (ui: React.ReactElement) => {
     return render(
@@ -23,6 +14,15 @@ describe('Task Component', () => {
         {ui}
       </MemoryRouter>
     );
+  };
+
+  const mockTask: TaskType = {
+    id: '1',
+    title: 'Test Task',
+    description: 'Test Description',
+    status: 'pending',
+    createdAt: '2024-03-20T12:00:00Z',
+    updatedAt: '2024-03-20T12:00:00Z'
   };
 
   it('renders task details correctly', () => {
@@ -37,9 +37,9 @@ describe('Task Component', () => {
       />
     );
 
-    expect(screen.getByText(/Test Task/i)).toBeInTheDocument();
-    expect(screen.getByText(/Test Description/i)).toBeInTheDocument();
-    expect(screen.getByText(/pending/i)).toBeInTheDocument();
+    expect(screen.getByText('Test Task')).toBeInTheDocument();
+    expect(screen.getByText('Test Description')).toBeInTheDocument();
+    expect(screen.getByText(/Status: pending/i)).toBeInTheDocument();
   });
 
   it('calls onStatusUpdate when status is toggled', () => {
@@ -57,7 +57,10 @@ describe('Task Component', () => {
     const statusButton = screen.getByRole('button', { name: /toggle task status to completed/i });
     fireEvent.click(statusButton);
 
-    expect(handleStatusUpdate).toHaveBeenCalledWith('1', 'completed');
+    expect(handleStatusUpdate).toHaveBeenCalledWith({
+      ...mockTask,
+      status: 'completed'
+    });
   });
 
   it('calls onDelete when delete button is clicked', () => {

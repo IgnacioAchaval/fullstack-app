@@ -81,7 +81,7 @@ describe('TaskList Integration', () => {
     fireEvent.click(statusButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Status: completed/)).toBeInTheDocument();
+      expect(screen.getByText(/Status: completed/i)).toBeInTheDocument();
     }, { timeout: 10000 });
 
     // Delete task
