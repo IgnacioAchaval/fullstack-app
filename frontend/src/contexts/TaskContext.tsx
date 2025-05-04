@@ -6,8 +6,9 @@ interface TaskContextType {
   tasks: Task[];
   error: string | null;
   fetchTasks: () => Promise<void>;
-  toggleTaskCompletion: (taskId: number, completed: boolean) => Promise<void>;
-  deleteTask: (taskId: number) => Promise<void>;
+  addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  toggleTaskCompletion: (taskId: string, completed: boolean) => Promise<void>;
+  deleteTask: (taskId: string) => Promise<void>;
 }
 
 const TaskContext = createContext<TaskContextType | undefined>(undefined);
@@ -26,23 +27,32 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const toggleTaskCompletion = async (taskId: number, completed: boolean) => {
+  const addTask = async (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      const response = await axios.put(`/api/tasks/${taskId}`, { completed });
-      setTasks(tasks.map(task => 
-        task.id === taskId ? response.data.data : task
-      ));
-    } catch (err) {
-      setError('Error updating task');
+      const response = await axios.post<{ data: Task }>('/api/tasks', task);
+      setTasks([...tasks, response.data.data]);
+    } catch (error) {
+      console.error('Error adding task:', error);
     }
   };
 
-  const deleteTask = async (taskId: number) => {
+  const toggleTaskCompletion = async (taskId: string, completed: boolean) => {
+    try {
+      const response = await axios.put<{ data: Task }>(`/api/tasks/${taskId}`, { completed });
+      setTasks(tasks.map(task => 
+        task.id === taskId ? response.data.data : task
+      ));
+    } catch (error) {
+      console.error('Error toggling task completion:', error);
+    }
+  };
+
+  const deleteTask = async (taskId: string) => {
     try {
       await axios.delete(`/api/tasks/${taskId}`);
       setTasks(tasks.filter(task => task.id !== taskId));
-    } catch (err) {
-      setError('Error deleting task');
+    } catch (error) {
+      console.error('Error deleting task:', error);
     }
   };
 
@@ -51,7 +61,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <TaskContext.Provider value={{ tasks, error, fetchTasks, toggleTaskCompletion, deleteTask }}>
+    <TaskContext.Provider value={{ tasks, error, fetchTasks, addTask, toggleTaskCompletion, deleteTask }}>
       {children}
     </TaskContext.Provider>
   );
