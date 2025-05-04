@@ -11,19 +11,22 @@ I.waitForApp = async () => {
 I.waitForServices = async function() {
   const maxRetries = 30;
   const retryInterval = 1000;
+  let retries = 0;
 
-  for (let i = 0; i < maxRetries; i++) {
+  while (retries < maxRetries) {
     try {
       await I.amOnPage('/');
-      await I.see('Task Manager');
-      return;
-    } catch (error) {
-      if (i === maxRetries - 1) {
-        throw new Error('Services not ready after maximum retries');
+      const pageContent = await I.grabTextFrom('body');
+      if (pageContent.includes('Task Manager')) {
+        return;
       }
-      await new Promise(resolve => setTimeout(resolve, retryInterval));
+    } catch (error) {
+      console.log(`Attempt ${retries + 1} failed: ${error.message}`);
     }
+    retries++;
+    await I.wait(retryInterval);
   }
+  throw new Error('Services not ready after maximum retries');
 };
 
 // Create a new task
@@ -31,16 +34,19 @@ I.createTask = async function(title, description) {
   I.fillField('input[name="title"]', title);
   I.fillField('textarea[name="description"]', description);
   I.click('button[type="submit"]');
+  I.waitForElement('.task-item', 5);
 };
 
 // Delete a task
 I.deleteTask = async function(title) {
-  I.click(`//div[contains(@class, 'task-item')][.//h3[contains(text(), '${title}')]]//button[contains(@class, 'delete')]`);
+  I.click(`//div[contains(@class, 'task-item')][.//h3[contains(text(), '${title}')]]//button[contains(text(), 'Delete')]`);
+  I.wait(1);
 };
 
 // Toggle task status
 I.toggleTaskStatus = async function(title) {
-  I.click(`//div[contains(@class, 'task-item')][.//h3[contains(text(), '${title}')]]//button[contains(@class, 'toggle')]`);
+  I.click(`//div[contains(@class, 'task-item')][.//h3[contains(text(), '${title}')]]//button[contains(text(), 'Toggle')]`);
+  I.wait(1);
 };
 
 module.exports = function() {
