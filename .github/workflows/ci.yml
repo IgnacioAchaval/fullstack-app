@@ -34,15 +34,30 @@ jobs:
         node-version: '18'
         cache: 'npm'
 
-    - name: Install Backend Dependencies
+    - name: Install Dependencies
       run: |
-        cd backend
-        npm install
+        cd backend && npm install
+        cd ../frontend && npm install
 
-    - name: Run Backend Tests
+    - name: Run Backend Unit Tests
       run: |
         cd backend
         npm test
+      env:
+        POSTGRES_HOST: localhost
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: taskmanager
+
+    - name: Run Frontend Unit Tests
+      run: |
+        cd frontend
+        npm test
+
+    - name: Run Integration Tests
+      run: |
+        cd backend
+        npm run test:integration
       env:
         POSTGRES_HOST: localhost
         POSTGRES_USER: postgres
