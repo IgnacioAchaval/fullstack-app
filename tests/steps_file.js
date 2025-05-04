@@ -9,21 +9,22 @@ I.waitForApp = async () => {
 
 // Wait for services to be ready
 I.waitForServices = async function() {
-  const maxRetries = 30;
-  const retryInterval = 1000;
-  let retries = 0;
+  const maxRetries = 10;
+  const retryInterval = 2000;
 
-  while (retries < maxRetries) {
+  for (let i = 0; i < maxRetries; i++) {
     try {
       await I.amOnPage('/');
-      const pageContent = await I.grabTextFrom('body');
-      if (pageContent.includes('Task Manager')) {
+      await I.waitForElement('h1', 5);
+      const title = await I.grabTextFrom('h1');
+      if (title.includes('Task Manager')) {
+        console.log('Services are ready!');
         return;
       }
     } catch (error) {
-      console.log(`Attempt ${retries + 1} failed: ${error.message}`);
+      console.log(`Attempt ${i + 1} failed: ${error.message}`);
     }
-    retries++;
+    console.log(`Waiting ${retryInterval}ms before next attempt...`);
     await I.wait(retryInterval);
   }
   throw new Error('Services not ready after maximum retries');

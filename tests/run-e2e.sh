@@ -25,6 +25,10 @@ echo "Starting backend..."
 npm start &
 BACKEND_PID=$!
 
+# Wait for backend to start
+echo "Waiting for backend to start..."
+sleep 5
+
 # Start frontend
 cd "$ROOT_DIR/frontend"
 echo "Building frontend..."
@@ -36,7 +40,7 @@ FRONTEND_PID=$!
 
 # Wait for services to be ready
 echo "Waiting for services to start..."
-sleep 15
+sleep 10
 
 # Run tests
 cd "$TESTS_DIR"
