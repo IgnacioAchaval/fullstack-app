@@ -12,43 +12,22 @@ mkdir -p "$LOGS_DIR"
 # Start backend
 cd "$ROOT_DIR/backend"
 echo "Building backend..."
+npm install
 npm run build
-
-echo "Starting backend..."
-NODE_ENV=development npm run dev > "$LOGS_DIR/backend.log" 2>&1 &
+npm start &
 BACKEND_PID=$!
 
 # Start frontend
 cd "$ROOT_DIR/frontend"
 echo "Starting frontend..."
-npm run dev > "$LOGS_DIR/frontend.log" 2>&1 &
+npm install
+npm run build
+npm run preview &
 FRONTEND_PID=$!
 
-# Function to check if a service is ready
-check_service() {
-  local url=$1
-  local service=$2
-  local log_file="$LOGS_DIR/${service}.log"
-  
-  for i in {1..30}; do
-    if curl -s "$url" > /dev/null; then
-      echo "$service is ready!"
-      return 0
-    fi
-    if [ $i -eq 30 ]; then
-      echo "$service failed to start. Logs:"
-      cat "$log_file"
-      return 1
-    fi
-    echo "Waiting for $service... ($i/30)"
-    sleep 1
-  done
-}
-
 # Wait for services to be ready
-echo "Waiting for services to be ready..."
-check_service "http://localhost:3001/health" "backend" || exit 1
-check_service "http://localhost:3000" "frontend" || exit 1
+echo "Waiting for services to start..."
+sleep 10
 
 # Run tests
 cd "$TESTS_DIR"

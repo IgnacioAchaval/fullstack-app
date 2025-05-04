@@ -113,16 +113,11 @@ jobs:
       run: npm run test
 
     - name: Run E2E tests
-      working-directory: ./tests
       run: |
-        # Make the script executable
+        cd tests
         chmod +x run-e2e.sh
-        
-        # Run the E2E tests
         ./run-e2e.sh
       env:
-        FRONTEND_URL: http://localhost:3000
-        BACKEND_URL: http://localhost:3001
         PORT: 3001
         DB_USER: postgres
         DB_PASSWORD: postgres
@@ -130,8 +125,7 @@ jobs:
         DB_HOST: localhost
         DB_PORT: 5432
         HEADLESS: true
-        NODE_ENV: development
-        DEBUG: "*"
+        NODE_ENV: test
 
   build-and-push:
     needs: test

@@ -8,35 +8,17 @@ setCommonPlugins();
 
 /** @type {CodeceptJS.MainConfig} */
 exports.config = {
-  tests: './e2e/**/*.test.js',
-  output: './outputs',
+  tests: 'e2e/**/*.test.js',
+  output: 'e2e/outputs',
   helpers: {
     Playwright: {
-      url: process.env.FRONTEND_URL || 'http://localhost:3000',
+      url: 'http://localhost:4173',
       show: !process.env.HEADLESS,
-      browser: 'chromium',
-      waitForNavigation: 'networkidle',
-      waitForTimeout: 5000,
-      chromium: {
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      }
-    },
-    REST: {
-      endpoint: process.env.BACKEND_URL || 'http://localhost:3001'
+      browser: 'chromium'
     }
   },
   include: {
     I: './steps_file.js'
   },
-  name: 'task-manager-e2e-tests',
-  plugins: {
-    screenshotOnFail: {
-      enabled: true,
-      fullPageScreenshots: true
-    },
-    retryFailedStep: {
-      enabled: true,
-      retries: 2
-    }
-  }
+  name: 'task-manager-e2e'
 }; 
