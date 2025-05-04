@@ -182,7 +182,7 @@ export default function TaskList() {
           <Task
             key={task.id}
             task={task}
-            onUpdate={updateTask.mutate}
+            onStatusUpdate={updateTask.mutate}
             onDelete={deleteTask.mutate}
           />
         ))}

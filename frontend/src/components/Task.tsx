@@ -8,14 +8,15 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 interface TaskProps {
   task: TaskType;
   onDelete: (id: string) => void;
-  onStatusUpdate?: (id: string, status: 'pending' | 'completed') => void;
+  onStatusUpdate: (task: TaskType) => void;
 }
 
 export const Task: React.FC<TaskProps> = ({ task, onDelete, onStatusUpdate }) => {
   const handleStatusToggle = () => {
-    if (onStatusUpdate) {
-      onStatusUpdate(task.id, task.status === 'pending' ? 'completed' : 'pending');
-    }
+    onStatusUpdate({
+      ...task,
+      status: task.status === 'pending' ? 'completed' : 'pending'
+    });
   };
 
   return (
