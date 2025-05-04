@@ -23,4 +23,21 @@ jest.mock('../config/database', () => ({
   pool: mockPool
 }));
 
-export const mockQuery = mockPool.query; 
+export const mockQuery = mockPool.query;
+
+// Global setup
+beforeAll(() => {
+  // Add any global setup here
+});
+
+// Global teardown
+afterAll(async () => {
+  // Ensure all mocks are cleared
+  jest.clearAllMocks();
+  
+  // Ensure pool is ended
+  await mockPool.end();
+  
+  // Force any remaining handles to close
+  await new Promise(resolve => setTimeout(resolve, 100));
+}); 
