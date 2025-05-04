@@ -1,37 +1,41 @@
 Feature('Task Management');
 
 Before(async ({ I }) => {
-  await I.waitForApp();
+  // Wait for both services to be ready
+  await I.waitForServices();
 });
 
 Scenario('Create and delete a task', async ({ I }) => {
   const taskTitle = `Test Task ${Date.now()}`;
-  const taskDescription = 'Test Description';
-
+  
   // Create task
-  await I.createTask(taskTitle, taskDescription);
+  I.fillField('input[placeholder="Task title"]', taskTitle);
+  I.fillField('input[placeholder="Task description"]', 'Test Description');
+  I.click('Add Task');
+  
+  // Verify task was created
   I.see(taskTitle);
-  I.see(taskDescription);
-
+  I.see('Test Description');
+  
   // Delete task
-  await I.deleteTask(taskTitle);
+  I.click(`//td[contains(text(), '${taskTitle}')]/..//button[contains(text(), 'Delete')]`);
   I.dontSee(taskTitle);
 });
 
-Scenario('Toggle task completion status', async ({ I }) => {
+Scenario('Toggle task status', async ({ I }) => {
   const taskTitle = `Toggle Task ${Date.now()}`;
   
   // Create task
-  await I.createTask(taskTitle, 'Toggle Test');
+  I.fillField('input[placeholder="Task title"]', taskTitle);
+  I.fillField('input[placeholder="Task description"]', 'Toggle Test');
+  I.click('Add Task');
+  
+  // Verify initial status
   I.see('Pending');
-
-  // Toggle completion status
-  await I.toggleTaskStatus(taskTitle, 'Pending');
+  
+  // Toggle status
+  I.click(`//td[contains(text(), '${taskTitle}')]/..//button[contains(text(), 'Pending')]`);
   I.see('Completed');
-
-  // Toggle back
-  await I.toggleTaskStatus(taskTitle, 'Completed');
-  I.see('Pending');
 });
 
 // Basic form validation

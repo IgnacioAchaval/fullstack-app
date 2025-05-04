@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApiError } from './errorHandler.js';
-import { CreateTaskDTO, UpdateTaskDTO } from '../types/index.js';
+import { ApiError } from './errorHandler';
+import { CreateTaskDTO, UpdateTaskDTO } from '../types';
 
 export const validateTask = (req: Request, res: Response, next: NextFunction): void => {
   try {

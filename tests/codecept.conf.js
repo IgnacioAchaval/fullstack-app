@@ -16,11 +16,10 @@ exports.config = {
       show: !process.env.HEADLESS,
       browser: 'chromium',
       waitForNavigation: 'networkidle',
-      waitForTimeout: 5000,
-      retryFailedStep: {
-        enabled: true,
-        retries: 2
-      }
+      waitForTimeout: 5000
+    },
+    REST: {
+      endpoint: process.env.BACKEND_URL || 'http://localhost:3001'
     }
   },
   include: {
@@ -28,9 +27,6 @@ exports.config = {
   },
   name: 'task-manager-e2e-tests',
   plugins: {
-    retryFailedStep: {
-      enabled: true
-    },
     screenshotOnFail: {
       enabled: true
     }

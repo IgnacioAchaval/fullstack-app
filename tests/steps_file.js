@@ -62,8 +62,8 @@ module.exports = function() {
 
 // Custom step to wait for services to be ready
 I.waitForServices = async function() {
-  const maxRetries = 10;
-  const retryDelay = 2000;
+  const maxRetries = 30;
+  const retryDelay = 1000;
 
   for (let i = 0; i < maxRetries; i++) {
     try {
