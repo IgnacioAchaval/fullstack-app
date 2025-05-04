@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  unit-tests:
     runs-on: ubuntu-latest
     
     services:
@@ -54,18 +54,8 @@ jobs:
         cd frontend
         npm test
 
-    - name: Run Integration Tests
-      run: |
-        cd backend
-        npm run test:integration
-      env:
-        POSTGRES_HOST: localhost
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: taskmanager
-
   build-and-push:
-    needs: test
+    needs: unit-tests
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
@@ -107,4 +97,33 @@ jobs:
         script: |
           cd /home/ec2-user/task-manager
           docker-compose pull
-          docker-compose up -d 
+          docker-compose up -d
+
+  integration-tests:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: |
+        cd backend && npm install
+
+    - name: Run Integration Tests
+      run: |
+        cd backend
+        npm run test:integration
+      env:
+        API_URL: ${{ secrets.PRODUCTION_API_URL }}
+        POSTGRES_HOST: ${{ secrets.PROD_DB_HOST }}
+        POSTGRES_USER: ${{ secrets.PROD_DB_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+        POSTGRES_DB: ${{ secrets.PROD_DB_NAME }} 
