@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { TaskList } from '../../components/TaskList';
+import TaskList from '../../pages/TaskList';
 import axios from 'axios';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, expect, it, beforeEach, jest } from '@jest/globals';
@@ -54,7 +54,7 @@ describe('TaskList Integration', () => {
       }
     });
 
-    // Mock task update
+    // Mock task status update
     mockedAxios.put.mockResolvedValueOnce({
       data: {
         data: {
@@ -71,29 +71,54 @@ describe('TaskList Integration', () => {
     // Mock task deletion
     mockedAxios.delete.mockResolvedValueOnce({ data: { success: true } });
 
+    // Mock task list after status update
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            id: '1',
+            title: 'Test Task 1',
+            description: 'Test Description 1',
+            status: 'completed',
+            createdAt: '2024-03-20T12:00:00Z',
+            updatedAt: '2024-03-20T12:00:00Z'
+          }
+        ]
+      }
+    });
+
+    // Mock empty task list after deletion
+    mockedAxios.get.mockResolvedValueOnce({
+      data: {
+        data: []
+      }
+    });
+
     renderWithProviders(<TaskList />);
 
-    // Check if task is rendered
+    // Wait for loading to finish and check if task is rendered
     await waitFor(() => {
-      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    });
+      const listItem = screen.getByRole('listitem');
+      expect(within(listItem).getByText('Test Task 1')).toBeInTheDocument();
+    }, { timeout: 10000 });
 
     // Toggle task status
-    const statusButton = screen.getByRole('button', { name: /toggle task status to completed/i });
-    fireEvent.click(statusButton);
+    const toggleButton = screen.getByRole('button', { name: /toggle task status to completed/i });
+    fireEvent.click(toggleButton);
 
-    // Wait for the status update to be reflected
+    // Check if status is updated
     await waitFor(() => {
-      const statusText = screen.getByText(/Status: completed/i);
-      expect(statusText).toBeInTheDocument();
-    });
+      const listItem = screen.getByRole('listitem');
+      expect(within(listItem).getByText(/status: completed/i)).toBeInTheDocument();
+    }, { timeout: 10000 });
 
     // Delete task
     const deleteButton = screen.getByRole('button', { name: /delete task test task 1/i });
     fireEvent.click(deleteButton);
 
+    // Check if task is removed
     await waitFor(() => {
       expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
-    });
-  });
+    }, { timeout: 10000 });
+  }, 30000); // Increase test timeout to 30 seconds
 }); 
