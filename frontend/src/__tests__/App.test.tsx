@@ -2,28 +2,46 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import axios from 'axios';
 import App from '../App';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import '@testing-library/jest-dom';
 
 // Mock axios
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(
+    <QueryClientProvider client={queryClient}>
+      {ui}
+    </QueryClientProvider>
+  );
+};
+
 describe('App Component', () => {
   const mockTasks = [
     {
-      id: 1,
+      id: '1',
       title: 'Test Task 1',
       description: 'Test Description 1',
-      completed: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     },
     {
-      id: 2,
+      id: '2',
       title: 'Test Task 2',
       description: 'Test Description 2',
-      completed: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      status: 'completed',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
   ];
 
@@ -38,20 +56,17 @@ describe('App Component', () => {
     jest.clearAllMocks();
   });
 
-  it('renders task table with correct headers', async () => {
-    render(<App />);
+  it('renders task list', async () => {
+    renderWithProviders(<App />);
     
     await waitFor(() => {
-      expect(screen.getByText('Title')).toBeInTheDocument();
-      expect(screen.getByText('Description')).toBeInTheDocument();
-      expect(screen.getByText('Status')).toBeInTheDocument();
-      expect(screen.getByText('Created At')).toBeInTheDocument();
-      expect(screen.getByText('Actions')).toBeInTheDocument();
+      expect(screen.getByText('Tasks')).toBeInTheDocument();
+      expect(screen.getByText('Add Task')).toBeInTheDocument();
     });
   });
 
-  it('displays tasks in the table', async () => {
-    render(<App />);
+  it('displays tasks in the list', async () => {
+    renderWithProviders(<App />);
     
     await waitFor(() => {
       expect(screen.getByText('Test Task 1')).toBeInTheDocument();
@@ -62,45 +77,60 @@ describe('App Component', () => {
   });
 
   it('adds a new task when form is submitted', async () => {
-    render(<App />);
+    renderWithProviders(<App />);
     
-    const titleInput = screen.getByPlaceholderText('Task title');
-    const descriptionInput = screen.getByPlaceholderText('Task description');
-    const addButton = screen.getByText('Add Task');
+    // Click add task button
+    fireEvent.click(screen.getByText('Add Task'));
 
+    // Wait for dialog to appear
+    await waitFor(() => {
+      expect(screen.getByText('Create New Task')).toBeInTheDocument();
+    });
+
+    // Fill in the form
+    const titleInput = screen.getByRole('textbox', { name: /title/i });
+    const descriptionInput = screen.getByRole('textbox', { name: /description/i });
+    
     fireEvent.change(titleInput, { target: { value: 'New Task' } });
     fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
-    fireEvent.click(addButton);
+    
+    // Submit the form
+    fireEvent.click(screen.getByText('Save'));
 
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
-        'http://localhost:3001/tasks',
-        { title: 'New Task', description: 'New Description' }
+        expect.stringContaining('/tasks'),
+        expect.objectContaining({
+          title: 'New Task',
+          description: 'New Description'
+        })
       );
     });
   });
 
   it('deletes a task when delete button is clicked', async () => {
-    render(<App />);
+    renderWithProviders(<App />);
     
     await waitFor(() => {
-      const deleteButtons = screen.getAllByText('Delete');
-      fireEvent.click(deleteButtons[0]);
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
     });
+
+    const deleteButton = screen.getByTestId('delete-task-1');
+    fireEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(mockedAxios.delete).toHaveBeenCalledWith(
-        'http://localhost:3001/tasks/1'
+        expect.stringContaining('/tasks/1')
       );
     });
   });
 
-  it('shows correct status for completed and pending tasks', async () => {
-    render(<App />);
+  it('shows correct status for tasks', async () => {
+    renderWithProviders(<App />);
     
     await waitFor(() => {
-      expect(screen.getByText('Pending')).toBeInTheDocument();
-      expect(screen.getByText('Completed')).toBeInTheDocument();
+      expect(screen.getByText('pending')).toBeInTheDocument();
+      expect(screen.getByText('completed')).toBeInTheDocument();
     });
   });
 }); 

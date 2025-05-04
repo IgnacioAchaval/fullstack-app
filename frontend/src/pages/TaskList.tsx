@@ -3,10 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Typography,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -21,11 +18,12 @@ import {
   MenuItem,
   SelectChangeEvent
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Task, CreateTaskDTO } from '../types';
+import { Task as TaskType, CreateTaskDTO } from '../types';
 import { API_BASE_URL } from '../config';
+import { Task } from '../components/Task';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -53,7 +51,7 @@ export default function TaskList() {
         ...(filter !== 'all' && { status: filter })
       });
       const response = await axios.get(`${API_BASE_URL}/tasks?${params}`);
-      return response.data.data as Task[];
+      return response.data.data as TaskType[];
     }
   });
 
@@ -84,9 +82,9 @@ export default function TaskList() {
     }
   });
 
-  const toggleTaskStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: 'pending' | 'in_progress' | 'completed' }) => {
-      const response = await axios.put(`${API_BASE_URL}/tasks/${id}`, { status });
+  const updateTask = useMutation({
+    mutationFn: async (task: TaskType) => {
+      const response = await axios.put(`${API_BASE_URL}/tasks/${task.id}`, { status: task.status });
       return response.data;
     },
     onSuccess: () => {
@@ -181,94 +179,40 @@ export default function TaskList() {
 
       <Box display="grid" gap={2}>
         {tasks?.map((task) => (
-          <Card key={task.id}>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Box>
-                  <Typography variant="h6">{task.title}</Typography>
-                  <Typography color="textSecondary">{task.description}</Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Created: {new Date(task.createdAt).toLocaleDateString()}
-                  </Typography>
-                </Box>
-                <Box>
-                  <Button
-                    variant={task.status === 'completed' ? "contained" : "outlined"}
-                    color={task.status === 'completed' ? "success" : "primary"}
-                    onClick={() => toggleTaskStatus.mutate({ 
-                      id: task.id, 
-                      status: task.status === 'completed' ? 'pending' : 'completed' 
-                    })}
-                    sx={{ mr: 1 }}
-                  >
-                    {task.status === 'completed' ? 'Completed' : 'Mark Complete'}
-                  </Button>
-                  <IconButton
-                    color="primary"
-                    onClick={() => navigate(`/tasks/${task.id}/edit`)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => deleteTask.mutate(task.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
+          <Task
+            key={task.id}
+            task={task}
+            onUpdate={updateTask.mutate}
+            onDelete={deleteTask.mutate}
+          />
         ))}
-      </Box>
-
-      <Box display="flex" justifyContent="center" mt={3}>
-        <Pagination
-          count={Math.ceil((tasks?.length || 0) / ITEMS_PER_PAGE)}
-          page={page}
-          onChange={handlePageChange}
-          color="primary"
-        />
       </Box>
 
       <Dialog open={open} onClose={() => setOpen(false)}>
         <form onSubmit={handleSubmit}>
-          <DialogTitle>Add New Task</DialogTitle>
+          <DialogTitle>Create New Task</DialogTitle>
           <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Title"
-              fullWidth
-              value={newTask.title}
-              onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-              required
-            />
-            <TextField
-              margin="dense"
-              label="Description"
-              fullWidth
-              multiline
-              rows={4}
-              value={newTask.description}
-              onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-            />
-            <FormControl fullWidth margin="dense">
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={newTask.status}
-                label="Status"
-                onChange={(e) => setNewTask({ ...newTask, status: e.target.value as 'pending' | 'in_progress' | 'completed' })}
-              >
-                <MenuItem value="pending">Pending</MenuItem>
-                <MenuItem value="in_progress">In Progress</MenuItem>
-                <MenuItem value="completed">Completed</MenuItem>
-              </Select>
-            </FormControl>
+            <Box display="grid" gap={2} pt={1}>
+              <TextField
+                label="Title"
+                value={newTask.title}
+                onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Description"
+                value={newTask.description}
+                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                fullWidth
+                multiline
+                rows={3}
+              />
+            </Box>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" variant="contained">Add Task</Button>
+            <Button type="submit" variant="contained">Save</Button>
           </DialogActions>
         </form>
       </Dialog>

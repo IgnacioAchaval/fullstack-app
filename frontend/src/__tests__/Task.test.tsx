@@ -2,26 +2,36 @@
 import * as React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Task } from '../components/Task';
+import { MemoryRouter } from 'react-router-dom';
+import { Task as TaskType } from '../types';
 
 describe('Task Component', () => {
-  const mockTask = {
-    id: 1,
+  const mockTask: TaskType = {
+    id: '1',
     title: 'Test Task',
     description: 'Test Description',
-    completed: false,
-    created_at: new Date(),
-    updated_at: new Date()
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
 
   const mockOnUpdate = jest.fn();
   const mockOnDelete = jest.fn();
+
+  const renderWithRouter = (ui: React.ReactElement) => {
+    return render(
+      <MemoryRouter>
+        {ui}
+      </MemoryRouter>
+    );
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders task details correctly', () => {
-    render(
+    renderWithRouter(
       <Task
         task={mockTask}
         onUpdate={mockOnUpdate}
@@ -29,13 +39,13 @@ describe('Task Component', () => {
       />
     );
 
-    expect(screen.getByText(mockTask.title)).toBeInTheDocument();
-    expect(screen.getByText(mockTask.description)).toBeInTheDocument();
-    expect(screen.getByRole('checkbox')).not.toBeChecked();
+    expect(screen.getByText('Test Task')).toBeInTheDocument();
+    expect(screen.getByText('Test Description')).toBeInTheDocument();
+    expect(screen.getByTestId('status-button-1')).toBeInTheDocument();
   });
 
-  it('calls onUpdate when checkbox is clicked', () => {
-    render(
+  it('calls onUpdate when status is changed', () => {
+    renderWithRouter(
       <Task
         task={mockTask}
         onUpdate={mockOnUpdate}
@@ -43,16 +53,17 @@ describe('Task Component', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('checkbox'));
+    const statusButton = screen.getByTestId('status-button-1');
+    fireEvent.click(statusButton);
 
     expect(mockOnUpdate).toHaveBeenCalledWith({
       ...mockTask,
-      completed: true
+      status: 'completed'
     });
   });
 
   it('calls onDelete when delete button is clicked', () => {
-    render(
+    renderWithRouter(
       <Task
         task={mockTask}
         onUpdate={mockOnUpdate}
@@ -60,14 +71,15 @@ describe('Task Component', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+    const deleteButton = screen.getByTestId('delete-task-1');
+    fireEvent.click(deleteButton);
 
-    expect(mockOnDelete).toHaveBeenCalledWith(mockTask.id);
+    expect(mockOnDelete).toHaveBeenCalledWith('1');
   });
 
-  it('renders completed task with checked checkbox', () => {
-    const completedTask = { ...mockTask, completed: true };
-    render(
+  it('renders completed task correctly', () => {
+    const completedTask: TaskType = { ...mockTask, status: 'completed' };
+    renderWithRouter(
       <Task
         task={completedTask}
         onUpdate={mockOnUpdate}
@@ -75,6 +87,6 @@ describe('Task Component', () => {
       />
     );
 
-    expect(screen.getByRole('checkbox')).toBeChecked();
+    expect(screen.getByTestId(`status-button-${completedTask.id}`)).toHaveTextContent('completed');
   });
 }); 

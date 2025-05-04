@@ -1,45 +1,52 @@
 import React from 'react';
 import { Task as TaskType } from '../types';
+import { Box, Card, CardContent, Typography, Button, IconButton } from '@mui/material';
+import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 
 interface TaskProps {
   task: TaskType;
   onUpdate: (task: TaskType) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }
 
 export const Task: React.FC<TaskProps> = ({ task, onUpdate, onDelete }) => {
-  const handleToggleComplete = () => {
+  const handleStatusToggle = () => {
     onUpdate({
       ...task,
-      completed: !task.completed
+      status: task.status === 'completed' ? 'pending' : 'completed'
     });
   };
 
-  const handleDelete = () => {
-    onDelete(task.id);
-  };
-
   return (
-    <div className="task">
-      <div className="task-content">
-        <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={handleToggleComplete}
-          aria-label={`Mark ${task.title} as ${task.completed ? 'incomplete' : 'complete'}`}
-        />
-        <div className="task-text">
-          <h3>{task.title}</h3>
-          <p>{task.description}</p>
-        </div>
-      </div>
-      <button
-        onClick={handleDelete}
-        className="delete-button"
-        aria-label={`Delete ${task.title}`}
-      >
-        Delete
-      </button>
-    </div>
+    <Card>
+      <CardContent>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography variant="h6">{task.title}</Typography>
+            <Typography color="textSecondary">{task.description}</Typography>
+            <Typography variant="body2" color="textSecondary">
+              Created: {new Date(task.createdAt).toLocaleDateString()}
+            </Typography>
+          </Box>
+          <Box>
+            <Button
+              variant={task.status === 'completed' ? "contained" : "outlined"}
+              color={task.status === 'completed' ? "success" : "primary"}
+              onClick={handleStatusToggle}
+              data-testid={`status-button-${task.id}`}
+            >
+              {task.status}
+            </Button>
+            <IconButton
+              onClick={() => onDelete(task.id)}
+              data-testid={`delete-task-${task.id}`}
+              aria-label={`Delete ${task.title}`}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
   );
 }; 
