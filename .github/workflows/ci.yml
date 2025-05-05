@@ -96,6 +96,7 @@ jobs:
         host: ${{ secrets.AWS_HOST }}
         username: ${{ secrets.AWS_USER }}
         key: ${{ secrets.AWS_KEY }}
+        debug: true
         script: |
           cd /home/ec2-user/task-manager
           docker-compose pull
