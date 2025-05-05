@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "Integration tests for Task Manager",
   "scripts": {
-    "test": "playwright test",
-    "test:debug": "HEADLESS=false playwright test --debug"
+    "test": "codeceptjs run --steps",
+    "test:debug": "HEADLESS=false codeceptjs run --steps --debug"
   },
   "devDependencies": {
-    "@playwright/test": "^1.42.1"
+    "@codeceptjs/configure": "^0.10.0",
+    "@codeceptjs/ui": "^0.7.0",
+    "codeceptjs": "^3.5.8",
+    "playwright": "^1.42.1"
   }
 } 
