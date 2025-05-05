@@ -1,13 +1,10 @@
+const baseConfig = require('./jest.config');
+
 module.exports = {
-  preset: 'ts-jest',
+  ...baseConfig,
   testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: ['**/tests/integration/**/*.test.ts'],
-  transform: {
-    '^.+\\.ts$': 'ts-jest',
-  },
-  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-  setupFilesAfterEnv: ['<rootDir>/src/tests/integration/setup.ts'],
+  testMatch: ['**/tests/integration/**/*.test.js'],
+  setupFilesAfterEnv: ['<rootDir>/src/tests/integration/setup.js'],
   testTimeout: 30000,
   forceExit: true,
   detectOpenHandles: true

@@ -2,9 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { sequelize } = require('./models');
+const taskRoutes = require('./routes/tasks');
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
@@ -21,11 +22,11 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/tasks', taskRoutes);
 
 // Health check endpoint
-app.get('/api/tasks/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
 });
 
 // Error handling middleware
@@ -43,13 +44,20 @@ async function startServer() {
     await sequelize.sync();
     console.log('Database synchronized successfully.');
 
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
+    if (process.env.NODE_ENV !== 'test') {
+      app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+      });
+    }
   } catch (error) {
     console.error('Unable to start server:', error);
     process.exit(1);
   }
 }
 
-startServer(); 
+// Start the server if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+module.exports = app; 

@@ -15,10 +15,10 @@ const validateUuid = (req, res, next) => {
 router.get('/', async (req, res) => {
   try {
     const tasks = await Task.findAll();
-    res.json({ data: tasks });
+    res.json(tasks);
   } catch (error) {
     console.error('Error fetching tasks:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 });
 
@@ -39,13 +39,12 @@ router.get('/:id', validateUuid, async (req, res) => {
 // Create a new task
 router.post('/', async (req, res) => {
   try {
-    console.log('Creating task with data:', req.body);
-    const task = await Task.create(req.body);
-    console.log('Task created successfully:', task);
-    res.status(201).json({ data: task });
+    const { title, description, status } = req.body;
+    const task = await Task.create({ title, description, status });
+    res.status(201).json(task);
   } catch (error) {
     console.error('Error creating task:', error);
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: 'Failed to create task' });
   }
 });
 

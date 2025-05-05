@@ -8,6 +8,7 @@
     "dev": "nodemon src/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:integration": "jest --config jest.integration.config.js",
     "build": "echo 'No build step required for Node.js backend'"
   },
   "keywords": [],
