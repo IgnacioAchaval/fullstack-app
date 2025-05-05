@@ -99,8 +99,11 @@ jobs:
         debug: true
         script: |
           cd /home/ubuntu/task-manager
+          export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          ls -la
           docker-compose pull
           docker-compose up -d
+          docker-compose ps
 
   integration-tests:
     needs: deploy

@@ -2,35 +2,26 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
+    image: ${DOCKER_USERNAME}/task-manager-backend:latest
     ports:
-      - "4000:4000"
+      - '3000:3000'
     environment:
-      - PORT=4000
       - POSTGRES_HOST=db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=taskmanager
     depends_on:
       - db
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
 
   frontend:
-    build: ./frontend
+    image: ${DOCKER_USERNAME}/task-manager-frontend:latest
     ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - '80:80'
     depends_on:
       - backend
 
   db:
     image: postgres:15-alpine
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
