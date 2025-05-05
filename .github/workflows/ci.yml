@@ -92,16 +92,17 @@ jobs:
     
     - name: Create SSH key file
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.AWS_KEY }}" > ~/.ssh/ec2_key.pem
-        chmod 600 ~/.ssh/ec2_key.pem
+        mkdir -p $HOME/.ssh
+        echo "${{ secrets.AWS_KEY }}" > $HOME/.ssh/ec2_key.pem
+        chmod 600 $HOME/.ssh/ec2_key.pem
+        ls -la $HOME/.ssh/
     
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.AWS_HOST }}
         username: ${{ secrets.AWS_USER }}
-        key_path: ~/.ssh/ec2_key.pem
+        key_path: $HOME/.ssh/ec2_key.pem
         debug: true
         script: |
           cd /home/ec2-user/task-manager
