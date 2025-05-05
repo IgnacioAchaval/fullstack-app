@@ -124,6 +124,11 @@ jobs:
         cd tests
         npm install
 
+    - name: Install Playwright Browsers
+      run: |
+        cd tests
+        npx playwright install --with-deps chromium
+
     - name: Run Integration Tests
       run: |
         cd tests
