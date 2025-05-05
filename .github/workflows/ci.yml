@@ -94,11 +94,11 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.AWS_HOST }}
-        username: ${{ secrets.AWS_USER }}
+        username: ubuntu
         key: ${{ secrets.AWS_KEY }}
         debug: true
         script: |
-          cd /home/ec2-user/task-manager
+          cd /home/ubuntu/task-manager
           docker-compose pull
           docker-compose up -d
 
