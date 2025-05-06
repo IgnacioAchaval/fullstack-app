@@ -89,6 +89,8 @@ jobs:
           port: 22
           debug: true
           script: |
+            # Clean up Docker resources
+            docker system prune -af --volumes
             # Create app directory
             mkdir -p /home/ubuntu/fullstack-app
             # Create docker-compose.yml
@@ -106,6 +108,11 @@ jobs:
                   - POSTGRES_DB=taskmanager
                 depends_on:
                   - db
+                healthcheck:
+                  test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+                  interval: 30s
+                  timeout: 10s
+                  retries: 3
 
               frontend:
                 image: ${DOCKER_USERNAME}/fullstack-app-frontend:latest
@@ -113,7 +120,8 @@ jobs:
                 ports:
                   - '80:80'
                 depends_on:
-                  - backend
+                  backend:
+                    condition: service_healthy
 
               db:
                 image: postgres:15-alpine
@@ -124,6 +132,11 @@ jobs:
                   - POSTGRES_DB=taskmanager
                 volumes:
                   - postgres_data:/var/lib/postgresql/data
+                healthcheck:
+                  test: ["CMD-SHELL", "pg_isready -U postgres"]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 5
 
             volumes:
               postgres_data:
@@ -142,6 +155,8 @@ jobs:
             netstat -tulpn | grep LISTEN
             # Check docker logs
             docker-compose logs
+            # Verify backend is accessible
+            curl -f http://localhost:3000/health || echo "Backend health check failed"
 
   integration-tests:
     needs: deploy
@@ -161,4 +176,19 @@ jobs:
         env:
           APP_URL: ${{ secrets.AWS_HOST }}
           BACKEND_PORT: 3000
-        run: npx codeceptjs run --steps --verbose 
+        run: |
+          # Wait for backend to be ready
+          for i in {1..30}; do
+            if curl -s http://${{ secrets.AWS_HOST }}:3000/health > /dev/null; then
+              echo "Backend is ready"
+              break
+            fi
+            echo "Waiting for backend to be ready... ($i/30)"
+            sleep 10
+            if [ $i -eq 30 ]; then
+              echo "Backend failed to become ready"
+              exit 1
+            fi
+          done
+          # Run tests
+          npx codeceptjs run --steps --verbose 
