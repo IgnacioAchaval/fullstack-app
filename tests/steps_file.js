@@ -45,6 +45,29 @@ I.waitForServices = async () => {
   throw new Error('Services not ready after maximum retries');
 };
 
+// Wait for the API to be ready
+I.waitForAPI = async () => {
+  const maxRetries = 15;
+  const retryInterval = 2000; // 2 seconds
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const response = await I.sendGetRequest('/api/tasks/health');
+      if (response.status === 200) {
+        console.log('API is ready!');
+        return true;
+      }
+    } catch (error) {
+      console.log(`Attempt ${i + 1}/${maxRetries} failed: ${error.message}`);
+    }
+    
+    // Wait before next retry
+    await new Promise(resolve => setTimeout(resolve, retryInterval));
+  }
+
+  throw new Error('API not ready after maximum retries');
+};
+
 // Create a new task
 I.createTask = async (title, description) => {
   await I.fillField('input[name="title"]', title);
@@ -68,32 +91,27 @@ I.toggleTaskStatus = async (title) => {
 module.exports = function() {
   return actor({
     // Define custom steps here, use 'I' to access codeceptjs predefined methods
-    // Example:
-    // async clickTaskStatus(taskTitle) {
-    //   I.click(`//tr[contains(., '${taskTitle}')]//button[contains(text(), 'Pending')]`);
-    // }
-    async waitForServices() {
-      const maxRetries = 10;
-      const retryDelay = 2000;
+    createTask: async function(title, description, status = 'pending') {
+      const response = await I.sendPostRequest('/api/tasks', {
+        title,
+        description,
+        status
+      });
+      return response.data;
+    },
 
-      for (let i = 0; i < maxRetries; i++) {
-        try {
-          // Check frontend
-          await I.amOnPage('/');
-          await I.see('Task Manager');
+    getTask: async function(id) {
+      const response = await I.sendGetRequest(`/api/tasks/${id}`);
+      return response.data;
+    },
 
-          // Check backend health
-          const response = await I.sendGetRequest('/health');
-          if (response.status === 200) {
-            return true;
-          }
-        } catch (error) {
-          if (i === maxRetries - 1) {
-            throw new Error('Services not ready after maximum retries');
-          }
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
-        }
-      }
+    updateTask: async function(id, data) {
+      const response = await I.sendPutRequest(`/api/tasks/${id}`, data);
+      return response.data;
+    },
+
+    deleteTask: async function(id) {
+      await I.sendDeleteRequest(`/api/tasks/${id}`);
     }
   });
 }; 

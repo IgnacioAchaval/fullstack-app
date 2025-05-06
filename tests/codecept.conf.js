@@ -8,22 +8,11 @@ setCommonPlugins();
 
 /** @type {CodeceptJS.MainConfig} */
 exports.config = {
-  tests: 'e2e/**/*.test.js',
-  output: 'e2e/outputs',
+  tests: '*.test.js',
+  output: 'outputs',
   helpers: {
-    Playwright: {
-      url: 'http://localhost:4173',
-      show: false,
-      browser: 'chromium',
-      waitForTimeout: 5000,
-      waitForNavigation: 'networkidle',
-      restart: true,
-      keepBrowserState: false,
-      keepCookies: false,
-      trace: true,
-    },
     REST: {
-      endpoint: 'http://localhost:3001',
+      endpoint: process.env.APP_URL ? `${process.env.APP_URL}:${process.env.BACKEND_PORT || 4000}` : 'http://localhost:4000',
       timeout: 10000,
       defaultHeaders: {
         'Content-Type': 'application/json',
@@ -35,14 +24,11 @@ exports.config = {
   include: {
     I: './steps_file.js',
   },
-  name: 'task-manager-e2e',
+  name: 'task-manager-integration-tests',
   plugins: {
     retryFailedStep: {
       enabled: true,
       retries: 2,
-    },
-    screenshotOnFail: {
-      enabled: true,
     },
   },
 }; 

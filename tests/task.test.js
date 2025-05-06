@@ -1,31 +1,50 @@
-Feature('Task Management');
+Feature('Task API Integration Tests');
 
-Scenario('Create and manage tasks', ({ I }) => {
-  I.amOnPage('/');
-  
-  // Create a new task
-  I.click('Add Task');
-  I.fillField('Title', 'Test Task');
-  I.fillField('Description', 'This is a test task');
-  I.selectOption('Status', 'pending');
-  I.click('Save');
-  
-  // Verify task was created
-  I.see('Test Task');
-  I.see('This is a test task');
-  I.see('pending');
-  
-  // Edit the task
-  I.click('Edit');
-  I.fillField('Title', 'Updated Test Task');
-  I.selectOption('Status', 'completed');
-  I.click('Save');
-  
-  // Verify task was updated
-  I.see('Updated Test Task');
-  I.see('completed');
-  
+Scenario('Create, read, update and delete a task', async ({ I }) => {
+  // Create a task
+  const taskData = {
+    title: 'Test Task',
+    description: 'This is a test task',
+    status: 'pending'
+  };
+
+  const response = await I.sendPostRequest('/api/tasks', taskData);
+  I.seeResponseCodeIs(201);
+  const taskId = response.data.data.id;
+
+  // Read the task
+  const getResponse = await I.sendGetRequest(`/api/tasks/${taskId}`);
+  I.seeResponseCodeIs(200);
+  I.seeResponseContainsJson({
+    data: {
+      title: taskData.title,
+      description: taskData.description,
+      status: taskData.status
+    }
+  });
+
+  // Update the task
+  const updateData = {
+    title: 'Updated Test Task',
+    description: 'This is an updated test task',
+    status: 'completed'
+  };
+
+  const updateResponse = await I.sendPutRequest(`/api/tasks/${taskId}`, updateData);
+  I.seeResponseCodeIs(200);
+  I.seeResponseContainsJson({
+    data: {
+      title: updateData.title,
+      description: updateData.description,
+      status: updateData.status
+    }
+  });
+
   // Delete the task
-  I.click('Delete');
-  I.dontSee('Updated Test Task');
+  const deleteResponse = await I.sendDeleteRequest(`/api/tasks/${taskId}`);
+  I.seeResponseCodeIs(204);
+
+  // Verify task is deleted
+  const getDeletedResponse = await I.sendGetRequest(`/api/tasks/${taskId}`);
+  I.seeResponseCodeIs(404);
 }); 
