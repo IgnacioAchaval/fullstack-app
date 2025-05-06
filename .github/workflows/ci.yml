@@ -88,10 +88,19 @@ jobs:
           debug: true
           script: |
             cd /home/ubuntu/fullstack-app
+            # Set environment variables
+            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            # Pull and start services
             docker-compose pull
             docker-compose up -d
             # Wait for services to be ready
             sleep 30
+            # Verify services are running
+            docker-compose ps
+            # Check if ports are listening
+            netstat -tulpn | grep LISTEN
+            # Check docker logs
+            docker-compose logs
 
   integration-tests:
     needs: deploy
@@ -109,6 +118,6 @@ jobs:
       - name: Run integration tests
         working-directory: ./tests
         env:
-          APP_URL: ${{ secrets.AWS_HOST }}
+          APP_URL: http://${{ secrets.AWS_HOST }}
           BACKEND_PORT: 4000
-        run: npx codeceptjs run --steps 
+        run: npx codeceptjs run --steps --verbose 
