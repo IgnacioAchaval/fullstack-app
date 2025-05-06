@@ -87,10 +87,48 @@ jobs:
           port: 22
           debug: true
           script: |
-            cd /home/ubuntu/fullstack-app
+            # Create app directory
+            mkdir -p /home/ubuntu/fullstack-app
+            # Create docker-compose.yml
+            cat > /home/ubuntu/fullstack-app/docker-compose.yml << 'EOL'
+            version: '3.8'
+
+            services:
+              backend:
+                image: ${DOCKER_USERNAME}/fullstack-app-backend:latest
+                ports:
+                  - '3000:3000'
+                environment:
+                  - POSTGRES_HOST=db
+                  - POSTGRES_USER=postgres
+                  - POSTGRES_PASSWORD=postgres
+                  - POSTGRES_DB=taskmanager
+                depends_on:
+                  - db
+
+              frontend:
+                image: ${DOCKER_USERNAME}/fullstack-app-frontend:latest
+                ports:
+                  - '80:80'
+                depends_on:
+                  - backend
+
+              db:
+                image: postgres:15-alpine
+                environment:
+                  - POSTGRES_USER=postgres
+                  - POSTGRES_PASSWORD=postgres
+                  - POSTGRES_DB=taskmanager
+                volumes:
+                  - postgres_data:/var/lib/postgresql/data
+
+            volumes:
+              postgres_data:
+            EOL
             # Set environment variables
             export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
             # Pull and start services
+            cd /home/ubuntu/fullstack-app
             docker-compose pull
             docker-compose up -d
             # Wait for services to be ready
@@ -119,5 +157,5 @@ jobs:
         working-directory: ./tests
         env:
           APP_URL: http://${{ secrets.AWS_HOST }}
-          BACKEND_PORT: 4000
+          BACKEND_PORT: 3000
         run: npx codeceptjs run --steps --verbose 
