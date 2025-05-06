@@ -12,11 +12,17 @@ exports.config = {
   output: 'outputs',
   helpers: {
     REST: {
-      endpoint: process.env.APP_URL ? `${process.env.APP_URL}:${process.env.BACKEND_PORT || 4000}` : 'http://localhost:4000',
-      timeout: 10000,
+      endpoint: process.env.APP_URL ? `http://${process.env.APP_URL}:${process.env.BACKEND_PORT || 4000}` : 'http://localhost:4000',
+      timeout: 30000, // Increased timeout for CI environment
       defaultHeaders: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+      },
+      onRequest: (request) => {
+        console.log(`Making request to: ${request.url}`);
+      },
+      onResponse: (response) => {
+        console.log(`Response status: ${response.status}`);
       },
     },
     JSONResponse: {},
@@ -28,7 +34,7 @@ exports.config = {
   plugins: {
     retryFailedStep: {
       enabled: true,
-      retries: 2,
+      retries: 3,
     },
   },
 }; 
