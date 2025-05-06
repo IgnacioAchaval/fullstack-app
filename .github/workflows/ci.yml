@@ -65,23 +65,29 @@ jobs:
             echo "::error::AWS_HOST secret is not set"
             exit 1
           fi
-          if [ -z "${{ secrets.AWS_USER }}" ]; then
-            echo "::error::AWS_USER secret is not set"
-            exit 1
-          fi
           if [ -z "${{ secrets.AWS_KEY }}" ]; then
             echo "::error::AWS_KEY secret is not set"
             exit 1
           fi
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -v ubuntu@${{ secrets.AWS_HOST }} 'echo "SSH connection successful"'
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}
+          username: ubuntu
           key: ${{ secrets.AWS_KEY }}
           port: 22
+          debug: true
           script: |
-            cd /home/ec2-user/fullstack-app
+            cd /home/ubuntu/fullstack-app
             docker-compose pull
             docker-compose up -d
             # Wait for services to be ready
