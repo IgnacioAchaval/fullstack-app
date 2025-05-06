@@ -52,7 +52,7 @@ I.waitForAPI = async () => {
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const response = await I.sendGetRequest('/api/tasks/health');
+      const response = await I.sendGetRequest('/health');
       if (response.status === 200) {
         console.log('API is ready!');
         return true;
@@ -92,26 +92,46 @@ module.exports = function() {
   return actor({
     // Define custom steps here, use 'I' to access codeceptjs predefined methods
     createTask: async function(title, description, status = 'pending') {
-      const response = await I.sendPostRequest('/api/tasks', {
-        title,
-        description,
-        status
-      });
-      return response.data;
+      try {
+        const response = await I.sendPostRequest('/api/tasks', {
+          title,
+          description,
+          status
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error creating task:', error.message);
+        throw error;
+      }
     },
 
     getTask: async function(id) {
-      const response = await I.sendGetRequest(`/api/tasks/${id}`);
-      return response.data;
+      try {
+        const response = await I.sendGetRequest(`/api/tasks/${id}`);
+        return response.data;
+      } catch (error) {
+        console.error('Error getting task:', error.message);
+        throw error;
+      }
     },
 
     updateTask: async function(id, data) {
-      const response = await I.sendPutRequest(`/api/tasks/${id}`, data);
-      return response.data;
+      try {
+        const response = await I.sendPutRequest(`/api/tasks/${id}`, data);
+        return response.data;
+      } catch (error) {
+        console.error('Error updating task:', error.message);
+        throw error;
+      }
     },
 
     deleteTask: async function(id) {
-      await I.sendDeleteRequest(`/api/tasks/${id}`);
+      try {
+        await I.sendDeleteRequest(`/api/tasks/${id}`);
+      } catch (error) {
+        console.error('Error deleting task:', error.message);
+        throw error;
+      }
     }
   });
 }; 
