@@ -109,7 +109,7 @@ module.exports = function() {
       try {
         const response = await I.sendGetRequest(`/api/tasks/${id}`);
         return response.data;
-      } catch (error) {
+        } catch (error) {
         console.error('Error getting task:', error.message);
         throw error;
       }

@@ -14,7 +14,7 @@ Scenario('Create and manage tasks', ({ I }) => {
   I.fillField('Description', 'This is a test task');
   I.selectOption('Status', 'pending');
   I.click('Save');
-  
+
   // Verify task was created
   I.see('Test Task');
   I.see('This is a test task');
@@ -25,7 +25,7 @@ Scenario('Create and manage tasks', ({ I }) => {
   I.fillField('Title', 'Updated Test Task');
   I.selectOption('Status', 'completed');
   I.click('Save');
-  
+
   // Verify task was updated
   I.see('Updated Test Task');
   I.see('completed');

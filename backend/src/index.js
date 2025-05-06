@@ -45,9 +45,9 @@ async function startServer() {
     console.log('Database synchronized successfully.');
 
     if (process.env.NODE_ENV !== 'test') {
-      app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-      });
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
     }
   } catch (error) {
     console.error('Unable to start server:', error);
@@ -57,7 +57,7 @@ async function startServer() {
 
 // Start the server if not in test environment
 if (process.env.NODE_ENV !== 'test') {
-  startServer();
+startServer(); 
 }
 
 module.exports = app; 

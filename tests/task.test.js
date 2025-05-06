@@ -22,7 +22,7 @@ Scenario('Create, read, update and delete a task', async ({ I }) => {
       status: taskData.status
     }
   });
-
+  
   // Update the task
   const updateData = {
     title: 'Updated Test Task',
@@ -39,7 +39,7 @@ Scenario('Create, read, update and delete a task', async ({ I }) => {
       status: updateData.status
     }
   });
-
+  
   // Delete the task
   const deleteResponse = await I.sendDeleteRequest(`/api/tasks/${taskId}`);
   I.seeResponseCodeIs(204);
