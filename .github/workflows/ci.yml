@@ -113,8 +113,8 @@ jobs:
                   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
                   interval: 30s
                   timeout: 10s
-                  retries: 3
-                  start_period: 40s
+                  retries: 5
+                  start_period: 60s
 
               frontend:
                 image: ${DOCKER_USERNAME}/fullstack-app-frontend:latest
@@ -124,6 +124,8 @@ jobs:
                 depends_on:
                   backend:
                     condition: service_healthy
+                networks:
+                  - fullstack-app_default
 
               db:
                 image: postgres:15-alpine

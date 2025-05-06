@@ -10,17 +10,15 @@ Scenario('Create, read, update and delete a task', async ({ I }) => {
 
   const response = await I.sendPostRequest('/api/tasks', taskData);
   I.seeResponseCodeIs(201);
-  const taskId = response.data.data.id;
+  const taskId = response.data.id;
 
   // Read the task
   const getResponse = await I.sendGetRequest(`/api/tasks/${taskId}`);
   I.seeResponseCodeIs(200);
   I.seeResponseContainsJson({
-    data: {
-      title: taskData.title,
-      description: taskData.description,
-      status: taskData.status
-    }
+    title: taskData.title,
+    description: taskData.description,
+    status: taskData.status
   });
 
   // Update the task
@@ -33,11 +31,9 @@ Scenario('Create, read, update and delete a task', async ({ I }) => {
   const updateResponse = await I.sendPutRequest(`/api/tasks/${taskId}`, updateData);
   I.seeResponseCodeIs(200);
   I.seeResponseContainsJson({
-    data: {
-      title: updateData.title,
-      description: updateData.description,
-      status: updateData.status
-    }
+    title: updateData.title,
+    description: updateData.description,
+    status: updateData.status
   });
 
   // Delete the task
