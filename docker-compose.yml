@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   backend:
+    # build: ./backend
     image: ${DOCKER_USERNAME}/task-manager-backend:latest
     ports:
       - '3000:3000'
@@ -14,6 +15,7 @@ services:
       - db
 
   frontend:
+    # build: ./frontend
     image: ${DOCKER_USERNAME}/task-manager-frontend:latest
     ports:
       - '80:80'
