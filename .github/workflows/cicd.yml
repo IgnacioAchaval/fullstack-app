@@ -11,22 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node.js
+      - name: Set up Node.js and run tests
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install backend dependencies
+      - name: Backend tests
         working-directory: ./backend
-        run: npm ci
-      - name: Run backend tests
-        working-directory: ./backend
-        run: npm test
-      - name: Install frontend dependencies
+        run: |
+          npm ci
+          npm test
+      - name: Frontend tests
         working-directory: ./frontend
-        run: npm ci
-      - name: Run frontend tests
-        working-directory: ./frontend
-        run: npm test
+        run: |
+          npm ci
+          npm test
 
   build-and-push:
     needs: test
@@ -60,7 +58,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
@@ -77,8 +74,16 @@ jobs:
             cd /home/ubuntu/fullstack-app
             docker-compose pull
             docker-compose up -d
-            sleep 30
-            curl -f http://localhost:3000/health || exit 1
+            # Wait for backend to be healthy
+            for i in {1..30}; do
+              if curl -s http://localhost:3000/health > /dev/null; then
+                echo "Backend is healthy"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "Backend failed to become healthy"
+            exit 1
 
   integration-tests:
     needs: deploy
@@ -90,7 +95,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install and run tests
+      - name: Run integration tests
         working-directory: ./tests
         env:
           APP_URL: ${{ secrets.AWS_HOST }}
