@@ -6,8 +6,9 @@
     "test": "codeceptjs run --steps"
   },
   "dependencies": {
-    "@codeceptjs/configure": "^3.0.0",
+    "@codeceptjs/configure": "^0.10.0",
     "@codeceptjs/ui": "^0.7.0",
-    "codeceptjs": "^3.5.8"
+    "codeceptjs": "^3.5.8",
+    "playwright": "^1.42.1"
   }
 } 
