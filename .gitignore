@@ -1,15 +1,48 @@
 # Dependencies
 node_modules/
-.pnp/
-.pnp.js
+**/node_modules/
 
-# Testing
-coverage/
-.nyc_output/
-
-# Production
+# Build outputs
 dist/
 build/
+**/dist/
+**/build/
+
+# Test outputs
+outputs/
+screenshots/
+*.log
+**/*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Cache
+.cache/
+**/.cache/
+.npm/
+**/.npm/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Misc
+*.pem
+*.key
+*.cert
 
 # Environment variables
 .env
@@ -42,9 +75,6 @@ lerna-debug.log*
 
 # TypeScript
 *.tsbuildinfo
-
-# Docker
-.docker/
 
 # Misc
 *.local
