@@ -95,6 +95,7 @@ jobs:
             mkdir -p /home/ubuntu/fullstack-app
             # Create docker-compose.yml
             cat > /home/ubuntu/fullstack-app/docker-compose.yml << 'EOL'
+            version: '3.8'
             services:
               backend:
                 image: ${DOCKER_USERNAME}/fullstack-app-backend:latest
@@ -122,10 +123,7 @@ jobs:
                 ports:
                   - '80:80'
                 depends_on:
-                  backend:
-                    condition: service_healthy
-                networks:
-                  - fullstack-app_default
+                  - backend
 
               db:
                 image: postgres:15-alpine
