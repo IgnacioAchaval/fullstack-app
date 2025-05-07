@@ -48,7 +48,7 @@ I.waitForServices = async () => {
 // Wait for the API to be ready
 I.waitForAPI = async () => {
   const maxRetries = 15;
-  const retryInterval = 2000; // 2 seconds
+  const retryInterval = 2000;
 
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -60,11 +60,8 @@ I.waitForAPI = async () => {
     } catch (error) {
       console.log(`Attempt ${i + 1}/${maxRetries} failed: ${error.message}`);
     }
-    
-    // Wait before next retry
     await new Promise(resolve => setTimeout(resolve, retryInterval));
   }
-
   throw new Error('API not ready after maximum retries');
 };
 
@@ -90,7 +87,6 @@ I.toggleTaskStatus = async (title) => {
 
 module.exports = function() {
   return actor({
-    // Define custom steps here, use 'I' to access codeceptjs predefined methods
     createTask: async function(title, description, status = 'pending') {
       try {
         const response = await I.sendPostRequest('/api/tasks', {
@@ -109,7 +105,7 @@ module.exports = function() {
       try {
         const response = await I.sendGetRequest(`/api/tasks/${id}`);
         return response.data;
-        } catch (error) {
+      } catch (error) {
         console.error('Error getting task:', error.message);
         throw error;
       }

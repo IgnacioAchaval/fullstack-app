@@ -1,15 +1,13 @@
 {
-  "name": "task-manager-integration-tests",
+  "name": "task-manager-tests",
   "version": "1.0.0",
   "description": "Integration tests for Task Manager",
   "scripts": {
-    "test": "codeceptjs run --steps",
-    "test:debug": "HEADLESS=false codeceptjs run --steps --debug"
+    "test": "codeceptjs run --steps"
   },
-  "devDependencies": {
-    "@codeceptjs/configure": "^0.10.0",
-    "@codeceptjs/ui": "^0.7.7",
-    "codeceptjs": "^3.5.8",
-    "playwright": "^1.42.1"
+  "dependencies": {
+    "@codeceptjs/configure": "^3.0.0",
+    "@codeceptjs/ui": "^0.7.0",
+    "codeceptjs": "^3.5.8"
   }
 } 
