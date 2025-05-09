@@ -32,8 +32,13 @@ export const Task: React.FC<TaskProps> = ({ task, onDelete, onStatusUpdate }) =>
           <>
             {task.description}
             <br />
-            Status: {task.status}
+            {/* Original version - Tests will pass */}
+             Status: {task.status}
+            
+            {/* Modified version - Tests will fail */}
+             {/*State: {task.status}*/}
           </>
+
         }
       />
       <ListItemSecondaryAction>

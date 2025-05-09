@@ -16,6 +16,9 @@ function defineTask(sequelize) {
       allowNull: true,
     },
     status: {
+      // Modified version - Tests will fail
+      // type: DataTypes.ENUM('pending', 'completed'),
+      // Original version - Tests will pass
       type: DataTypes.ENUM('pending', 'in_progress', 'completed'),
       defaultValue: 'pending',
     },
