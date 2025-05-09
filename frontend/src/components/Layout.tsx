@@ -21,7 +21,7 @@ const Layout = ({ children }: LayoutProps) => {
               flexGrow: 1
             }}
           >
-            Task Manager
+            Task Manager2
           </Typography>
         </Toolbar>
       </AppBar>
