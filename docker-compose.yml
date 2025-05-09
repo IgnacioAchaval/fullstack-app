@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   backend:
+    # For local development
     # build: ./backend
+    # For AWS deployment - uncomment the following line and comment out the build line above
     image: ${DOCKER_USERNAME}/task-manager-backend:latest
     ports:
       - '3000:3000'
@@ -15,7 +17,9 @@ services:
       - db
 
   frontend:
+    # For local development
     # build: ./frontend
+    # For AWS deployment - uncomment the following line and comment out the build line above
     image: ${DOCKER_USERNAME}/task-manager-frontend:latest
     ports:
       - '80:80'
