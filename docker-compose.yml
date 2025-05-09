@@ -5,7 +5,7 @@ services:
     # For local development
     # build: ./backend
     # For AWS deployment - uncomment the following line and comment out the build line above
-    image: ${DOCKER_USERNAME}/task-manager-backend:latest
+    image: ignacioachaval94/fullstack-app-backend:latest
     ports:
       - '3000:3000'
     environment:
@@ -20,7 +20,7 @@ services:
     # For local development
     # build: ./frontend
     # For AWS deployment - uncomment the following line and comment out the build line above
-    image: ${DOCKER_USERNAME}/task-manager-frontend:latest
+    image: ignacioachaval94/fullstack-app-frontend:latest
     ports:
       - '80:80'
     depends_on:
