@@ -60,10 +60,8 @@ jobs:
     steps:
       - name: Setup SSH key
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+           chmod 600 fullstack-key.pem
+           ssh -i fullstack-key.pem ubuntu@3.142.172.92
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
