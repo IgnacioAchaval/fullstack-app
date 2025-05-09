@@ -1,40 +1,49 @@
-# Task Management Application
+# Aplicación de Gestión de Tareas
 
-A simple task management application built with Node.js, React, and PostgreSQL.
+Aplicación full-stack para gestión de tareas desarrollada con Node.js, React y PostgreSQL.
 
-## Project Structure
+## Características Principales
 
-- `backend/` - Node.js Express API
-- `frontend/` - React frontend application
-- `tests/` - Integration tests using CodeceptJS
-- `.github/workflows/` - GitHub Actions CI/CD configuration
+- Gestión completa de tareas (CRUD)
+- Estados de tareas: pendiente, en progreso, completada
+- Filtrado y ordenamiento de tareas
+- Interfaz responsiva
+- Persistencia de datos con PostgreSQL
+- Tests automatizados (unitarios e integración)
 
-## Prerequisites
+## Stack Tecnológico
 
-- Node.js (v18 or higher)
-- Docker and Docker Compose
-- PostgreSQL (if running locally)
+### Backend
+- Node.js con Express
+- TypeScript
+- PostgreSQL
+- Jest para testing
 
-## Setup
+### Frontend
+- React con TypeScript
+- Vite
+- Jest para testing
 
-1. Clone the repository:
+### DevOps
+- Docker y Docker Compose
+- GitHub Actions para CI/CD
+- Tests E2E con CodeceptJS
+
+## Requisitos
+
+- Node.js (v18 o superior)
+- Docker y Docker Compose
+- PostgreSQL (si se ejecuta localmente)
+
+## Configuración Rápida
+
+1. Clonar el repositorio:
 ```bash
 git clone <repository-url>
 cd fullstack-app
 ```
 
-2. Install dependencies:
-```bash
-# Install backend dependencies
-cd backend
-npm install
-
-# Install frontend dependencies
-cd ../frontend
-npm install
-```
-
-3. Set up environment variables:
+2. Configurar variables de entorno:
 ```bash
 # Backend
 cp backend/.env.example backend/.env
@@ -43,50 +52,98 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 ```
 
-4. Start the development environment:
+3. Iniciar con Docker:
 ```bash
-docker-compose up
+# Desarrollo local
+docker compose up --build
+
+# Producción (requiere DOCKER_USERNAME)
+export DOCKER_USERNAME=tu-usuario
+docker compose up
 ```
 
-The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:4000
+## Pipeline CI/CD
 
-## Testing
+El proyecto utiliza GitHub Actions para automatización con el siguiente workflow:
 
-### Unit Tests
+1. **Build y Test Unitarios**
+   ```yaml
+   - Se ejecuta en cada push a main y pull requests
+   - Instala dependencias (npm ci)
+   - Ejecuta tests unitarios del backend y frontend
+   - Genera reportes de cobertura
+   ```
+
+2. **Build de Imágenes Docker**
+   ```yaml
+   - Construye imágenes Docker para backend y frontend
+   - Etiqueta imágenes con commit SHA
+   - Publica imágenes en DockerHub
+   ```
+
+3. **Despliegue a AWS**
+   ```yaml
+   - Despliega contenedores en AWS
+   - Configura variables de entorno
+   - Verifica el despliegue
+   ```
+
+4. **Tests de Integración**
+   ```yaml
+   - Ejecuta tests E2E contra el entorno desplegado
+   - Verifica funcionalidades críticas
+   - Genera reportes de tests
+   ```
+
+## Tests
+
+### Tests Unitarios
 ```bash
-# Backend tests
+# Backend
 cd backend
 npm test
 
-# Frontend tests
+# Frontend
 cd frontend
 npm test
 ```
 
-### Integration Tests
+### Tests de Integración (E2E)
 ```bash
-npm run test:e2e
+# Instalar dependencias de tests
+npm install -g codeceptjs
+
+# Ejecutar tests contra entorno local
+npm run test:e2e<
+
+# Ejecutar tests contra entorno de producción
+npm run test:e2e:prod
 ```
 
-## CI/CD Pipeline
+Los tests de integración verifican:
+- Flujos completos de usuario
+- Integración backend-frontend
+- Persistencia de datos
+- Manejo de errores
+- Validaciones de UI
 
-The project uses GitHub Actions for continuous integration and deployment:
-- Builds the application on every push to main
-- Runs unit tests
-- Creates and pushes Docker images
-- Deploys to production environment
-- Runs integration tests against the deployed application
+## Estructura del Proyecto
 
-## Docker
-
-Build and run the application using Docker:
-```bash
-docker-compose up --build
+```
+.
+├── backend/          # API Node.js
+├── frontend/         # Aplicación React
+├── tests/           # Tests de integración
+├── docker-compose.yml
+└── README.md
 ```
 
-## License
+## Documentación Adicional
+
+- [Casos de Prueba](TEST_CASES.md)
+- [Mejoras Planificadas](IMPROVEMENTS.md)
+
+## Licencia
 
 MIT
 
