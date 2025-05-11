@@ -7,58 +7,62 @@ on:
     branches: [ main ]
 
 jobs:
+  # ---------- tests ----------
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node.js and run tests
+      - name: Node & tests
         uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+        with: { node-version: '20' }
       - name: Backend tests
-        working-directory: ./backend
+        working-directory: backend
         run: |
           npm ci
           npm test -- --coverage
       - name: Frontend tests
-        working-directory: ./frontend
+        working-directory: frontend
         run: |
           npm ci
           npm test -- --coverage
 
+  # ---------- build ----------
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push images
+
+      - name: Build & push backend (:latest)
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: backend
           push: true
-          platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKER_USERNAME }}/fullstack-app-backend:latest
-      - name: Build and push frontend
+
+      - name: Build & push frontend (:latest)
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
+          context: frontend
           push: true
-          platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKER_USERNAME }}/fullstack-app-frontend:latest
 
+  # ---------- deploy ----------
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Setup SSH key
+      - name: Prepare SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_KEY }}" > ~/.ssh/deploy_key
@@ -69,37 +73,49 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AWS_HOST }}
-          username: ubuntu
+          username: ${{ secrets.AWS_USER }}      # usa tu secret
           key: ${{ secrets.AWS_KEY }}
           script: |
+            set -e
             cd /home/ubuntu/fullstack-app
-            docker-compose pull
-            docker-compose up -d
-            # Wait for backend to be healthy
+
+            # Trae la última versión del compose y del código
+            if [ -d .git ]; then
+              git pull origin main
+            else
+              echo "⚠️  Repo no existe en la instancia; clonándolo…"
+              git clone https://github.com/<TU-USER>/fullstack-app.git .
+            fi
+
+            # Baja siempre las últimas imágenes :latest y recrea
+            docker compose pull
+            docker compose up -d --pull always --force-recreate --remove-orphans
+
+            # -------- health-check manteniendo tu loop original --------
             for i in {1..30}; do
               if curl -s http://localhost:3000/health > /dev/null; then
-                echo "Backend is healthy"
+                echo "✅ Backend is healthy"
                 exit 0
               fi
               sleep 2
             done
-            echo "Backend failed to become healthy"
+            echo "❌ Backend failed to become healthy"
             exit 1
 
+  # ---------- integration tests ----------
   integration-tests:
     needs: deploy
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+        with: { node-version: '20' }
       - name: Run integration tests
-        working-directory: ./tests
+        working-directory: tests
         env:
-          APP_URL: ${{ secrets.AWS_HOST }}
+          APP_URL: http://${{ secrets.AWS_HOST }}
         run: |
           npm install --legacy-peer-deps
-          npx codeceptjs run --steps 
+          npx codeceptjs run --steps
