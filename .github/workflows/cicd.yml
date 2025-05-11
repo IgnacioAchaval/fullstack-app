@@ -61,6 +61,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
+    #########################
+    # 1) Exporta variables  #
+    #########################
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
     steps:
       - name: Prepare SSH
         run: |
@@ -69,27 +76,33 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2 (pull de Docker Hub)
+      #############################
+      # 2) Pásalas con `envs:`    #
+      #############################
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host:     ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}     # ej. ubuntu
+          username: ${{ secrets.AWS_USER }}
           key:      ${{ secrets.AWS_KEY }}
-          envs: |
-            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
-            DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+          envs: DOCKER_USERNAME,DOCKER_PASSWORD   # ← nombres, separados por coma
+
+          ########################################
+          # 3) Script.  Login opcional (safe)     #
+          ########################################
           script: |
             set -e
             cd /home/${{ secrets.AWS_USER }}/fullstack-app
 
-            # 1) Iniciar sesión en Docker Hub (evita rate-limit)
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            # Login solo si las var están presentes
+            if [ -n "$DOCKER_USERNAME" ] && [ -n "$DOCKER_PASSWORD" ]; then
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            fi
 
-            # 2) Traer las últimas imágenes y recrear contenedores
             docker compose pull --include-deps
             docker compose up -d --pull always --force-recreate --remove-orphans
 
-            # 3) Health-check (tus 30 intentos)
+            # Health-check (30 intentos)
             for i in {1..30}; do
               if curl -s http://localhost:3000/health > /dev/null; then
                 echo "✅ Backend is healthy"
@@ -99,7 +112,6 @@ jobs:
             done
             echo "❌ Backend failed to become healthy"
             exit 1
-
 # ---------- INTEGRATION TESTS ----------
   integration-tests:
     needs: deploy
