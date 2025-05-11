@@ -122,16 +122,6 @@ jobs:
               docker-compose up -d --force-recreate --remove-orphans
             fi
 
-            # ----- Health-check -----
-            for i in {1..30}; do
-              if curl -s http://localhost:3000/health > /dev/null; then
-                echo "✅ Backend is healthy"
-                exit 0
-              fi
-              sleep 2
-            done
-            echo "❌ Backend failed to become healthy"
-            exit 1
 # ---------- INTEGRATION TESTS ----------
   integration-tests:
     needs: deploy

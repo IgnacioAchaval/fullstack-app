@@ -38,6 +38,14 @@ app.use((err, req, res, next) => {
 // Start server
 async function startServer() {
   try {
+    console.log('Starting server...');
+    console.log('Database configuration:', {
+      host: process.env.DB_HOST || 'localhost',
+      port: process.env.DB_PORT || 5432,
+      database: process.env.DB_NAME || 'taskmanager',
+      user: process.env.DB_USER || 'postgres'
+    });
+
     await sequelize.authenticate();
     console.log('Database connection established successfully.');
     

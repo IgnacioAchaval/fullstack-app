@@ -1,8 +1,6 @@
 const axios = require('axios');
 
-async function waitForBackend(maxAttempts = 30, interval = 1000) {
-  const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
-  
+async function waitForBackend(maxAttempts = 30, interval = 1000, backendUrl = 'http://localhost:3000') {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       await axios.get(`${backendUrl}/health`);

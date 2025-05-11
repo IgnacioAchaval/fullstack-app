@@ -3,7 +3,8 @@ const waitForBackend = require('./helpers/waitForBackend');
 Feature('Task API Integration Tests');
 
 Before(async () => {
-  await waitForBackend();
+  const backendUrl = process.env.APP_URL || 'http://localhost:3000';
+  await waitForBackend(30, 1000, backendUrl);
 });
 
 Scenario('Create, read, update and delete a task', async ({ I }) => {
