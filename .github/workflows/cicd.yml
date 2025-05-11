@@ -7,13 +7,12 @@ on:
     branches: [ main ]
 
 jobs:
-  # ---------- tests ----------
+# ---------- TESTS ----------
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Node & tests
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - name: Backend tests
         working-directory: backend
@@ -26,14 +25,14 @@ jobs:
           npm ci
           npm test -- --coverage
 
-  # ---------- build ----------
+# ---------- BUILD & PUSH ----------
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
+      - name: Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
@@ -56,11 +55,12 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/fullstack-app-frontend:latest
 
-  # ---------- deploy ----------
+# ---------- DEPLOY ----------
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+
     steps:
       - name: Prepare SSH
         run: |
@@ -69,29 +69,27 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2
+      - name: Deploy to EC2 (pull de Docker Hub)
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USER }}      # usa tu secret
-          key: ${{ secrets.AWS_KEY }}
+          host:     ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USER }}     # ej. ubuntu
+          key:      ${{ secrets.AWS_KEY }}
+          envs: |
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
           script: |
             set -e
-            cd /home/ubuntu/fullstack-app
+            cd /home/${{ secrets.AWS_USER }}/fullstack-app
 
-            # Trae la última versión del compose y del código
-            if [ -d .git ]; then
-              git pull origin main
-            else
-              echo "⚠️  Repo no existe en la instancia; clonándolo…"
-              git clone https://github.com/<TU-USER>/fullstack-app.git .
-            fi
+            # 1) Iniciar sesión en Docker Hub (evita rate-limit)
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-            # Baja siempre las últimas imágenes :latest y recrea
-            docker compose pull
+            # 2) Traer las últimas imágenes y recrear contenedores
+            docker compose pull --include-deps
             docker compose up -d --pull always --force-recreate --remove-orphans
 
-            # -------- health-check manteniendo tu loop original --------
+            # 3) Health-check (tus 30 intentos)
             for i in {1..30}; do
               if curl -s http://localhost:3000/health > /dev/null; then
                 echo "✅ Backend is healthy"
@@ -102,15 +100,14 @@ jobs:
             echo "❌ Backend failed to become healthy"
             exit 1
 
-  # ---------- integration tests ----------
+# ---------- INTEGRATION TESTS ----------
   integration-tests:
     needs: deploy
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - name: Run integration tests
         working-directory: tests
