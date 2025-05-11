@@ -8,9 +8,6 @@ export const theme = createTheme({
     secondary: {
       main: '#dc004e',
     },
-    background: {
-      default: '#f5f5f5',
-    },
   },
   typography: {
     fontFamily: [
@@ -22,14 +19,5 @@ export const theme = createTheme({
       'Arial',
       'sans-serif',
     ].join(','),
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-        },
-      },
-    },
   },
 }); 

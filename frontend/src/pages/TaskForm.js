@@ -14,27 +14,26 @@ import {
   MenuItem
 } from '@mui/material';
 import axios from 'axios';
-import { Task, CreateTaskDTO, UpdateTaskDTO } from '../types';
 import { API_BASE_URL } from '../config';
 
 export default function TaskForm() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<CreateTaskDTO>({
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
     title: '',
     description: '',
     status: 'pending'
   });
 
-  const { data: task, isLoading } = useQuery<Task>({
+  const { data: task, isLoading } = useQuery({
     queryKey: ['task', id],
     queryFn: async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/tasks/${id}`);
-        return response.data.data as Task;
-      } catch (error: any) {
+        return response.data.data;
+      } catch (error) {
         setError(error.response?.data?.message || 'Failed to fetch task');
         throw error;
       }
@@ -52,7 +51,7 @@ export default function TaskForm() {
     }
   }, [task]);
 
-  const createTask = useMutation<unknown, Error, CreateTaskDTO>({
+  const createTask = useMutation({
     mutationFn: async (data) => {
       const response = await axios.post(`${API_BASE_URL}/tasks`, data);
       return response.data;
@@ -61,12 +60,12 @@ export default function TaskForm() {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       navigate('/');
     },
-    onError: (error: any) => {
+    onError: (error) => {
       setError(error.response?.data?.message || 'Failed to create task');
     }
   });
 
-  const updateTask = useMutation<unknown, Error, UpdateTaskDTO>({
+  const updateTask = useMutation({
     mutationFn: async (data) => {
       const response = await axios.put(`${API_BASE_URL}/tasks/${id}`, data);
       return response.data;
@@ -75,12 +74,12 @@ export default function TaskForm() {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       navigate('/');
     },
-    onError: (error: any) => {
+    onError: (error) => {
       setError(error.response?.data?.message || 'Failed to update task');
     }
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.title.trim()) {
       setError('Title is required');
@@ -137,7 +136,7 @@ export default function TaskForm() {
         <Select
           value={formData.status}
           label="Status"
-          onChange={(e) => setFormData({ ...formData, status: e.target.value as 'pending' | 'in_progress' | 'completed' })}
+          onChange={(e) => setFormData({ ...formData, status: e.target.value })}
         >
           <MenuItem value="pending">Pending</MenuItem>
           <MenuItem value="in_progress">In Progress</MenuItem>

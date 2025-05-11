@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Task } from '../types';
 import axios from 'axios';
 import { List, Typography, Box } from '@mui/material';
-import { Task as TaskComponent } from './Task';
+import TaskComponent from './Task';
 
-export const TaskList: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [error, setError] = useState<string | null>(null);
+const TaskList = () => {
+  const [tasks, setTasks] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchTasks();
@@ -23,7 +22,7 @@ export const TaskList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (taskId: string) => {
+  const handleDelete = async (taskId) => {
     try {
       await axios.delete(`/api/tasks/${taskId}`);
       setTasks(tasks.filter(task => task.id !== taskId));
@@ -33,9 +32,9 @@ export const TaskList: React.FC = () => {
     }
   };
 
-  const handleStatusUpdate = async (taskId: string, newStatus: 'pending' | 'completed') => {
+  const handleStatusUpdate = async (taskId, newStatus) => {
     try {
-      const response = await axios.put<{ data: Task }>(`/api/tasks/${taskId}`, { status: newStatus });
+      const response = await axios.put(`/api/tasks/${taskId}`, { status: newStatus });
       setTasks(tasks.map(task => 
         task.id === taskId ? response.data.data : task
       ));
@@ -67,4 +66,6 @@ export const TaskList: React.FC = () => {
       </List>
     </Box>
   );
-}; 
+};
+
+export default TaskList; 

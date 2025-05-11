@@ -15,29 +15,27 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem,
-  SelectChangeEvent
+  MenuItem
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Task as TaskType, CreateTaskDTO } from '../types';
 import { API_BASE_URL } from '../config';
-import { Task } from '../components/Task';
+import Task from '../components/Task';
 
 const ITEMS_PER_PAGE = 5;
 
 export default function TaskList() {
   const [open, setOpen] = useState(false);
-  const [newTask, setNewTask] = useState<CreateTaskDTO>({ 
+  const [newTask, setNewTask] = useState({ 
     title: '', 
     description: '',
     status: 'pending'
   });
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all');
+  const [filter, setFilter] = useState('all');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -51,12 +49,12 @@ export default function TaskList() {
         ...(filter !== 'all' && { status: filter })
       });
       const response = await axios.get(`${API_BASE_URL}/tasks?${params}`);
-      return response.data.data as TaskType[];
+      return response.data.data;
     }
   });
 
   const createTask = useMutation({
-    mutationFn: async (task: CreateTaskDTO) => {
+    mutationFn: async (task) => {
       const response = await axios.post(`${API_BASE_URL}/tasks`, task);
       return response.data;
     },
@@ -65,37 +63,37 @@ export default function TaskList() {
       setOpen(false);
       setNewTask({ title: '', description: '', status: 'pending' });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       setError(error.response?.data?.message || 'Failed to create task');
     }
   });
 
   const deleteTask = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id) => {
       await axios.delete(`${API_BASE_URL}/tasks/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       setError(error.response?.data?.message || 'Failed to delete task');
     }
   });
 
   const updateTask = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: TaskType['status'] }) => {
+    mutationFn: async ({ id, status }) => {
       const response = await axios.put(`${API_BASE_URL}/tasks/${id}`, { status });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       setError(error.response?.data?.message || 'Failed to update task');
     }
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!newTask.title.trim()) {
       setError('Title is required');
@@ -104,25 +102,25 @@ export default function TaskList() {
     createTask.mutate(newTask);
   };
 
-  const handleFilterChange = (event: SelectChangeEvent) => {
-    setFilter(event.target.value as 'all' | 'pending' | 'in_progress' | 'completed');
+  const handleFilterChange = (event) => {
+    setFilter(event.target.value);
     setPage(1);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (event) => {
     setSearch(event.target.value);
     setPage(1);
   };
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (event, value) => {
     setPage(value);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id) => {
     deleteTask.mutate(id);
   };
 
-  const handleStatusUpdate = async (taskId: string, newStatus: 'pending' | 'completed'): Promise<void> => {
+  const handleStatusUpdate = async (taskId, newStatus) => {
     await updateTask.mutateAsync({ id: taskId, status: newStatus });
   };
 

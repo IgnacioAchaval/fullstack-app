@@ -1,12 +1,38 @@
-# Test Cases de Integración
+# Test Cases
+
+## Tests Unitarios Frontend
+
+### 1. Renderizado Inicial
+- **Objetivo**: Verificar que la lista de tareas se renderiza correctamente
+- **Pasos**:
+  1. Montar el componente App
+  2. Esperar a que se carguen las tareas
+- **Resultado Esperado**: 
+  - Se muestra la lista de tareas inicial
+  - Se muestra el botón "Add Task"
+
+### 2. Crear Nueva Tarea
+- **Objetivo**: Verificar la creación de una nueva tarea
+- **Pasos**:
+  1. Hacer clic en "Add Task"
+  2. Completar el formulario
+  3. Hacer clic en "Save"
+- **Resultado Esperado**: 
+  - La nueva tarea aparece en la lista
+  - El formulario se cierra
+
+### 3. Eliminar Tarea
+- **Objetivo**: Verificar la eliminación de una tarea
+- **Pasos**:
+  1. Localizar una tarea existente
+  2. Hacer clic en el botón de eliminar
+- **Resultado Esperado**: 
+  - La tarea desaparece de la lista
+  - Se muestra la lista actualizada
 
 ## Tests de Integración API
 
-### 1. Health Check
-- **Endpoint**: GET /health
-- **Resultado Esperado**: Status 200, {"status": "ok"}
-
-### 2. CRUD de Tareas
+### 1. CRUD de Tareas
 - **Crear**: POST /api/tasks
   - Debe crear una tarea con datos válidos
   - Debe retornar 201 Created
@@ -32,6 +58,11 @@
 - Verificar que no se pueden crear tareas con datos inválidos
 - Verificar que no se pueden editar tareas con datos inválidos
 
+## Manejo de Errores
+- Verificar respuestas HTTP apropiadas para errores
+- Verificar mensajes de error descriptivos
+- Verificar manejo de errores de red
+
 # Casos de Prueba E2E
 
 ## Gestión de Tareas
@@ -50,27 +81,8 @@
   - La tarea aparece en la lista
   - Estado inicial es "pendiente"
 
-### 2. Actualizar Estado
-- **Objetivo**: Verificar la actualización del estado de una tarea
-- **Pasos**:
-  1. Seleccionar una tarea existente
-  2. Cambiar el estado a "en progreso"
-  3. Guardar cambios
-- **Resultado Esperado**: 
-  - El estado se actualiza correctamente
-  - La fecha de actualización se modifica
 
-### 3. Editar Tarea
-- **Objetivo**: Verificar la edición de una tarea existente
-- **Pasos**:
-  1. Seleccionar una tarea
-  2. Modificar título y descripción
-  3. Guardar cambios
-- **Resultado Esperado**: 
-  - Los cambios se reflejan en la lista
-  - La fecha de actualización se modifica
-
-### 4. Eliminar Tarea
+### 2. Eliminar Tarea
 - **Objetivo**: Verificar la eliminación de una tarea
 - **Pasos**:
   1. Seleccionar una tarea
@@ -80,20 +92,11 @@
   - La tarea desaparece de la lista
   - Se muestra mensaje de confirmación
 
-### 5. Filtrar Tareas
-- **Objetivo**: Verificar el filtrado de tareas por estado
-- **Pasos**:
-  1. Crear tareas con diferentes estados
-  2. Usar el filtro por estado
-- **Resultado Esperado**: 
-  - Se muestran solo las tareas del estado seleccionado
-  - El contador se actualiza correctamente
 
 ### 6. Validaciones
 - **Objetivo**: Verificar las validaciones del formulario
 - **Pasos**:
   1. Intentar crear tarea sin título
-  2. Intentar crear tarea con fecha pasada
 - **Resultado Esperado**: 
   - Se muestran mensajes de error apropiados
   - No se permite guardar hasta corregir errores

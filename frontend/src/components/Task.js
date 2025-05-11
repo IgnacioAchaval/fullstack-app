@@ -1,19 +1,12 @@
 import React from 'react';
-import { ListItem, ListItemText, ListItemSecondaryAction, Button, IconButton } from '@mui/material';
-import { Task as TaskType } from '../types';
+import { ListItem, ListItemText, ListItemSecondaryAction, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 
-interface TaskProps {
-  task: TaskType;
-  onDelete: (id: string) => void;
-  onStatusUpdate: (taskId: string, newStatus: 'pending' | 'completed') => Promise<void>;
-}
-
-export const Task: React.FC<TaskProps> = ({ task, onDelete, onStatusUpdate }) => {
+const Task = ({ task, onDelete, onStatusUpdate }) => {
   const handleStatusToggle = async () => {
-    const newStatus = task.status === 'pending' ? 'completed' as const : 'pending' as const;
+    const newStatus = task.status === 'pending' ? 'completed' : 'pending';
     await onStatusUpdate(task.id, newStatus);
   };
 
@@ -32,13 +25,8 @@ export const Task: React.FC<TaskProps> = ({ task, onDelete, onStatusUpdate }) =>
           <>
             {task.description}
             <br />
-            {/* Original version - Tests will pass */}
-             Status: {task.status}
-            
-            {/* Modified version - Tests will fail */}
-             {/*State: {task.status}*/}
+            Status: {task.status}
           </>
-
         }
       />
       <ListItemSecondaryAction>
@@ -53,4 +41,6 @@ export const Task: React.FC<TaskProps> = ({ task, onDelete, onStatusUpdate }) =>
       </ListItemSecondaryAction>
     </ListItem>
   );
-}; 
+};
+
+export default Task; 

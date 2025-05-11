@@ -1,12 +1,8 @@
-import React, { ReactNode } from 'react';
-import { AppBar, Toolbar, Typography, Container, Box } from '@mui/material';
+import React from 'react';
+import { Box, AppBar, Toolbar, Typography, Container } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar position="static">

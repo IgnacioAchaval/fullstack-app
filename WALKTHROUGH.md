@@ -12,6 +12,10 @@ Este proyecto es una **aplicación de gestión de tareas** (Task Manager) full-s
 fullstack-app/
 ├── backend/         # API REST Node.js/Express
 ├── frontend/        # Aplicación React
+│   ├── src/
+│   │   ├── components/    # Componentes reutilizables
+│   │   ├── pages/        # Vistas principales
+│   │   └── tests/        # Tests unitarios
 ├── tests/           # Pruebas de integración (E2E)
 ├── docker-compose.yml
 ├── README.md
@@ -44,21 +48,25 @@ fullstack-app/
 
 ## 4. Frontend
 
-- **Tecnologías:** React, TypeScript, Vite, Jest.
+- **Tecnologías:** React, JavaScript, Vite, Material-UI, Jest, React Testing Library.
 - **Ubicación:** `/frontend`
 
 ### Estructura principal:
 - `/src/components/`: Componentes reutilizables (formularios, listas, botones, etc).
 - `/src/pages/`: Vistas principales (listado de tareas, detalle, edición).
-- `/src/contexts/`: Contextos de React para manejo de estado global.
-- `/src/types/`: Definiciones de tipos TypeScript.
-- `/src/tests/`: Pruebas unitarias e integración del frontend.
+- `/src/tests/`: Tests unitarios del frontend.
 
 ### Funcionalidades:
 - Crear, editar, eliminar y listar tareas.
 - Cambiar estado de las tareas (pendiente, en progreso, completada).
 - Filtrar y ordenar tareas.
-- Interfaz responsiva.
+- Interfaz responsiva con Material-UI.
+
+### Tests Unitarios:
+- Renderizado inicial de componentes
+- Interacciones del usuario
+- Operaciones CRUD
+- Manejo de estados y efectos
 
 ---
 
@@ -78,9 +86,25 @@ fullstack-app/
 
 ## 6. Pruebas (Testing)
 
-- **Unitarias:** Jest para backend y frontend.
-- **Integración/E2E:** CodeceptJS, ubicado en `/tests`.
-- **Cobertura:** Se ejecutan automáticamente en el pipeline CI/CD.
+### Tests Unitarios
+- **Frontend:** Jest y React Testing Library
+  - Pruebas de componentes
+  - Pruebas de interacción
+  - Pruebas de estado
+
+- **Backend:** Jest
+  - Pruebas de controladores
+  - Pruebas de servicios
+  - Pruebas de modelos
+
+### Tests de Integración
+- **Tecnología:** CodeceptJS
+- **Ubicación:** `/tests`
+- **Cobertura:**
+  - Operaciones CRUD completas
+  - Validación de respuestas HTTP
+  - Manejo de errores
+  - Persistencia de datos
 
 ---
 
@@ -111,8 +135,8 @@ fullstack-app/
 ## 9. Documentación y Casos de Prueba
 
 - **README.md:** Explica instalación, ejecución, estructura y pipeline.
-- **TEST_CASES.md:** Enumera los casos de prueba de integración y E2E.
-- **IMPROVEMENTS.md:** Lista mejoras y cambios realizados.
+- **TEST_CASES.md:** Enumera los casos de prueba unitarios y de integración.
+- **WALKTHROUGH.md:** Guía detallada de la arquitectura y componentes.
 
 ---
 
