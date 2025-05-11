@@ -44,20 +44,17 @@ async function startServer() {
     await sequelize.sync();
     console.log('Database synchronized successfully.');
 
-    if (process.env.NODE_ENV !== 'test') {
+    // Always start the server, even in test environment
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });
-    }
   } catch (error) {
     console.error('Unable to start server:', error);
     process.exit(1);
   }
 }
 
-// Start the server if not in test environment
-if (process.env.NODE_ENV !== 'test') {
-startServer(); 
-}
+// Start the server
+startServer();
 
 module.exports = app; 

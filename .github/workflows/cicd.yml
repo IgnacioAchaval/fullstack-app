@@ -78,9 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
-    #########################
-    # 1) Exporta variables  #
-    #########################
+    # 1) Exporta variables  
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -93,9 +91,7 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
 
-      #############################
-      # 2) Pásalas con `envs:`    #
-      #############################
+      # 2) Pásalas con `envs:` 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -104,9 +100,7 @@ jobs:
           key:      ${{ secrets.AWS_KEY }}
           envs: DOCKER_USERNAME,DOCKER_PASSWORD   # ← nombres, separados por coma
 
-          ########################################
-          # 3) Script.  Login opcional (safe)     #
-          ########################################
+          # 3) Script.  Login opcional (safe)   
           script: |
             set -e
             cd /home/${{ secrets.AWS_USER }}/fullstack-app
