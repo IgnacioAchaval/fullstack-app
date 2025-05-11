@@ -94,15 +94,24 @@ jobs:
             set -e
             cd /home/${{ secrets.AWS_USER }}/fullstack-app
 
-            # Login solo si las var están presentes
+            # ----- (OPCIONAL) login a Docker Hub -----
             if [ -n "$DOCKER_USERNAME" ] && [ -n "$DOCKER_PASSWORD" ]; then
               echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             fi
 
-            docker compose pull --include-deps
-            docker compose up -d --pull always --force-recreate --remove-orphans
+            # ----- Compatibilidad Compose v1/v2 -----
+            if command -v "docker compose" >/dev/null 2>&1; then
+              echo "🔄 Usando Docker Compose v2 (plugin)..."
+              docker compose pull                       # sin --include-deps
+              docker compose up -d --pull always --force-recreate --remove-orphans
+            else
+              echo "🔄 Usando Docker-Compose v1..."
+              docker-compose pull
+              # v1 no tiene --pull, pero ya hicimos pull arriba
+              docker-compose up -d --force-recreate --remove-orphans
+            fi
 
-            # Health-check (30 intentos)
+            # ----- Health-check -----
             for i in {1..30}; do
               if curl -s http://localhost:3000/health > /dev/null; then
                 echo "✅ Backend is healthy"
