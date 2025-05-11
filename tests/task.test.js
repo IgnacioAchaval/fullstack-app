@@ -1,4 +1,10 @@
+const waitForBackend = require('./helpers/waitForBackend');
+
 Feature('Task API Integration Tests');
+
+Before(async () => {
+  await waitForBackend();
+});
 
 Scenario('Create, read, update and delete a task', async ({ I }) => {
   // Create a task

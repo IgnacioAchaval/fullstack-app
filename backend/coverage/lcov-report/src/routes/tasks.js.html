@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">37.5% </span>
+                <span class="strong">22.91% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>18/48</span>
+                <span class='fraction'>11/48</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/6</span>
+                <span class='fraction'>0/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">37.5% </span>
+                <span class="strong">22.91% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>18/48</span>
+                <span class='fraction'>11/48</span>
             </div>
         
             
@@ -158,9 +158,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -173,20 +187,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -237,10 +237,10 @@ const validateUuid = <span class="fstat-no" title="function not covered" >(r</sp
 };
 &nbsp;
 // Get all tasks
-router.get('/', async (req, res) =&gt; {
-  try {
-    const tasks = await Task.findAll();
-    res.json(tasks);
+router.get('/', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
+<span class="cstat-no" title="statement not covered" >  try {</span>
+    const tasks = <span class="cstat-no" title="statement not covered" >await Task.findAll();</span>
+<span class="cstat-no" title="statement not covered" >    res.json(tasks);</span>
   } catch (error) {
 <span class="cstat-no" title="statement not covered" >    console.error('Error fetching tasks:', error);</span>
 <span class="cstat-no" title="statement not covered" >    res.status(500).json({ error: 'Failed to fetch tasks' });</span>
@@ -262,11 +262,11 @@ router.get('/:id', validateUuid, <span class="fstat-no" title="function not cove
 });
 &nbsp;
 // Create a new task
-router.post('/', async (req, res) =&gt; {
-  try {
-    const { title, description, status } = req.body;
-    const task = await Task.create({ title, description, status });
-    res.status(201).json(task);
+router.post('/', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
+<span class="cstat-no" title="statement not covered" >  try {</span>
+    const { title, description, status } = <span class="cstat-no" title="statement not covered" >req.body;</span>
+    const task = <span class="cstat-no" title="statement not covered" >await Task.create({ title, description, status });</span>
+<span class="cstat-no" title="statement not covered" >    res.status(201).json(task);</span>
   } catch (error) {
 <span class="cstat-no" title="statement not covered" >    console.error('Error creating task:', error);</span>
 <span class="cstat-no" title="statement not covered" >    res.status(500).json({ error: 'Failed to create task' });</span>
@@ -310,7 +310,7 @@ module.exports = router; </pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-05T23:10:34.856Z
+                at 2025-05-11T22:07:38.692Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
