@@ -20,10 +20,13 @@ Aplicación full-stack para gestión de tareas desarrollada con Node.js, React y
 - Jest para testing
 
 ### Frontend
-- React con JavaScript
-- Vite
-- Material-UI para componentes
-- Jest y React Testing Library para testing
+- React
+- Node.js
+- Express
+- PostgreSQL
+- Docker
+- Material-UI
+- Jest
 
 ### DevOps
 - Docker y Docker Compose

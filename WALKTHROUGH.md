@@ -48,7 +48,7 @@ fullstack-app/
 
 ## 4. Frontend
 
-- **Tecnologías:** React, JavaScript, Vite, Material-UI, Jest, React Testing Library.
+- **Tecnologías:** React, JavaScript, Material-UI, Jest, React Testing Library.
 - **Ubicación:** `/frontend`
 
 ### Estructura principal:
