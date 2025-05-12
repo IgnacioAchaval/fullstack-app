@@ -17,7 +17,7 @@ jest.mock('sequelize', () => {
 });
 
 jest.mock('sequelize', () => {
-  const mocked2 = {
+  const mocked = {
     UUID: 'UUID',
     UUIDV4: 'UUIDV4',
     STRING: 'STRING',
@@ -27,7 +27,7 @@ jest.mock('sequelize', () => {
   };
   
   return {
-    DataTypes2: mocked2
+    DataTypes2: mocked
   };
 });
 
@@ -39,6 +39,7 @@ const { DataTypes2 } = require('sequelize');
 
 describe('Task Model', () => {
   let sequelize;
+  let sequelize2;
   let mockDefine;
   let mockDefine2;
 
@@ -50,7 +51,16 @@ describe('Task Model', () => {
       define: mockDefine
     };
     defineTask(sequelize);
-  
+    
+  });
+
+    beforeEach(() => {
+    mockDefine2 = jest.fn().mockReturnValue({});
+    sequelize = {
+      define: mockDefine
+    };
+    defineTask(sequelize2);
+    
   });
 
   // Test that the Task model is defined with the correct schema attributes
