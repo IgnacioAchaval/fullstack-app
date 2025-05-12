@@ -10,17 +10,35 @@ jest.mock('sequelize', () => {
     ENUM: jest.fn((...values) => ({ type: 'ENUM', values })),
     DATE: 'DATE'
   };
+
   return {
     DataTypes: mocked
   };
 });
 
+jest.mock('sequelize2', () => {
+  const mocked2 = {
+    UUID: 'UUID2',
+    UUIDV4: 'UUIDV42',
+    STRING: 'STRING2',
+    TEXT: 'TEXT2',
+    ENUM: jest.fn((...values) => ({ type: 'ENUM', values })),
+    DATE: 'DATE2'
+  };
+  
+  return {
+    DataTypes2: mocked2
+  };
+});
+
 // Import the mocked DataTypes and the Task model definition function
 const { DataTypes } = require('sequelize');
+const { DataTypes2 } = require('sequelize2');
 const defineTask = require('../Task.js');
 
 describe('Task Model', () => {
   let sequelize;
+  let sequelize2;
   let mockDefine;
 
   // Before each test, create a fake sequelize object with a mock 'define' function
@@ -31,6 +49,7 @@ describe('Task Model', () => {
       define: mockDefine
     };
     defineTask(sequelize);
+    defineTask(sequelize2);
   });
 
   // Test that the Task model is defined with the correct schema attributes
@@ -92,4 +111,10 @@ describe('Task Model', () => {
     const modelDefinition = mockDefine.mock.calls[0][1];
     expect(DataTypes.ENUM).toHaveBeenCalledWith('pending', 'in_progress', 'completed');
   });
-}); 
+
+    // Test that the ENUM for status is defined with the correct values
+  it('should properly define ENUM values for status', () => {
+    const modelDefinition = mockDefine.mock.calls[0][1];
+    expect(DataTypes2.ENUM).toHaveBeenCalledWith('pepe');
+  });
+});
