@@ -71,7 +71,16 @@ function App() {
         return;
       }
       console.log('Submitting task:', currentTask);
-      const response = await axios.post('/api/tasks', currentTask);
+      
+      // TESTS PASSING VERSION
+      //const response = await axios.post('/api/tasks', currentTask);
+      
+      // TESTS BREAKING VERSION (Espera Title, description y status y solo recibe title y status)
+       const response = await axios.post('/api/tasks', {
+         title: currentTask.title,
+         status: currentTask.status
+       });
+      
       console.log('Task created:', response.data);
       handleClose();
       fetchTasks();
