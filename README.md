@@ -1,109 +1,82 @@
-# Aplicación de Gestión de Tareas
+# Task Manager
 
-Aplicación full-stack para gestión de tareas desarrollada con Node.js, React y PostgreSQL.
+Una aplicación simple para gestionar tareas, construida con Node.js, Express, React y PostgreSQL.
 
-## Características Principales
+## Características
 
-- Gestión completa de tareas (CRUD)
-- Estados de tareas: pendiente, en progreso, completada
-- Interfaz responsiva con Material-UI
-- Persistencia de datos con PostgreSQL
-- Tests automatizados (unitarios e integración)
+- Crear, leer, actualizar y eliminar tareas
+- Marcar tareas como completadas
+- Tests automatizados
 
-## Stack Tecnológico
+## Tecnologías
 
 ### Backend
-- Node.js con Express
-- PostgreSQL con Sequelize ORM
-- Jest para testing
+- Node.js y Express
+- PostgreSQL con Sequelize
+- Jest para tests
 
 ### Frontend
-- React con Create React App
-- Material-UI para componentes
-- Jest y React Testing Library para testing
-
-### DevOps
-- Docker y Docker Compose
-- GitHub Actions para CI/CD
+- React
+- Material-UI
+- Axios para API calls
+- Jest para tests
 
 ## Requisitos
 
-- Node.js (v18 o superior)
+- Node.js v18+
 - Docker y Docker Compose
-- PostgreSQL (si se ejecuta localmente)
+- PostgreSQL (opcional para desarrollo local)
 
-## Configuración Rápida
+## Instalación
 
 1. Clonar el repositorio:
 ```bash
-git clone <repository-url>
+git clone https://github.com/IgnacioAchaval/fullstack-app.git
 cd fullstack-app
 ```
 
-2. Configurar variables de entorno:
+2. Instalar dependencias:
 ```bash
 # Backend
-cp backend/.env.example backend/.env
+cd backend
+npm install
 
 # Frontend
-cp frontend/.env.example frontend/.env
+cd ../frontend
+npm install
 ```
 
-3. Iniciar con Docker:
+
+3. Iniciar la aplicación:
 ```bash
-# Desarrollo local
-docker compose up --build
+# Iniciar base de datos
+docker compose up db
 
-# Producción (requiere DOCKER_USERNAME)
-export DOCKER_USERNAME=tu-usuario
-docker compose up
+# Iniciar backend
+cd backend
+npm run dev
+
+# Iniciar frontend
+cd frontend
+npm start
 ```
 
-## Pipeline CI/CD
+## Tests
 
-El proyecto utiliza GitHub Actions para automatización con el siguiente workflow:
+```bash
+# Backend
+cd backend
+npm test
 
-1. **Build y Test Unitarios**
-   - Se ejecuta en cada push a main y pull requests
-   - Instala dependencias (npm ci)
-   - Ejecuta tests unitarios del backend y frontend
-   - Genera reportes de cobertura
+# Frontend
+cd frontend
+npm test
 
-2. **Build de Imágenes Docker**
-   - Construye imágenes Docker para backend y frontend
-   - Publica imágenes en DockerHub
-
-3. **Despliegue a AWS**
-   - Despliega contenedores en AWS
-   - Configura variables de entorno
-   - Verifica el despliegue
-
-4. **Tests de Integración**
-   - Ejecuta tests de integración contra el entorno desplegado
-   - Verifica funcionalidades críticas
-   - Genera reportes de tests
-
-## Estructura del Proyecto
-
-```
-.
-├── backend/          # API Node.js
-│   ├── src/
-│   │   ├── models/      # Modelos de datos
-│   │   ├── routes/      # Rutas de la API
-│   │   ├── controllers/ # Controladores
-│   │   └── services/    # Lógica de negocio
-├── frontend/         # Aplicación React
-│   ├── src/
-│   │   ├── tests/      # Tests unitarios
-│   │   └── App.js      # Componente principal
-├── tests/           # Tests de integración
-├── docs/           # Documentación adicional
-├── docker-compose.yml
-└── README.md
+# Integración
+cd tests
+npm test
 ```
 
-## Documentación Adicional
+## Despliegue
 
-- [Casos de Prueba](TEST_CASES.md) - Detalles de implementación de tests
-- [Walkthrough](WALKTHROUGH.md) - Guía de desarrollo y despliegue
+La aplicación se despliega automáticamente en AWS usando GitHub Actions cuando se hace push a main.

@@ -1,171 +1,82 @@
-# Walkthrough de la Aplicación
-
-Este documento proporciona una guía paso a paso para el desarrollo y despliegue de la aplicación de gestión de tareas.
+# Walkthrough
 
 ## Estructura del Proyecto
 
 ```
 .
-├── backend/          # API Node.js
+├── backend/               # API REST con Node.js y Express
 │   ├── src/
-│   │   ├── models/      # Modelos de datos
-│   │   ├── routes/      # Rutas de la API
-│   │   ├── controllers/ # Controladores
-│   │   └── services/    # Lógica de negocio
-├── frontend/         # Aplicación React
+│   │   ├── models/       # Modelos
+│   │   ├── routes/       # Rutas de la API
+│   │   └── index.js      # Punto de entrada
+│   └── tests/            # Tests unitarios
+├── frontend/             # Aplicación React
 │   ├── src/
-│   │   ├── tests/      # Tests unitarios
-│   │   └── App.js      # Componente principal
-├── tests/           # Tests de integración
-├── docs/           # Documentación adicional
-├── docker-compose.yml
-└── README.md
+│   │   ├── App.js        # Componente principal
+│   │   └── tests/        # Tests unitarios
+│   └── public/           # Archivos estáticos
+└── tests/                # Tests de integración
 ```
 
-## Configuración del Entorno
+## Implementación
 
-### Requisitos Previos
-- Node.js v18 o superior
-- Docker y Docker Compose
-- PostgreSQL (opcional para desarrollo local)
+### Backend
 
-### Variables de Entorno
+El backend es una API REST simple que maneja tareas. Usa:
+- Express para el servidor
+- Sequelize para la base de datos
+- Jest para tests
 
-#### Backend (.env)
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=taskmanager
-DB_USER=postgres
-DB_PASSWORD=postgres
-PORT=3001
-```
+La API expone estos endpoints:
+- `GET /api/tasks` - Lista todas las tareas
+- `POST /api/tasks` - Crea una tarea
+- `GET /api/tasks/:id` - Obtiene una tarea
+- `PUT /api/tasks/:id` - Actualiza una tarea
+- `DELETE /api/tasks/:id` - Elimina una tarea
 
-#### Frontend (.env)
-```
-REACT_APP_API_URL=http://localhost:3001
-```
+### Frontend
 
-## Desarrollo Local
+El frontend es una aplicación React simple que:
+- Muestra una lista de tareas
+- Permite crear nuevas tareas
+- Permite marcar tareas como completadas
+- Permite eliminar tareas
 
-### 1. Iniciar la Base de Datos
-```bash
-docker compose up db
-```
+Usa:
+- React para la UI
+- Axios para llamadas a la API
+- Jest para tests
 
-### 2. Iniciar el Backend
-```bash
-cd backend
-npm install
-npm run dev
-```
+## Tests
 
-### 3. Iniciar el Frontend
-```bash
-cd frontend
-npm install
-npm start
-```
+### Backend
+
+Los tests unitarios verifican:
+- Creación de tareas
+- Validación de estados
+- Manejo de errores
+
+### Frontend
+
+Los tests unitarios verifican:
+- Renderizado de tareas
+- Creación de tareas
+- Eliminación de tareas
+
+### Integración
+
+Los tests de integración verifican:
+- Ciclo CRUD completo
+- Persistencia de datos
+- Manejo de errores
 
 ## Despliegue
 
-### 1. Construir Imágenes Docker
-```bash
-docker compose build
-```
+La aplicación se despliega en AWS usando:
+- EC2 para los contenedores
+- GitHub Actions para CI/CD
 
-### 2. Desplegar con Docker Compose
-```bash
-docker compose up
-```
-
-## API Endpoints
-
-### Tareas
-
-#### Crear Tarea
-```http
-POST /api/tasks
-Content-Type: application/json
-
-{
-  "title": "Nueva tarea",
-  "description": "Descripción de la tarea",
-  "status": "pending"
-}
-```
-
-#### Obtener Tarea
-```http
-GET /api/tasks/:id
-```
-
-#### Actualizar Tarea
-```http
-PUT /api/tasks/:id
-Content-Type: application/json
-
-{
-  "title": "Tarea actualizada",
-  "status": "in_progress"
-}
-```
-
-#### Eliminar Tarea
-```http
-DELETE /api/tasks/:id
-```
-
-## Flujo de Trabajo
-
-1. **Crear Tarea**
-   - Ingresar título (requerido)
-   - Ingresar descripción (opcional)
-   - Seleccionar estado (default: pending)
-
-2. **Gestionar Tarea**
-   - Ver detalles
-   - Actualizar estado
-   - Editar información
-   - Eliminar tarea
-
-3. **Estados de Tarea**
-   - pending: Tarea pendiente
-   - in_progress: Tarea en progreso
-   - completed: Tarea completada
-
-## Troubleshooting
-
-### Problemas Comunes
-
-1. **Error de Conexión a la Base de Datos**
-   - Verificar variables de entorno
-   - Comprobar que PostgreSQL esté corriendo
-   - Verificar credenciales
-
-2. **Error en el Frontend**
-   - Verificar REACT_APP_API_URL
-   - Comprobar que el backend esté corriendo
-   - Revisar la consola del navegador
-
-3. **Error en los Tests**
-   - Verificar que la base de datos de test esté limpia
-   - Comprobar variables de entorno de test
-   - Revisar logs de test
-
-## Mejores Prácticas
-
-1. **Desarrollo**
-   - Seguir el patrón de commits convencionales
-   - Mantener los tests actualizados
-   - Documentar cambios significativos
-
-2. **Testing**
-   - Ejecutar tests antes de cada commit
-   - Mantener cobertura de código alta
-   - Verificar tests de integración
-
-3. **Despliegue**
-   - Verificar variables de entorno
-   - Comprobar logs después del despliegue
-   - Monitorear el estado de la aplicación
+El pipeline de CI/CD:
+1. Ejecuta tests
+2. Construye imágenes Docker
+3. Despliega en AWS

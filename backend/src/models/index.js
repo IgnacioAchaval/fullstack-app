@@ -4,9 +4,9 @@ const Task = require('./Task');
 // Support both POSTGRES_ and DB_ environment variables
 const dbConfig = {
   // TESTS PASSING VERSION
-  // host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
+  host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
   // TESTS BREAKING VERSION - Invalid host that will cause connection failure
-  host: 'invalid-host',
+  // host: 'invalid-host',
   port: process.env.POSTGRES_PORT || process.env.DB_PORT || 5432,
   database: process.env.POSTGRES_DB || process.env.DB_NAME || 'taskmanager',
   username: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
