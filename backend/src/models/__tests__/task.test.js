@@ -41,6 +41,7 @@ describe('Task Model', () => {
   let sequelize;
   let sequelize2;
   let mockDefine;
+  let mockDefine2;
 
   // Before each test, create a fake sequelize object with a mock 'define' function
   // and then call defineTask with it to record how the model is defined.
@@ -50,6 +51,11 @@ describe('Task Model', () => {
       define: mockDefine
     };
     defineTask(sequelize);
+    
+    mockDefine2 = jest.fn().mockReturnValue({});
+    sequelize = {
+      define: mockDefine
+    };
     defineTask(sequelize2);
   });
 
@@ -115,7 +121,7 @@ describe('Task Model', () => {
 
     // Test that the ENUM for status is defined with the correct values
   it('should properly define ENUM values for status', () => {
-    const modelDefinition = mockDefine.mock.calls[0][1];
+    const modelDefinition = mockDefine2.mock.calls[0][1];
     expect(DataTypes2.ENUM).toHaveBeenCalledWith('pending', 'in_progress', 'completed');
   });
 });
