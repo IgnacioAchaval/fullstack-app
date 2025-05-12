@@ -57,7 +57,7 @@ describe('Task Model', () => {
     beforeEach(() => {
     mockDefine2 = jest.fn().mockReturnValue({});
     sequelize = {
-      define: mockDefine
+      define: mockDefine2
     };
     defineTask(sequelize2);
     
@@ -125,7 +125,7 @@ describe('Task Model', () => {
 
     // Test that the ENUM for status is defined with the correct values
   it('should properly define ENUM values for status', () => {
-    const modelDefinition = mockDefine2.mock.calls[0][2];
+    const modelDefinition = mockDefine2.mock.calls[0][1];
     expect(DataTypes2.ENUM).toHaveBeenCalledWith('pending', 'in_progress', 'completed');
   });
 });
