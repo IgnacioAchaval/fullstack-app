@@ -1,6 +1,8 @@
 const { setHeadlessWhen, setCommonPlugins } = require('@codeceptjs/configure');
+const { effects } = require('codeceptjs/effects');
 
 // turn on headless mode when running with HEADLESS=true environment variable
+// export HEADLESS=true && npx codeceptjs run
 setHeadlessWhen(process.env.HEADLESS);
 
 // enable all common plugins https://github.com/codeceptjs/configure#setcommonplugins
@@ -8,11 +10,11 @@ setCommonPlugins();
 
 /** @type {CodeceptJS.MainConfig} */
 exports.config = {
-  tests: '*.test.js',
-  output: 'outputs',
+  tests: '**/*.test.js',
+  output: './outputs',
   helpers: {
     REST: {
-      endpoint: process.env.APP_URL ? `http://${process.env.APP_URL}:${process.env.BACKEND_PORT || 3000}` : 'http://localhost:3000',
+      endpoint: process.env.APP_URL || 'http://localhost:3000',
       timeout: 30000, // Increased timeout for CI environment
       defaultHeaders: {
         'Content-Type': 'application/json',
@@ -33,14 +35,19 @@ exports.config = {
   include: {
     I: './steps_file.js',
   },
-  name: 'task-manager-integration-tests',
+  name: 'task-manager',
   plugins: {
-    retryFailedStep: {
-      enabled: true,
-      retries: 3,
-    },
     screenshotOnFail: {
-      enabled: true,
+      enabled: true
     },
+    retryFailedStep: {
+      enabled: true
+    },
+    eachElement: {
+      enabled: true
+    }
   },
+  effects: {
+    ...effects
+  }
 }; 

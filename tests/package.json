@@ -10,5 +10,8 @@
     "@codeceptjs/ui": "^0.7.0",
     "codeceptjs": "^3.5.8",
     "playwright": "^1.42.1"
+  },
+  "devDependencies": {
+    "wait-on": "^8.0.3"
   }
-} 
+}

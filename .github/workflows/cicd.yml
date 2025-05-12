@@ -98,9 +98,9 @@ jobs:
           host:     ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USER }}
           key:      ${{ secrets.AWS_KEY }}
-          envs: DOCKER_USERNAME,DOCKER_PASSWORD   # ← nombres, separados por coma
+          envs: DOCKER_USERNAME,DOCKER_PASSWORD 
 
-          # 3) Script.  Login opcional (safe)   
+          # 3) Script.  Login opcional
           script: |
             set -e
             cd /home/${{ secrets.AWS_USER }}/fullstack-app
@@ -137,4 +137,8 @@ jobs:
           APP_URL: http://${{ secrets.AWS_HOST }}
         run: |
           npm install --legacy-peer-deps
-          npx codeceptjs run --steps
+          # Wait for backend to be ready
+          echo "Waiting for backend to be ready..."
+          npx wait-on -t 60000 http://${{ secrets.AWS_HOST }}/api/health
+          # Run tests
+          npx codeceptjs run --steps --verbose

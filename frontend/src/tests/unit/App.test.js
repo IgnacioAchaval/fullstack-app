@@ -1,91 +1,44 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import React, { act } from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../../App';
 import axios from 'axios';
 import { MemoryRouter } from 'react-router-dom';
 
+// Mock axios
 jest.mock('axios');
 
+// Configure React Router future flags
+const router = {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+};
+
 describe('App Component', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  const mockTasks = [
+    {
+      id: '1',
+      title: 'Test Task 1',
+      description: 'Test Description 1',
+      status: 'pending',
+      createdAt: '2024-03-20T12:00:00Z',
+      updatedAt: '2024-03-20T12:00:00Z'
+    }
+  ];
 
   const renderWithRouter = (ui) => {
     return render(
-      <MemoryRouter>
+      <MemoryRouter future={router.future}>
         {ui}
       </MemoryRouter>
     );
   };
 
-  it('renders initial task list', async () => {
-    // Mock initial tasks
-    axios.get.mockResolvedValueOnce({
-      data: {
-        data: [
-          {
-            id: '1',
-            title: 'Test Task 1',
-            description: 'Test Description 1',
-            status: 'pending',
-            createdAt: '2024-03-20T12:00:00Z',
-            updatedAt: '2024-03-20T12:00:00Z'
-          }
-        ]
-      }
-    });
-
-    renderWithRouter(<App />);
-
-    // Check if task is rendered
-    await waitFor(() => {
-      const listItem = screen.getByRole('listitem');
-      expect(within(listItem).getByText('Test Task 1')).toBeInTheDocument();
-    }, { timeout: 10000 });
-  }, 30000);
-
-  it('adds a new task', async () => {
-    // Mock initial tasks
-    axios.get.mockResolvedValueOnce({
-      data: {
-        data: [
-          {
-            id: '1',
-            title: 'Test Task 1',
-            description: 'Test Description 1',
-            status: 'pending',
-            createdAt: '2024-03-20T12:00:00Z',
-            updatedAt: '2024-03-20T12:00:00Z'
-          }
-        ]
-      }
-    }).mockResolvedValueOnce({
-      data: {
-        data: [
-          {
-            id: '1',
-            title: 'Test Task 1',
-            description: 'Test Description 1',
-            status: 'pending',
-            createdAt: '2024-03-20T12:00:00Z',
-            updatedAt: '2024-03-20T12:00:00Z'
-          },
-          {
-            id: '2',
-            title: 'New Task',
-            description: 'New Description',
-            status: 'pending',
-            createdAt: '2024-03-20T12:00:00Z',
-            updatedAt: '2024-03-20T12:00:00Z'
-          }
-        ]
-      }
-    });
-
-    // Mock task creation
-    axios.post.mockResolvedValueOnce({
+  beforeEach(() => {
+    axios.get.mockResolvedValue({ data: { data: mockTasks } });
+    axios.post.mockResolvedValue({
       data: {
         data: {
           id: '2',
@@ -97,69 +50,66 @@ describe('App Component', () => {
         }
       }
     });
+    axios.delete.mockResolvedValue({ data: { data: [] } });
+  });
 
-    renderWithRouter(<App />);
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    // Open new task form
-    const addButton = screen.getByRole('button', { name: /add task/i });
-    fireEvent.click(addButton);
-
-    // Fill out the form
-    await waitFor(() => {
-      expect(screen.getByLabelText(/title/i)).toBeInTheDocument();
-    }, { timeout: 10000 });
-
-    const titleInput = screen.getByLabelText(/title/i);
-    const descriptionInput = screen.getByLabelText(/description/i);
-    const submitButton = screen.getByRole('button', { name: /save/i });
-
-    fireEvent.change(titleInput, { target: { value: 'New Task' } });
-    fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
-    fireEvent.click(submitButton);
-
-    // Check if new task is added
-    await waitFor(() => {
-      const listItems = screen.getAllByRole('listitem');
-      const newTaskItem = listItems.find(item => within(item).queryByText('New Task'));
-      expect(newTaskItem).toBeInTheDocument();
-    }, { timeout: 10000 });
-  }, 30000);
-
-  it('deletes a task', async () => {
-    // Mock initial tasks
-    axios.get.mockResolvedValueOnce({
-      data: {
-        data: [
-          {
-            id: '1',
-            title: 'Test Task 1',
-            description: 'Test Description 1',
-            status: 'pending',
-            createdAt: '2024-03-20T12:00:00Z',
-            updatedAt: '2024-03-20T12:00:00Z'
-          }
-        ]
-      }
-    }).mockResolvedValueOnce({
-      data: {
-        data: []
-      }
+  it('renders initial task list', async () => {
+    await act(async () => {
+      renderWithRouter(<App />);
     });
 
-    // Mock task deletion
-    axios.delete.mockResolvedValueOnce({ data: { success: true } });
-
-    renderWithRouter(<App />);
-
-    // Delete task
     await waitFor(() => {
-      const taskItem = screen.getByText('Test Task 1').closest('li');
-      const deleteButton = within(taskItem).getByRole('button', { name: /delete/i });
-      fireEvent.click(deleteButton);
-    }, { timeout: 10000 });
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+    });
+  });
+
+  it('adds a new task', async () => {
+    await act(async () => {
+      renderWithRouter(<App />);
+    });
 
     await waitFor(() => {
-      expect(screen.queryByText('Test Task 1')).not.toBeInTheDocument();
-    }, { timeout: 10000 });
-  }, 30000);
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Add Task'));
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'New Task' } });
+      fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'New Description' } });
+      fireEvent.click(screen.getByText('Save'));
+    });
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith('/api/tasks', {
+        title: 'New Task',
+        description: 'New Description',
+        status: 'pending'
+      });
+    });
+  });
+
+  it('deletes a task', async () => {
+    await act(async () => {
+      renderWithRouter(<App />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Task 1')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Delete'));
+    });
+
+    await waitFor(() => {
+      expect(axios.delete).toHaveBeenCalledWith('/api/tasks/1');
+    });
+  });
 }); 

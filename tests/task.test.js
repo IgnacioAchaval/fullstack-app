@@ -2,8 +2,9 @@ const waitForBackend = require('./helpers/waitForBackend');
 
 Feature('Task API Integration Tests');
 
-Before(async () => {
+Before(async ({ I }) => {
   const backendUrl = process.env.APP_URL || 'http://localhost:3000';
+  console.log('Testing against backend URL:', backendUrl);
   await waitForBackend(30, 1000, backendUrl);
 });
 
@@ -15,11 +16,14 @@ Scenario('Create, read, update and delete a task', async ({ I }) => {
     status: 'pending'
   };
 
+  console.log('Sending POST request with data:', taskData);
   const response = await I.sendPostRequest('/api/tasks', taskData);
   I.seeResponseCodeIs(201);
   const taskId = response.data.id;
+  console.log('Created task with ID:', taskId);
 
   // Read the task
+  console.log('Sending GET request for task:', taskId);
   const getResponse = await I.sendGetRequest(`/api/tasks/${taskId}`);
   I.seeResponseCodeIs(200);
   I.seeResponseContainsJson({
@@ -37,6 +41,7 @@ Scenario('Create, read, update and delete a task', async ({ I }) => {
     status: 'completed'
   };
 
+  console.log('Sending PUT request to update task:', taskId);
   const updateResponse = await I.sendPutRequest(`/api/tasks/${taskId}`, updateData);
   I.seeResponseCodeIs(200);
   I.seeResponseContainsJson({
@@ -48,10 +53,12 @@ Scenario('Create, read, update and delete a task', async ({ I }) => {
   });
   
   // Delete the task
+  console.log('Sending DELETE request for task:', taskId);
   const deleteResponse = await I.sendDeleteRequest(`/api/tasks/${taskId}`);
   I.seeResponseCodeIs(204);
 
   // Verify task is deleted
+  console.log('Verifying task is deleted:', taskId);
   const getDeletedResponse = await I.sendGetRequest(`/api/tasks/${taskId}`);
   I.seeResponseCodeIs(404);
 }); 
