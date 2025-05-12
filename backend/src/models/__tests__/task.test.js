@@ -16,10 +16,10 @@ jest.mock('sequelize', () => {
   };
 });
 
-jest.mock('sequelize2', () => {
-  const mocked2 = {
-    UUID: 'UUID2',
-    UUIDV4: 'UUIDV42',
+jest.mock('sequelize', () => {
+  const mocked = {
+    UUID: 'UUID',
+    UUIDV4: 'UUIDV4',
     STRING: 'STRING2',
     TEXT: 'TEXT2',
     ENUM: jest.fn((...values) => ({ type: 'ENUM', values })),
@@ -27,7 +27,7 @@ jest.mock('sequelize2', () => {
   };
   
   return {
-    DataTypes2: mocked2
+    DataTypes2: mocked
   };
 });
 
