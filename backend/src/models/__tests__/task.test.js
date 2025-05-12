@@ -18,7 +18,7 @@ jest.mock('sequelize', () => {
 
 jest.mock('sequelize', () => {
   const mocked2 = {
-    UUID: 'UUID',
+    UUID2: 'UUID',
     UUIDV4: 'UUIDV4',
     STRING: 'STRING',
     TEXT: 'TEXT',
