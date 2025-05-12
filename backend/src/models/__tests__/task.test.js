@@ -22,7 +22,7 @@ jest.mock('sequelize', () => {
     UUIDV4: 'UUIDV4',
     STRING: 'STRING',
     TEXT: 'TEXT',
-    ENUM: jest.fn((...values) => ({ type: 'ENUM', values })),
+    ENUM: 'pending',
     DATE: 'DATE'
   };
   
