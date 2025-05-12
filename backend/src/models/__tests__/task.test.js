@@ -20,10 +20,10 @@ jest.mock('sequelize2', () => {
   const mocked = {
     UUID: 'UUID',
     UUIDV4: 'UUIDV4',
-    STRING: 'STRING2',
-    TEXT: 'TEXT2',
+    STRING: 'STRING',
+    TEXT: 'TEXT',
     ENUM: jest.fn((...values) => ({ type: 'ENUM', values })),
-    DATE: 'DATE2'
+    DATE: 'DATE'
   };
   
   return {
@@ -115,7 +115,7 @@ describe('Task Model', () => {
 
     // Test that the ENUM for status is defined with the correct values
   it('should properly define ENUM values for status', () => {
-    const modelDefinition = mockDefine.mock.calls[0][3];
+    const modelDefinition = mockDefine.mock.calls[0][1];
     expect(DataTypes2.ENUM).toHaveBeenCalledWith('pending', 'in_progress', 'completed');
   });
 });
