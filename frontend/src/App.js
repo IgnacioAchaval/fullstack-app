@@ -120,7 +120,7 @@ function App() {
     <Container maxWidth="md">
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          Task Manager2
+          Task Manager
         </Typography>
         <Button variant="contained" onClick={handleOpen} sx={{ mb: 2 }}>
           Add Task
