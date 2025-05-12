@@ -5,7 +5,7 @@ const { sequelize } = require('./models');
 const taskRoutes = require('./routes/tasks');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
@@ -29,40 +29,35 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: err.message || 'Something went wrong!' });
-});
+// Database connection retry mechanism
+const MAX_RETRIES = 5;
+const RETRY_INTERVAL = 5000; // 5 seconds
 
-// Start server
-async function startServer() {
+async function connectWithRetry(retries = MAX_RETRIES) {
   try {
-    console.log('Starting server...');
-    console.log('Database configuration:', {
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || 5432,
-      database: process.env.DB_NAME || 'taskmanager',
-      user: process.env.DB_USER || 'postgres'
-    });
-
     await sequelize.authenticate();
-    console.log('Database connection established successfully.');
+    console.log('Database connection has been established successfully.');
     
+    // Sync database models
     await sequelize.sync();
-    console.log('Database synchronized successfully.');
-
-    // Always start the server, even in test environment
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
+    console.log('Database models synchronized successfully.');
+    
+    // Start the server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    console.error('Unable to start server:', error);
-    process.exit(1);
+    if (retries > 0) {
+      console.log(`Database connection failed. Retrying in ${RETRY_INTERVAL/1000} seconds... (${retries} attempts remaining)`);
+      setTimeout(() => connectWithRetry(retries - 1), RETRY_INTERVAL);
+    } else {
+      console.error('Unable to connect to the database:', error);
+      process.exit(1);
+    }
   }
 }
 
-// Start the server
-startServer();
+// Start the application
+connectWithRetry();
 
 module.exports = app; 

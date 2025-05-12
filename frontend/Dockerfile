@@ -8,10 +8,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copy app source
+# Copy app source and env files
 COPY . .
 
-# Build the app
+# Build the app with production environment
+ENV NODE_ENV=production
 RUN npm run build
 
 # Production stage

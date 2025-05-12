@@ -137,8 +137,15 @@ jobs:
           APP_URL: http://${{ secrets.AWS_HOST }}
         run: |
           npm install --legacy-peer-deps
-          # Wait for backend to be ready
+          # Wait for backend to be ready with retries
           echo "Waiting for backend to be ready..."
-          npx wait-on -t 60000 http://${{ secrets.AWS_HOST }}/api/health
+          for i in {1..5}; do
+            if npx wait-on -t 30000 http://${{ secrets.AWS_HOST }}/health; then
+              echo "Backend is ready!"
+              break
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 10
+          done
           # Run tests
           npx codeceptjs run --steps --verbose
