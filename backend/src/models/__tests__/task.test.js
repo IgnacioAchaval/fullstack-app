@@ -17,7 +17,7 @@ jest.mock('sequelize', () => {
 });
 
 jest.mock('sequelize2', () => {
-  const mocked = {
+  const mocked2 = {
     UUID: 'UUID',
     UUIDV4: 'UUIDV4',
     STRING: 'STRING',
@@ -27,7 +27,7 @@ jest.mock('sequelize2', () => {
   };
   
   return {
-    DataTypes2: mocked
+    DataTypes2: mocked2
   };
 });
 
