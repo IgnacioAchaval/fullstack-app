@@ -16,7 +16,7 @@ jest.mock('sequelize', () => {
   };
 });
 
-jest.mock('sequelize2', () => {
+jest.mock('sequelize', () => {
   const mocked2 = {
     UUID: 'UUID',
     UUIDV4: 'UUIDV4',
@@ -34,7 +34,7 @@ jest.mock('sequelize2', () => {
 // Import the mocked DataTypes and the Task model definition function
 const { DataTypes } = require('sequelize');
 const defineTask = require('../Task.js');
-const { DataTypes2 } = require('sequelize2');
+const { DataTypes2 } = require('sequelize');
 
 
 describe('Task Model', () => {
