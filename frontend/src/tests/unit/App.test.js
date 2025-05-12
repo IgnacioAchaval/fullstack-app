@@ -5,10 +5,10 @@ import App from '../../App';
 import axios from 'axios';
 import { MemoryRouter } from 'react-router-dom';
 
-// Mock axios
+// Mock axios to intercept HTTP calls and return predefined responses
 jest.mock('axios');
 
-// Configure React Router future flags
+// Configure React Router future flags for testing
 const router = {
   future: {
     v7_startTransition: true,
@@ -17,6 +17,7 @@ const router = {
 };
 
 describe('App Component', () => {
+  // Sample mock tasks for testing
   const mockTasks = [
     {
       id: '1',
@@ -28,6 +29,7 @@ describe('App Component', () => {
     }
   ];
 
+  // Helper function to render the App component wrapped in MemoryRouter
   const renderWithRouter = (ui) => {
     return render(
       <MemoryRouter future={router.future}>
@@ -36,6 +38,7 @@ describe('App Component', () => {
     );
   };
 
+  // Setup mock responses for axios before each test
   beforeEach(() => {
     axios.get.mockResolvedValue({ data: { data: mockTasks } });
     axios.post.mockResolvedValue({
@@ -53,10 +56,12 @@ describe('App Component', () => {
     axios.delete.mockResolvedValue({ data: { data: [] } });
   });
 
+  // Clear all mocks after each test to avoid interference
   afterEach(() => {
     jest.clearAllMocks();
   });
 
+  // Test that the initial task list is rendered correctly
   it('renders initial task list', async () => {
     await act(async () => {
       renderWithRouter(<App />);
@@ -67,6 +72,7 @@ describe('App Component', () => {
     });
   });
 
+  // Test adding a new task
   it('adds a new task', async () => {
     await act(async () => {
       renderWithRouter(<App />);
@@ -95,6 +101,7 @@ describe('App Component', () => {
     });
   });
 
+  // Test deleting a task
   it('deletes a task', async () => {
     await act(async () => {
       renderWithRouter(<App />);

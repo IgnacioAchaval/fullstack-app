@@ -11,7 +11,7 @@ const dbConfig = {
   database: process.env.POSTGRES_DB || process.env.DB_NAME || 'taskmanager',
   username: process.env.POSTGRES_USER || process.env.DB_USER || 'postgres',
   password: process.env.POSTGRES_PASSWORD || process.env.DB_PASSWORD || 'postgres',
-  dialect: 'postgres',
+    dialect: 'postgres',
   logging: false
 };
 

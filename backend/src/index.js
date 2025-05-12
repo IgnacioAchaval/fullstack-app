@@ -41,7 +41,7 @@ async function connectWithRetry(retries = MAX_RETRIES) {
     // Sync database models
     await sequelize.sync();
     console.log('Database models synchronized successfully.');
-    
+
     // Start the server
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
@@ -52,9 +52,9 @@ async function connectWithRetry(retries = MAX_RETRIES) {
       setTimeout(() => connectWithRetry(retries - 1), RETRY_INTERVAL);
     } else {
       console.error('Unable to connect to the database:', error);
-      process.exit(1);
-    }
+    process.exit(1);
   }
+}
 }
 
 // Start the application
