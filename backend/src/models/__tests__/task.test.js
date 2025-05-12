@@ -27,21 +27,18 @@ jest.mock('sequelize', () => {
   };
   
   return {
-    DataTypes2: mocked
+    DataTypes: mocked
   };
 });
 
 // Import the mocked DataTypes and the Task model definition function
 const { DataTypes } = require('sequelize');
 const defineTask = require('../Task.js');
-const { DataTypes2 } = require('sequelize');
 
 
 describe('Task Model', () => {
   let sequelize;
-  let sequelize2;
   let mockDefine;
-  let mockDefine2;
 
   // Before each test, create a fake sequelize object with a mock 'define' function
   // and then call defineTask with it to record how the model is defined.
@@ -51,15 +48,6 @@ describe('Task Model', () => {
       define: mockDefine
     };
     defineTask(sequelize);
-    
-  });
-
-    beforeEach(() => {
-    mockDefine2 = jest.fn().mockReturnValue({});
-    sequelize = {
-      define: mockDefine2
-    };
-    defineTask(sequelize2);
     
   });
 
@@ -125,7 +113,7 @@ describe('Task Model', () => {
 
     // Test that the ENUM for status is defined with the correct values
   it('should properly define ENUM values for status', () => {
-    const modelDefinition = mockDefine.mock.calls[0][1];
-    expect(DataTypes2.ENUM).toHaveBeenCalledWith('pending', 'in_progress', 'completed');
+    const modelDefinition = mockDefine.mock.calls[0][2];
+    expect(DataTypes.ENUM).toHaveBeenCalledWith('pending', 'in_progress', 'completed');
   });
 });
