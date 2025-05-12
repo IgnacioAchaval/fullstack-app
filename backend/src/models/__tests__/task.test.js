@@ -114,6 +114,6 @@ describe('Task Model', () => {
     // Test that the ENUM for status is defined with the correct values
   it('should properly define ENUM values for status', () => {
     const modelDefinition = mockDefine.mock.calls[0][2];
-    expect(DataTypes.ENUM).toHaveBeenCalledWith('pending', 'completed');
+    expect(DataTypes.ENUM).toHaveBeenCalledWith('pending', 'in_progress', 'completed');
   });
 });
