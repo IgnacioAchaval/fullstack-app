@@ -6,8 +6,7 @@ Aplicación full-stack para gestión de tareas desarrollada con Node.js, React y
 
 - Gestión completa de tareas (CRUD)
 - Estados de tareas: pendiente, en progreso, completada
-- Filtrado y ordenamiento de tareas
-- Interfaz responsiva
+- Interfaz responsiva con Material-UI
 - Persistencia de datos con PostgreSQL
 - Tests automatizados (unitarios e integración)
 
@@ -15,23 +14,17 @@ Aplicación full-stack para gestión de tareas desarrollada con Node.js, React y
 
 ### Backend
 - Node.js con Express
-- TypeScript
-- PostgreSQL
+- PostgreSQL con Sequelize ORM
 - Jest para testing
 
 ### Frontend
-- React
-- Node.js
-- Express
-- PostgreSQL
-- Docker
-- Material-UI
-- Jest
+- React con Create React App
+- Material-UI para componentes
+- Jest y React Testing Library para testing
 
 ### DevOps
 - Docker y Docker Compose
 - GitHub Actions para CI/CD
-- Tests E2E con CodeceptJS
 
 ## Requisitos
 
@@ -71,83 +64,46 @@ docker compose up
 El proyecto utiliza GitHub Actions para automatización con el siguiente workflow:
 
 1. **Build y Test Unitarios**
-   ```yaml
    - Se ejecuta en cada push a main y pull requests
    - Instala dependencias (npm ci)
    - Ejecuta tests unitarios del backend y frontend
    - Genera reportes de cobertura
-   ```
 
 2. **Build de Imágenes Docker**
    - Construye imágenes Docker para backend y frontend
-   - Etiqueta imágenes con commit SHA
    - Publica imágenes en DockerHub
-   ```
 
 3. **Despliegue a AWS**
    - Despliega contenedores en AWS
    - Configura variables de entorno
    - Verifica el despliegue
-   ```
 
 4. **Tests de Integración**
-   - Ejecuta tests de integracion contra el entorno desplegado
+   - Ejecuta tests de integración contra el entorno desplegado
    - Verifica funcionalidades críticas
    - Genera reportes de tests
-   ```
-
-## Tests
-
-### Tests Unitarios
-```bash
-# Backend
-cd backend
-npm test
-
-# Frontend
-cd frontend
-npm test
-```
-
-Los tests unitarios del frontend verifican:
-- Renderizado inicial de la lista de tareas
-- Creación de nuevas tareas
-- Eliminación de tareas existentes
-- Interacciones del usuario con la interfaz
-
-### Tests de Integración
-```bash
-# Ejecutar tests de integración
-cd tests
-npm test
-```
-
-Los tests de integración verifican:
-- Operaciones CRUD completas a través de la API
-  - Creación de tareas (POST /api/tasks)
-  - Lectura de tareas (GET /api/tasks/:id)
-  - Actualización de tareas (PUT /api/tasks/:id)
-  - Eliminación de tareas (DELETE /api/tasks/:id)
-- Validación de respuestas HTTP (201, 200, 204, 404)
-- Manejo de errores y casos límite
-- Persistencia de datos en la base de datos
 
 ## Estructura del Proyecto
 
 ```
 .
 ├── backend/          # API Node.js
+│   ├── src/
+│   │   ├── models/      # Modelos de datos
+│   │   ├── routes/      # Rutas de la API
+│   │   ├── controllers/ # Controladores
+│   │   └── services/    # Lógica de negocio
 ├── frontend/         # Aplicación React
 │   ├── src/
-│   │   ├── components/    # Componentes reutilizables
-│   │   ├── pages/        # Vistas principales
-│   │   └── tests/        # Tests unitarios
+│   │   ├── tests/      # Tests unitarios
+│   │   └── App.js      # Componente principal
 ├── tests/           # Tests de integración
+├── docs/           # Documentación adicional
 ├── docker-compose.yml
 └── README.md
 ```
 
 ## Documentación Adicional
 
-- [Casos de Prueba](TEST_CASES.md)
-- [Walkthrough](WALKTHROUGH.md)
+- [Casos de Prueba](TEST_CASES.md) - Detalles de implementación de tests
+- [Walkthrough](WALKTHROUGH.md) - Guía de desarrollo y despliegue

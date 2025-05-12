@@ -1,122 +1,120 @@
-# Test Cases
+# Casos de Prueba
 
-## Tests Unitarios Frontend
+Este documento detalla la implementación de los tests en la aplicación de gestión de tareas.
 
-### 1. Renderizado Inicial
-- **Objetivo**: Verificar que la lista de tareas se renderiza correctamente
-- **Pasos**:
-  1. Montar el componente App
-  2. Esperar a que se carguen las tareas
-- **Resultado Esperado**: 
-  - Se muestra la lista de tareas inicial
-  - Se muestra el botón "Add Task"
+## Tests Unitarios
 
-### 2. Crear Nueva Tarea
-- **Objetivo**: Verificar la creación de una nueva tarea
-- **Pasos**:
-  1. Hacer clic en "Add Task"
-  2. Completar el formulario
-  3. Hacer clic en "Save"
-- **Resultado Esperado**: 
-  - La nueva tarea aparece en la lista
-  - El formulario se cierra
+### Backend
 
-### 3. Eliminar Tarea
-- **Objetivo**: Verificar la eliminación de una tarea
-- **Pasos**:
-  1. Localizar una tarea existente
-  2. Hacer clic en el botón de eliminar
-- **Resultado Esperado**: 
-  - La tarea desaparece de la lista
-  - Se muestra la lista actualizada
+#### Modelo Task
+1. **Schema de la Base de Datos**
+   - Verifica que el modelo Task tenga todos los campos requeridos
+   - Valida los tipos de datos de cada campo
+   - Comprueba las restricciones de los campos
 
-## Tests de Integración API
+2. **Campos Requeridos**
+   - Verifica que title sea requerido
+   - Verifica que status sea requerido
+   - Verifica que createdAt y updatedAt se generen automáticamente
 
-### 1. CRUD de Tareas
-- **Crear**: POST /api/tasks
-  - Debe crear una tarea con datos válidos
-  - Debe retornar 201 Created
-  - Debe retornar los datos de la tarea creada
+3. **Valores por Defecto**
+   - Verifica que status tenga valor por defecto 'pending'
+   - Verifica que description sea opcional
 
-- **Leer**: GET /api/tasks/:id
-  - Debe retornar una tarea con ID válido
-  - Debe retornar 200 OK
-  - Debe retornar 404 para ID no existente
+4. **UUID**
+   - Verifica que el campo id sea de tipo UUID
+   - Verifica que se genere automáticamente
 
-- **Actualizar**: PUT /api/tasks/:id
-  - Debe actualizar una tarea con datos válidos
-  - Debe retornar 200 OK
-  - Debe retornar los datos actualizados
+5. **Timestamps**
+   - Verifica que createdAt se genere al crear
+   - Verifica que updatedAt se actualice al modificar
 
-- **Eliminar**: DELETE /api/tasks/:id
-  - Debe eliminar una tarea con ID válido
-  - Debe retornar 204 No Content
-  - Debe retornar 404 para ID no existente
+6. **Status ENUM**
+   - Verifica que status solo acepte valores válidos
+   - Verifica que status tenga valor por defecto 'pending'
 
-## Validación de Datos
-- Verificar que no se pueden crear tareas sin título
-- Verificar que no se pueden crear tareas con datos inválidos
-- Verificar que no se pueden editar tareas con datos inválidos
+### Frontend
 
-## Manejo de Errores
-- Verificar respuestas HTTP apropiadas para errores
-- Verificar mensajes de error descriptivos
-- Verificar manejo de errores de red
+#### App Component
+1. **Renderizado Inicial**
+   - Verifica que se muestre la lista de tareas
+   - Verifica que se muestre el formulario de nueva tarea
+   - Verifica que se muestren los botones de acción
 
-# Casos de Prueba E2E
+2. **Creación de Tareas**
+   - Verifica que se pueda crear una nueva tarea
+   - Verifica que el formulario se limpie después de crear
+   - Verifica que la nueva tarea aparezca en la lista
 
-## Gestión de Tareas
+3. **Eliminación de Tareas**
+   - Verifica que se pueda eliminar una tarea existente
+   - Verifica que la tarea se quite de la lista
+   - Verifica que se muestre mensaje de confirmación
 
-### 1. Crear Tarea
-- **Objetivo**: Verificar la creación exitosa de una nueva tarea
-- **Pasos**:
-  1. Acceder a la página principal
-  2. Hacer clic en "Nueva Tarea"
-  3. Completar el formulario con:
-     - Título: "Tarea de prueba"
-     - Descripción: "Descripción de prueba"
-     - Fecha límite: fecha futura
-  4. Hacer clic en "Guardar"
-- **Resultado Esperado**: 
-  - La tarea aparece en la lista
-  - Estado inicial es "pendiente"
+## Tests de Integración
 
+### API Endpoints
 
-### 2. Eliminar Tarea
-- **Objetivo**: Verificar la eliminación de una tarea
-- **Pasos**:
-  1. Seleccionar una tarea
-  2. Hacer clic en "Eliminar"
-  3. Confirmar eliminación
-- **Resultado Esperado**: 
-  - La tarea desaparece de la lista
-  - Se muestra mensaje de confirmación
+1. **Crear Tarea (POST /api/tasks)**
+   - Verifica creación exitosa (201)
+   - Verifica que se requieran campos obligatorios
+   - Verifica que se validen los tipos de datos
+   - Verifica que se genere UUID
+   - Verifica que se generen timestamps
 
+2. **Obtener Tarea (GET /api/tasks/:id)**
+   - Verifica obtención exitosa (200)
+   - Verifica que se devuelvan todos los campos
+   - Verifica manejo de tarea no encontrada (404)
 
-### 6. Validaciones
-- **Objetivo**: Verificar las validaciones del formulario
-- **Pasos**:
-  1. Intentar crear tarea sin título
-- **Resultado Esperado**: 
-  - Se muestran mensajes de error apropiados
-  - No se permite guardar hasta corregir errores
+3. **Actualizar Tarea (PUT /api/tasks/:id)**
+   - Verifica actualización exitosa (200)
+   - Verifica que se actualicen solo los campos enviados
+   - Verifica que se actualice el timestamp
+   - Verifica manejo de tarea no encontrada (404)
 
-## Integración Backend-Frontend
+4. **Eliminar Tarea (DELETE /api/tasks/:id)**
+   - Verifica eliminación exitosa (204)
+   - Verifica que la tarea se elimine de la base de datos
+   - Verifica manejo de tarea no encontrada (404)
 
-### 7. Persistencia de Datos
-- **Objetivo**: Verificar la persistencia de datos
-- **Pasos**:
-  1. Crear una tarea
-  2. Recargar la página
-- **Resultado Esperado**: 
-  - La tarea persiste después de recargar
-  - Los datos se mantienen en la base de datos
+### Flujos Completos
 
-### 8. Manejo de Errores
-- **Objetivo**: Verificar el manejo de errores de red
-- **Pasos**:
-  1. Desconectar la red
-  2. Intentar realizar operaciones
-- **Resultado Esperado**: 
-  - Se muestran mensajes de error apropiados
-  - La aplicación no se rompe 
+1. **Ciclo CRUD Completo**
+   - Crea una nueva tarea
+   - Obtiene la tarea creada
+   - Actualiza la tarea
+   - Verifica los cambios
+   - Elimina la tarea
+   - Verifica que no exista
+
+2. **Manejo de Errores**
+   - Verifica validación de campos requeridos
+   - Verifica validación de tipos de datos
+   - Verifica manejo de IDs inválidos
+   - Verifica manejo de tareas no encontradas
+
+3. **Persistencia de Datos**
+   - Verifica que los datos persistan entre operaciones
+   - Verifica que los timestamps se actualicen correctamente
+   - Verifica que los estados se mantengan consistentes
+
+## Ejecución de Tests
+
+### Tests Unitarios
+```bash
+# Backend
+cd backend
+npm test
+
+# Frontend
+cd frontend
+npm test
+```
+
+### Tests de Integración
+```bash
+cd tests
+npm install
+npm test
+``` 

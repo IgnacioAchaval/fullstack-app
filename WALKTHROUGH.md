@@ -1,146 +1,171 @@
-# WALKTHROUGH
+# Walkthrough de la Aplicación
 
-## 1. Descripción General
+Este documento proporciona una guía paso a paso para el desarrollo y despliegue de la aplicación de gestión de tareas.
 
-Este proyecto es una **aplicación de gestión de tareas** (Task Manager) full-stack, desarrollada como trabajo práctico integrador. Cumple con los requisitos de tener un backend, un frontend, base de datos, tests automatizados, CI/CD y despliegue en contenedores.
-
----
-
-## 2. Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
-fullstack-app/
-├── backend/         # API REST Node.js/Express
-├── frontend/        # Aplicación React
+.
+├── backend/          # API Node.js
 │   ├── src/
-│   │   ├── components/    # Componentes reutilizables
-│   │   ├── pages/        # Vistas principales
-│   │   └── tests/        # Tests unitarios
-├── tests/           # Pruebas de integración (E2E)
+│   │   ├── models/      # Modelos de datos
+│   │   ├── routes/      # Rutas de la API
+│   │   ├── controllers/ # Controladores
+│   │   └── services/    # Lógica de negocio
+├── frontend/         # Aplicación React
+│   ├── src/
+│   │   ├── tests/      # Tests unitarios
+│   │   └── App.js      # Componente principal
+├── tests/           # Tests de integración
+├── docs/           # Documentación adicional
 ├── docker-compose.yml
-├── README.md
-└── ...otros archivos de configuración
+└── README.md
 ```
 
----
+## Configuración del Entorno
 
-## 3. Backend
+### Requisitos Previos
+- Node.js v18 o superior
+- Docker y Docker Compose
+- PostgreSQL (opcional para desarrollo local)
 
-- **Tecnologías:** Node.js, Express, TypeScript, Sequelize (ORM), PostgreSQL, Jest.
-- **Ubicación:** `/backend`
+### Variables de Entorno
 
-### Estructura principal:
-- `/src/models/`: Modelos de datos (por ejemplo, `Task.js` define la entidad Tarea con campos como id, título, descripción, estado, fecha límite).
-- `/src/controllers/`: Lógica para manejar las peticiones HTTP (crear, leer, actualizar, eliminar tareas).
-- `/src/routes/`: Define los endpoints de la API REST.
-- `/src/services/`: Lógica de negocio y conexión con la base de datos.
-- `/src/middleware/`: Funciones intermedias (validaciones, manejo de errores, etc).
-- `/src/tests/`: Pruebas unitarias y de integración del backend.
+#### Backend (.env)
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=taskmanager
+DB_USER=postgres
+DB_PASSWORD=postgres
+PORT=3001
+```
 
-### Principales endpoints:
-- `GET /api/tasks` - Listar tareas
-- `GET /api/tasks/:id` - Obtener tarea por ID
-- `POST /api/tasks` - Crear tarea
-- `PUT /api/tasks/:id` - Actualizar tarea
-- `DELETE /api/tasks/:id` - Eliminar tarea
+#### Frontend (.env)
+```
+REACT_APP_API_URL=http://localhost:3001
+```
 
----
+## Desarrollo Local
 
-## 4. Frontend
+### 1. Iniciar la Base de Datos
+```bash
+docker compose up db
+```
 
-- **Tecnologías:** React, JavaScript, Material-UI, Jest, React Testing Library.
-- **Ubicación:** `/frontend`
+### 2. Iniciar el Backend
+```bash
+cd backend
+npm install
+npm run dev
+```
 
-### Estructura principal:
-- `/src/components/`: Componentes reutilizables (formularios, listas, botones, etc).
-- `/src/pages/`: Vistas principales (listado de tareas, detalle, edición).
-- `/src/tests/`: Tests unitarios del frontend.
+### 3. Iniciar el Frontend
+```bash
+cd frontend
+npm install
+npm start
+```
 
-### Funcionalidades:
-- Crear, editar, eliminar y listar tareas.
-- Cambiar estado de las tareas (pendiente, en progreso, completada).
-- Filtrar y ordenar tareas.
-- Interfaz responsiva con Material-UI.
+## Despliegue
 
-### Tests Unitarios:
-- Renderizado inicial de componentes
-- Interacciones del usuario
-- Operaciones CRUD
-- Manejo de estados y efectos
+### 1. Construir Imágenes Docker
+```bash
+docker compose build
+```
 
----
+### 2. Desplegar con Docker Compose
+```bash
+docker compose up
+```
 
-## 5. Base de Datos
+## API Endpoints
 
-- **Tecnología:** PostgreSQL
-- **Gestión:** Sequelize ORM
-- **Modelo principal:** Tarea (`Task`) con campos:
-  - `id` (UUID)
-  - `title` (string, requerido)
-  - `description` (texto, opcional)
-  - `status` (enum: 'pending', 'in_progress', 'completed')
-  - `dueDate` (fecha, opcional)
-  - timestamps (creación/actualización)
+### Tareas
 
----
+#### Crear Tarea
+```http
+POST /api/tasks
+Content-Type: application/json
 
-## 6. Pruebas (Testing)
+{
+  "title": "Nueva tarea",
+  "description": "Descripción de la tarea",
+  "status": "pending"
+}
+```
 
-### Tests Unitarios
-- **Frontend:** Jest y React Testing Library
-  - Pruebas de componentes
-  - Pruebas de interacción
-  - Pruebas de estado
+#### Obtener Tarea
+```http
+GET /api/tasks/:id
+```
 
-- **Backend:** Jest
-  - Pruebas de controladores
-  - Pruebas de servicios
-  - Pruebas de modelos
+#### Actualizar Tarea
+```http
+PUT /api/tasks/:id
+Content-Type: application/json
 
-### Tests de Integración
-- **Tecnología:** CodeceptJS
-- **Ubicación:** `/tests`
-- **Cobertura:**
-  - Operaciones CRUD completas
-  - Validación de respuestas HTTP
-  - Manejo de errores
-  - Persistencia de datos
+{
+  "title": "Tarea actualizada",
+  "status": "in_progress"
+}
+```
 
----
+#### Eliminar Tarea
+```http
+DELETE /api/tasks/:id
+```
 
-## 7. DevOps y CI/CD
+## Flujo de Trabajo
 
-- **Contenedores:** Docker y Docker Compose para levantar backend, frontend y base de datos.
-- **Pipeline:** GitHub Actions automatiza:
-  - Instalación de dependencias
-  - Ejecución de tests unitarios y de integración
-  - Build de imágenes Docker y push a DockerHub
-  - Despliegue automático en AWS
-  - Ejecución de tests E2E sobre el entorno desplegado
+1. **Crear Tarea**
+   - Ingresar título (requerido)
+   - Ingresar descripción (opcional)
+   - Seleccionar estado (default: pending)
 
----
+2. **Gestionar Tarea**
+   - Ver detalles
+   - Actualizar estado
+   - Editar información
+   - Eliminar tarea
 
-## 8. Ejecución y Despliegue
+3. **Estados de Tarea**
+   - pending: Tarea pendiente
+   - in_progress: Tarea en progreso
+   - completed: Tarea completada
 
-- **Desarrollo local:**  
-  ```bash
-  docker compose up --build
-  ```
-- **Producción (AWS):**
-  - Se usan imágenes Docker publicadas en DockerHub.
-  - El pipeline automatiza el despliegue y testing.
+## Troubleshooting
 
----
+### Problemas Comunes
 
-## 9. Documentación y Casos de Prueba
+1. **Error de Conexión a la Base de Datos**
+   - Verificar variables de entorno
+   - Comprobar que PostgreSQL esté corriendo
+   - Verificar credenciales
 
-- **README.md:** Explica instalación, ejecución, estructura y pipeline.
-- **TEST_CASES.md:** Enumera los casos de prueba unitarios y de integración.
-- **WALKTHROUGH.md:** Guía detallada de la arquitectura y componentes.
+2. **Error en el Frontend**
+   - Verificar REACT_APP_API_URL
+   - Comprobar que el backend esté corriendo
+   - Revisar la consola del navegador
 
----
+3. **Error en los Tests**
+   - Verificar que la base de datos de test esté limpia
+   - Comprobar variables de entorno de test
+   - Revisar logs de test
 
-## 10. Mejoras y Extensiones
+## Mejores Prácticas
 
-- El proyecto está preparado para agregar autenticación, notificaciones, métricas, etc.
-- El código es modular y fácil de mantener.
+1. **Desarrollo**
+   - Seguir el patrón de commits convencionales
+   - Mantener los tests actualizados
+   - Documentar cambios significativos
+
+2. **Testing**
+   - Ejecutar tests antes de cada commit
+   - Mantener cobertura de código alta
+   - Verificar tests de integración
+
+3. **Despliegue**
+   - Verificar variables de entorno
+   - Comprobar logs después del despliegue
+   - Monitorear el estado de la aplicación
